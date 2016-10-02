@@ -1,0 +1,336 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>export - jake</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 1200px;
+		height: 1200px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_nite.js"></script>
+<!--
+<script type="text/javascript" src="js/Genesis.js"></script>
+<script type="text/javascript" src="js/GenesisPanelSet.js"></script>
+-->
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelRow.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+
+
+
+	/**
+	 * Shapes override
+	 */
+
+	var shapes = {
+
+		Backdrop: function (bounds) {
+			bounds = bounds || paper.view.bounds;
+			var backdrop = new paper.Path.Rectangle(bounds);
+			backdrop.fillColor = 'black';
+			return backdrop;
+		},
+
+		Panel: function (origin, size) {
+			var rect = new paper.Rectangle(origin, size);
+			var panel = new paper.Path.Rectangle(rect);
+			panel.strokeColor = 'white';
+			panel.strokeWidth = 1;
+			panel.opacity = 0.2;
+			return panel;
+		},
+
+		Circle: function (center, radius) {
+			return new paper.Path.Circle({
+				center: center,
+				radius: radius,
+				strokeCap: 'round',
+				strokeColor: '#521',
+				strokeWidth: 1.5
+			});
+		},
+
+		Seed: function (center, radius) {
+			var seed = new shapes.Circle(center, radius);
+			seed.strokeColor = 'white';
+			return seed;
+		},
+
+		Line: function (from, to) {
+			return new paper.Path.Line({
+				from: from,
+				to: to,
+				strokeCap: 'round',
+				strokeColor: 'white',
+				strokeWidth: 4,
+				opacity: 1
+			});
+		},
+
+		Dot: function (point, color) {
+			color = color || 'white';
+			var dot = new shapes.Circle(point, 2);
+			dot.strokeColor = color;
+			dot.opacity = 0.67;
+			return dot;
+		}
+
+	};
+
+
+	/**
+	 * Roundish override
+	 */
+	util.roundish = function (number, precision) {
+		precision = precision || 10;
+		return Math.round(number * precision) / precision;
+	}; 
+
+
+
+
+
+
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+var backdrop = new shapes.Backdrop();
+
+
+
+
+	var genesis = new GenesisPanel(
+		7,
+		200,
+		new paper.Point(0, 0),
+		new paper.Size(1200, 1200)
+	);
+	genesis.extend(GenesisLines);
+	genesis.drawAllLines('in');
+	genesis.hideAllLines();
+	genesis.showLinesByLength('radius');
+
+	genesis.hideCircles();
+
+	
+
+/*
+var genesis;
+
+genesis = new GenesisPanel(
+	7,
+	72,
+	new paper.Point(0, 450),
+	new paper.Size(300, 300)
+);
+genesis.extend(GenesisLines);
+genesis.drawAllLines('in');
+genesis.hideCircles();
+genesis.panel.visible = false;
+
+genesis = new GenesisPanel(
+	7,
+	72,
+	new paper.Point(300, 450),
+	new paper.Size(300, 300)
+);
+genesis.extend(GenesisLines);
+genesis.drawAllLines('in');
+genesis.hideAllLines();
+genesis.showLinesByLength('radius');
+genesis.hideCircles();
+genesis.panel.visible = false;
+
+genesis = new GenesisPanel(
+	7,
+	72,
+	new paper.Point(600, 450),
+	new paper.Size(300, 300)
+);
+genesis.extend(GenesisLines);
+genesis.drawAllLines('in');
+genesis.hideAllLines();
+genesis.showLinesByLength('vesica');
+genesis.hideCircles();
+genesis.panel.visible = false;
+
+genesis = new GenesisPanel(
+	7,
+	72,
+	new paper.Point(900, 450),
+	new paper.Size(300, 300)
+);
+genesis.extend(GenesisLines);
+genesis.drawAllLines('in');
+genesis.hideAllLines();
+genesis.showLinesByLength('strange');
+genesis.hideCircles();
+genesis.panel.visible = false;
+*/
+
+
+	// genesis set command sequences
+	var argsLists = [
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['on']],
+			['hideAllLines'],
+			['showLinesByLength', ['radius']],
+			['showLinesByLength', ['vesica']],
+			['showLinesByLength', ['strange']]
+		]
+	];
+
+
+
+	/**
+	 * Configuration
+	 */
+	
+	/*var config = (function () {
+		var set = {
+			direction: 'right',
+			originX: 20,
+			originY: 20,
+			width: 1200,
+			height: 170,
+			padding: 10
+		};
+		var panel = {
+			radius: 14,
+			width: util.roundish((set.width - (set.padding * 6)) / 7),
+			height: set.height
+		};
+		return {
+			set: set,
+			panel: panel
+		};
+	})();*/
+
+
+	/**
+	 * Construction
+	 */
+
+	/*function makeRows(config, argsLists, setCallback) {
+		argsLists.forEach(function (argsList, index) {
+			config = Object.create(config);
+			config.originY += index * (config.height + config.padding);
+			var set = new GenesisPanelSet(config);
+			argsList.forEach(function (args) {
+				set.applyForEach.apply(set, args);
+			});
+			if (setCallback) rowCallback(set);
+		});
+	}*/
+
+
+
+	/**
+	 * Execution
+	 */
+	
+	/*makeRows(config, argsLists);
+	
+	config.originX += config.set.padding;
+	config.originX += config.set.width;
+	config.originX += config.set.padding * 2;
+	
+	makeSets(config, argsLists, function (set) {
+		set.geneses.forEach(function (genesis) {
+			genesis.circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+			genesis.lines.byLength.other.forEach(function (line) {
+				line.visible = true;
+			});
+		});
+	});*/
+
+
+
+	
+	// (function () {
+		
+	// 	var config = {
+	// 		width: 1000,
+	// 		height: 170,
+	// 		radius: 24,
+	// 		padding: 10,
+	// 		originX: 20,
+	// 		originY: 20
+	// 	};
+		
+	// 	argsLists.forEach(function (argsList, index) {
+	// 		var settings = Object.create(config);
+	// 		settings.originY += index * (settings.height + settings.padding);
+	// 		var row = new GenesisPanelRow(settings);
+	// 		argsList.forEach(function (args) {
+	// 			row.applyForEach.apply(row, args);
+	// 		});
+	// 	});
+
+	// })();
+
+	// (function () {
+
+	// 	var config = {
+	// 		width: 1000,
+	// 		height: 170,
+	// 		radius: 24,
+	// 		padding: 10,
+	// 		originX: 1060,
+	// 		originY: 20
+	// 	};
+
+	// 	argsLists.forEach(function (argsList, index) {
+	// 		var settings = Object.create(config);
+	// 		settings.originY += index * (settings.height + settings.padding);
+	// 		var row = new GenesisPanelRow(settings);
+	// 		argsList.forEach(function (args) {
+	// 			row.applyForEach.apply(row, args);
+	// 		});
+	// 		row.geneses.forEach(function (genesis) {
+	// 			genesis.circles.forEach(function (circle) {
+	// 				circle.visible = false;
+	// 			});
+	// 		});
+	// 	});
+
+	// })();
+
+
+
+	/**
+	 * Paper draw
+	 */
+
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

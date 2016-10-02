@@ -1,0 +1,158 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>dodeca</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: rgb(244, 242, 243);
+		color: rgb(20, 20, 20);
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript" src="../../../../js/three.min.js"></script>
+<script type="text/javascript" src="../../../../js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript" src="../../../../js/examples/controls/TrackballControls.js"></script>
+<script type="text/javascript" src="polyhedra.js"></script>
+<script type="text/javascript" src="platonics.js"></script>
+<script type="text/javascript" src="setup.js"></script>
+<script type="text/javascript">
+
+
+	// new Dodeca({
+	// 	length: 6,
+	// 	faces: false,
+	// 	edges: 0, // false, true, specific length index
+	// 	colorEdgeLengths: false
+	// });
+
+
+	// find properties
+	var length = 6;
+	var center = new THREE.Vector3(0, 0, 0);
+	var radius = Math.sqrt(((length / 2) * (length / 2)) / 2);
+
+	// find points
+	var points = [];
+
+	// golden lengths
+	var one = 1 * length;
+	var phi = 1.618 * length;
+	var shorter = one / 2;
+	var longer = (phi + one) / 2;
+	var halfphi = phi / 2;
+
+	// x rectangle
+	points = [];
+	points.push(new THREE.Vector3(
+		center.x + longer,
+		center.y + shorter,
+		center.z + 0));
+	points.push(new THREE.Vector3(
+		center.x + longer,
+		center.y - shorter,
+		center.z + 0));
+	points.push(new THREE.Vector3(
+		center.x - longer,
+		center.y - shorter,
+		center.z + 0));
+	points.push(new THREE.Vector3(
+		center.x - longer,
+		center.y + shorter,
+		center.z + 0));
+	new Polyhedra(points);
+
+	// y rectangle
+	points = [];
+	points.push(new THREE.Vector3(
+		center.x + 0,
+		center.y + longer,
+		center.z + shorter));
+	points.push(new THREE.Vector3(
+		center.x + 0,
+		center.y + longer,
+		center.z - shorter));
+	points.push(new THREE.Vector3(
+		center.x + 0,
+		center.y - longer,
+		center.z - shorter));
+	points.push(new THREE.Vector3(
+		center.x + 0,
+		center.y - longer,
+		center.z + shorter));
+	new Polyhedra(points);
+
+	// z rectangle
+	points = [];
+	points.push(new THREE.Vector3(
+		center.x + shorter,
+		center.y + 0,
+		center.z + longer));
+	points.push(new THREE.Vector3(
+		center.x - shorter,
+		center.y + 0,
+		center.z + longer));
+	points.push(new THREE.Vector3(
+		center.x - shorter,
+		center.y + 0,
+		center.z - longer));
+	points.push(new THREE.Vector3(
+		center.x + shorter,
+		center.y + 0,
+		center.z - longer));
+	new Polyhedra(points);
+
+	// phi cube
+	points = [];
+	points.push(new THREE.Vector3(
+		center.x + halfphi,
+		center.y + halfphi,
+		center.z + halfphi));
+	points.push(new THREE.Vector3(
+		center.x - halfphi,
+		center.y + halfphi,
+		center.z + halfphi));
+	points.push(new THREE.Vector3(
+		center.x + halfphi,
+		center.y - halfphi,
+		center.z + halfphi));
+	points.push(new THREE.Vector3(
+		center.x + halfphi,
+		center.y + halfphi,
+		center.z - halfphi));
+	points.push(new THREE.Vector3(
+		center.x - halfphi,
+		center.y - halfphi,
+		center.z + halfphi));
+	points.push(new THREE.Vector3(
+		center.x - halfphi,
+		center.y + halfphi,
+		center.z - halfphi));
+	points.push(new THREE.Vector3(
+		center.x + halfphi,
+		center.y - halfphi,
+		center.z - halfphi));
+	points.push(new THREE.Vector3(
+		center.x - halfphi,
+		center.y - halfphi,
+		center.z - halfphi));
+	new Polyhedra(points, {
+		faceSideCountByLengthIndex: {
+			"0": 4
+		}
+	});
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>g 1</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+<script src="lib/lodash.min.js"></script>
+<script src="shared/Maths.js"></script>
+<script src="shared/Vector.js"></script>
+<script src="shared/Gravity.js"></script>
+<script src="shared/Body.js"></script>
+<script>
+
+    // experiments following Nature of Code book
+    // http://natureofcode.com/book/chapter-2-forces/
+
+    var hash = (
+        window.location.hash.length ?
+            Number(window.location.hash.slice(1)) :
+            NaN
+    );
+
+    var count = isNaN(hash) ? 16 : hash;
+
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    var canvasEl = document.createElement('canvas');
+    var context = canvasEl.getContext('2d');
+    canvasEl.width = width;
+    canvasEl.height = height;
+    canvasEl.style.position = 'absolute';
+    canvasEl.style.top = 0;
+    canvasEl.style.left = 0;
+    document.body.appendChild(canvasEl);
+
+    var gravity = new Gravity({gravitation: 1/6});
+
+    var bodies = _.times(count, function () {
+        return new Body({
+            dimensions: 2,
+            mass: Maths.random(1, 80),
+            location: new Vector([
+                Maths.random(0, width),
+                Maths.random(0, height),
+            ]),
+        });
+    });
+
+    function update() {
+        // apply forces to each body
+        _.each(bodies, function (bodyA) {
+            _.each(bodies, function (bodyB) {
+                if (bodyA === bodyB) return;
+                var force = gravity.attract(bodyA, bodyB);
+                bodyA.applyForce(force);
+            });
+            bodyA.update();
+        });
+        // re-center body group w/in screen
+        var center = new Vector([width / 2, height / 2]);
+        var centroid = _.reduce(bodies, function (centroid, body) {
+            return centroid.merge(body.location, function (n1, n2) {
+                return n1 + n2 / bodies.length;
+            });
+        }, new Vector(2));
+        _.each(bodies, function (body) {
+            body.location.subtract(centroid).add(center);
+        });
+    }
+
+    function render() {
+        context.clearRect(0, 0, width, height);
+        context.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        context.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        _.each(bodies, function (body) {
+            var x = body.location.tuple[0];
+            var y = body.location.tuple[1];
+            var r = body.mass / 2;
+            context.beginPath();
+            context.arc(x, y, r, 0, Math.PI * 2);
+            context.fill();
+            context.stroke();
+        });
+    }
+
+    function animate() {
+        update();
+        render();
+        window.requestAnimationFrame(animate);
+    }
+
+    animate();
+
+</script>
+</body>
+</html>

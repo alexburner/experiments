@@ -1,0 +1,351 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - facets</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 4960px;
+		height: 14000px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_mono.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelRow.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+	new shapes.Backdrop();
+
+
+
+
+	/**
+	 * Playtime
+	 */
+	
+	(function () {
+		for (var i = 0, l = 30; i < l; i++) {
+			var set = new GenesisPanelRow({
+				width: 2400,
+				height: 400,
+				radius: 56,
+				padding: 20,
+				originX: 20,
+				originY: 20 + (i * 420)
+			});
+			switch (i) {
+				case 1:
+					set.doMethod('markPoints');
+					break;
+				case 2:
+					set.doMethod('findFacets');
+					set.doMethod('markFacets');
+					set.doMethod('markPoints');
+					break;
+				case 3:
+					set.doMethod('findFacets');
+					set.doMethod('markFacets');
+					break;
+				case 4:
+					set.doMethod('findFacets');
+					set.doMethod('markVesicas');
+					break;
+				case 5:
+					set.doMethod('findFacets');
+					set.doMethod('markTrebles');
+					break;
+				case 6:
+					set.doMethod('findFacets');
+					set.doMethod('markPetals');
+					break;
+				case 7:
+					set.doMethod('findFacets');
+					set.doMethod('markVesicas');
+					set.doMethod('drawVesicaSeeds');
+					break;
+				case 8:
+					set.doMethod('findFacets');
+					set.doMethod('markTrebles');
+					set.doMethod('drawTrebleSeeds');
+					break;
+				case 9:
+					set.doMethod('findFacets');
+					set.doMethod('markPetals');
+					set.doMethod('drawPetalSeeds');
+					break;
+				case 10:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds');
+					break;
+				case 11:
+					set.doMethod('findFacets');
+					set.doMethod('drawTrebleSeeds');
+					break;
+				case 12:
+					set.doMethod('findFacets');
+					set.doMethod('drawPetalSeeds');
+					break;
+				case 13:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds');
+					set.doMethod('drawTrebleSeeds');
+					set.doMethod('drawPetalSeeds');
+					break;
+				case 14:
+					set.doMethod('findFacets');
+					set.doMethod('drawTrebleSeeds');
+					set.doMethod('drawPetalSeeds');
+					break;
+				case 15:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds');
+					set.doMethod('drawTrebleSeeds');
+					break;
+				case 16:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds_inCenter');
+					break;
+				case 17:
+					set.doMethod('findFacets');
+					set.doMethod('drawTrebleSeeds_inCenter');
+					break;
+				case 18:
+					set.doMethod('findFacets');
+					set.doMethod('drawPetalSeeds_inCenter');
+					break;
+				case 19:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds');
+					set.doMethod('drawVesicaSeeds_inCenter');
+					break;
+				case 20:
+					set.doMethod('findFacets');
+					set.doMethod('drawTrebleSeeds');
+					set.doMethod('drawTrebleSeeds_inCenter');
+					break;
+				case 21:
+					set.doMethod('findFacets');
+					set.doMethod('drawPetalSeeds');
+					set.doMethod('drawPetalSeeds_inCenter');
+					break;
+				case 22:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds_inCenter');
+					set.doMethod('drawTrebleSeeds_inCenter');
+					set.doMethod('drawPetalSeeds_inCenter');
+					break;
+				case 23:
+					set.doMethod('findFacets');
+					set.doMethod('drawTrebleSeeds_inCenter');
+					set.doMethod('drawPetalSeeds_inCenter');
+					break;
+				case 24:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds');
+					set.doMethod('drawTrebleSeeds');
+					set.doMethod('drawPetalSeeds');
+					set.doMethod('drawVesicaSeeds_inCenter');
+					set.doMethod('drawTrebleSeeds_inCenter');
+					set.doMethod('drawPetalSeeds_inCenter');
+					break;
+				case 25:
+					set.doMethod('findFacets');
+					set.doMethod('drawTrebleSeeds');
+					set.doMethod('drawPetalSeeds');
+					set.doMethod('drawTrebleSeeds_inCenter');
+					set.doMethod('drawPetalSeeds_inCenter');
+					break;
+			}
+		}
+	})();
+
+	(function () {
+		for (var i = 0, l = 30; i < l; i++) {
+			var set = new GenesisPanelRow({
+				width: 2400,
+				height: 400,
+				radius: 56,
+				padding: 20,
+				originX: 2460,
+				originY: 20 + (i * 420)
+			});
+			switch (i) {
+				case 1:
+					set.doMethod('markPoints');
+					break;
+				case 2:
+					set.doMethod('findFacets');
+					set.doMethod('markFacets');
+					set.doMethod('markPoints');
+					break;
+				case 3:
+					set.doMethod('findFacets');
+					set.doMethod('markFacets');
+					break;
+				case 4:
+					set.doMethod('findFacets');
+					set.doMethod('markVesicas');
+					break;
+				case 5:
+					set.doMethod('findFacets');
+					set.doMethod('markTrebles');
+					break;
+				case 6:
+					set.doMethod('findFacets');
+					set.doMethod('markPetals');
+					break;
+				case 7:
+					set.doMethod('findFacets');
+					set.doMethod('markVesicas');
+					set.doMethod('drawVesicaSeeds');
+					break;
+				case 8:
+					set.doMethod('findFacets');
+					set.doMethod('markTrebles');
+					set.doMethod('drawTrebleSeeds');
+					break;
+				case 9:
+					set.doMethod('findFacets');
+					set.doMethod('markPetals');
+					set.doMethod('drawPetalSeeds');
+					break;
+				case 10:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds');
+					break;
+				case 11:
+					set.doMethod('findFacets');
+					set.doMethod('drawTrebleSeeds');
+					break;
+				case 12:
+					set.doMethod('findFacets');
+					set.doMethod('drawPetalSeeds');
+					break;
+				case 13:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds');
+					set.doMethod('drawTrebleSeeds');
+					set.doMethod('drawPetalSeeds');
+					break;
+				case 14:
+					set.doMethod('findFacets');
+					set.doMethod('drawTrebleSeeds');
+					set.doMethod('drawPetalSeeds');
+					break;
+				case 15:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds');
+					set.doMethod('drawTrebleSeeds');
+					break;
+				case 16:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds_inCenter');
+					break;
+				case 17:
+					set.doMethod('findFacets');
+					set.doMethod('drawTrebleSeeds_inCenter');
+					break;
+				case 18:
+					set.doMethod('findFacets');
+					set.doMethod('drawPetalSeeds_inCenter');
+					break;
+				case 19:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds');
+					set.doMethod('drawVesicaSeeds_inCenter');
+					break;
+				case 20:
+					set.doMethod('findFacets');
+					set.doMethod('drawTrebleSeeds');
+					set.doMethod('drawTrebleSeeds_inCenter');
+					break;
+				case 21:
+					set.doMethod('findFacets');
+					set.doMethod('drawPetalSeeds');
+					set.doMethod('drawPetalSeeds_inCenter');
+					break;
+				case 22:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds_inCenter');
+					set.doMethod('drawTrebleSeeds_inCenter');
+					set.doMethod('drawPetalSeeds_inCenter');
+					break;
+				case 23:
+					set.doMethod('findFacets');
+					set.doMethod('drawTrebleSeeds_inCenter');
+					set.doMethod('drawPetalSeeds_inCenter');
+					break;
+				case 24:
+					set.doMethod('findFacets');
+					set.doMethod('drawVesicaSeeds');
+					set.doMethod('drawTrebleSeeds');
+					set.doMethod('drawPetalSeeds');
+					set.doMethod('drawVesicaSeeds_inCenter');
+					set.doMethod('drawTrebleSeeds_inCenter');
+					set.doMethod('drawPetalSeeds_inCenter');
+					break;
+				case 25:
+					set.doMethod('findFacets');
+					set.doMethod('drawTrebleSeeds');
+					set.doMethod('drawPetalSeeds');
+					set.doMethod('drawTrebleSeeds_inCenter');
+					set.doMethod('drawPetalSeeds_inCenter');
+					break;
+			}
+			set.geneses.forEach(function (genesis) {
+				genesis.circles.forEach(function (circle) {
+					circle.visible = false;
+				});
+			});
+		}
+	})();
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

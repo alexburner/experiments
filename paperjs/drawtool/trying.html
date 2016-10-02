@@ -1,0 +1,546 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>euclid</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 2000px;
+		height: 2000px;
+		cursor: none;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.18.js"></script>
+<script type="text/javascript">
+
+
+	/**
+	 * Euclidean Tools
+	 * 
+	 * The straightedge and the compass. 
+	 * 
+	 * The name is due to the fact that connecting points 
+	 * with segments, prolonging segments and drawing circles 
+	 * with a given center and a given radius are the basic 
+	 * geometric constructions described in the first three 
+	 * Euclidean postulates.
+	 *
+	 * http://mathworld.wolfram.com/EuclideanTools.html
+	 */
+
+
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+
+
+	function roundish(number, precision) {
+		precision = precision || 1000;
+		return Math.round(number * precision) / precision;
+	}
+
+
+
+
+	var items = (function () {
+		var pointExists = {};
+		var points = [];
+		var doneItems = [];
+		var undoneItems = [];
+		var group = new paper.Group();
+		function findNewPoints(item) {
+			if (item.data.type === 'circle') addPoint(item.position);
+			doneItems.forEach(function (doneItem) {
+				findItemIntersectionPoints(item, doneItem);
+			});
+			/*
+			switch (item.data.type) {
+				case 'circle':
+					circleFindNewPoints(item);
+					break;
+				case 'line':
+					lineFindNewPoints(item);
+					break;
+			}
+			*/
+		}
+		function circleFindNewPoints(circle) {
+			addPoint(circle.position);
+			doneItems.forEach(function (item) {
+				if (item.data.type === 'circle') {
+					findCircleIntersectionPoints(circle, item);
+				} else {
+					findItemIntersectionPoints(circle, item);
+				}
+			});
+		}
+		function lineFindNewPoints(line) {
+			doneItems.forEach(function (item) {
+				findItemIntersectionPoints(line, item);
+			});
+		}
+		function findItemIntersectionPoints(itemA, itemB) {
+			var intersections = itemA.getIntersections(itemB);
+			intersections.forEach(function (intersection) {
+				addPoint(intersection.point);
+			});
+		}
+		function findCircleIntersectionPoints(circleA, circleB) {
+
+			// TODO dang, util? SIZES?
+
+			var centerA = circleA.position;
+			var centerB = circleB.position;
+			var vector = centerA.subtract(centerB);
+			vector.length = util.roundish(vector.length);
+			if (vector.length === SIZES.DIAMETER) {
+				// kissing circles
+				pointSet.add(new Point(
+					util.getCentroid([pointA, pointB])
+				));
+			} else if (vector.length < SIZES.DIAMETER) {
+				// overlapping circles
+				var intersections = circleA.findIntersections(circleB);
+				pointSet.addAll(intersections.map(function (intersection) {
+					return intersection.point;
+				}));
+			}
+		}
+		function findAllPoints() {
+			var pointExists = {};
+			var points = [];
+
+			// TODO
+			// for when something "undone"
+			// need refind all points yikes
+
+		}
+		function addPoint(point) {
+			point = roundPoint(point);
+			pointStr = point.toString();
+			if (!pointExists[pointStr]) {
+				pointExists[pointStr] = true;
+				points.push(point);
+			}
+		}
+		function roundPoint(point) {
+			point.x = roundish(point.x);
+			point.y = roundish(point.y);
+			return point;
+		}
+		return {
+			add: function (item) {
+				findNewPoints(item);
+				doneItems.push(item);
+				group.addChild(item);
+
+				console.log(items.count());
+
+				// TODO WARN NOTE where put this?
+				if (items.count() > 1) {
+					menu.enable();
+				}
+			},
+			get: function (index) {
+				return doneItems[index];
+			},
+			count: function () {
+				return doneItems.length;
+			},
+			undo: function () {
+				if (!doneItems.length) return;
+				var item = doneItems.pop();
+				undoneItems.push(item);
+				item.remove();
+
+				// TODO WARN NOTE where put this?
+				if (items.count() <= 1) {
+					menu.disable();
+				}
+			},
+			redo: function () {
+				if (!undoneItems.length) return;
+				var item = undoneItems.pop();
+				doneItems.push(item);
+				paper.project.activeLayer.addChild(item);
+				group.addChild(item);
+
+				// TODO WARN NOTE where put this?
+				if (items.count() > 1) {
+					menu.enable();
+				}
+			},
+			getPointNearItem: function (item) {
+				var nearPoint;
+				points.some(function (point) {
+					var hitResult = item.hitTest(point, {
+						tolerance: 5,
+						stroke: true
+					});
+					if (hitResult) {
+						nearPoint = point;
+						return true;
+					}
+				});
+				return nearPoint;
+			},
+			getPointNearPoint: function (point) {
+				var nearPoint;
+				points.some(function (otherPoint) {
+					var vector = point.subtract(otherPoint);
+					if (vector.length < 5) {
+						nearPoint = otherPoint;
+						return true;
+					}
+				});
+				return nearPoint;
+			},
+			getItems: function () {
+				return doneItems;
+			},
+			getGroup: function () {
+				return group;
+			}
+		};
+	})();
+
+
+	var cursors = (function () {
+		
+		// config
+		var radius = 6;
+		var color = 'black';
+		var thickness = 1.2;
+		var opacity = 0.8;
+		
+		// cursor for circles
+		function CircleCursor(point) {
+			point = point || new paper.Point(-radius, -radius);
+			var circle = new paper.Path.Circle({
+				center: new paper.Point(0, 0),
+				radius: radius,
+				strokeColor: color,
+				strokeWidth: thickness,
+				opacity: opacity
+			});
+			var dot = new paper.Path.Circle({
+				center: new paper.Point(0, 0),
+				radius: 1,
+				fillColor: color,
+				opacity: opacity
+			});
+			var group = new paper.Group();
+			group.addChildren([circle, dot]);
+			group.data.type = 'circle';
+			group.position = point;
+			return group;
+		}
+		
+		// cursor for lines
+		function LineCursor(point) {
+			point = point || new paper.Point(-radius, -radius);
+			var x = Math.sqrt(Math.pow(2 * radius, 2) / 2);
+			var halfx = x / 2;
+			var line1 = new paper.Path.Line({
+				from: new paper.Point(-halfx, -halfx),
+				to: new paper.Point(halfx, halfx),
+				strokeCap: 'round',
+				strokeColor: color,
+				strokeWidth: thickness,
+				opacity: opacity
+			});
+			var line2 = new paper.Path.Line({
+				from: new paper.Point(-halfx, halfx),
+				to: new paper.Point(halfx, -halfx),
+				strokeCap: 'round',
+				strokeColor: color,
+				strokeWidth: thickness,
+				opacity: opacity
+			});
+			var group = new paper.Group();
+			group.addChildren([line1, line2]);
+			group.data.type = 'line';
+			group.position = point;
+			return group;
+		}
+
+		// interface
+		return {
+			C: CircleCursor,
+			L: LineCursor
+		};
+
+	})();
+
+
+	var cursor = (function () {
+		var cCursor = new cursors.C();
+		var lCursor = new cursors.L();
+		return {
+			current: cCursor,
+			setCurrent: function (type, point) {
+				if (type === cursor.current.data.type) return;
+				switch (type) {
+					case 'circle':
+						cCursor.position = point;
+						cursor.current = cCursor;
+						lCursor.visible = false;
+						cCursor.visible = true;
+						break;
+					case 'line':
+						lCursor.position = point;
+						cursor.current = lCursor;
+						cCursor.visible = false;
+						lCursor.visible = true;
+						break;
+				}
+			}
+		};
+	})();
+
+
+	var menu = (function () {
+		var disabled = true;
+		var cCursor = new cursors.C(new paper.Point(15, 15));
+		var lCursor = new cursors.L(new paper.Point(15, 30));
+		function hitTest (item, point) {
+			return item.hitTest(point, {
+				tolerance: 5,
+				bounds: true
+			});
+		}
+		return {
+			disable: function () {
+				disabled = true;
+				cCursor.style.strokeColor = '#DDD';
+				lCursor.style.strokeColor = '#DDD';
+			},
+			enable: function () {
+				disabled = false;
+				cCursor.style.strokeColor = 'black';
+				lCursor.style.strokeColor = 'black';
+			},
+			hitCircle: function (point) {
+				if (!hitTest(cCursor, point)) return false;
+				if (!disabled) {
+					cursor.setCurrent('circle', point);
+					activeItem.clear();
+					paper.view.draw();
+				}
+				return true;
+			},
+			hitLine: function (point) {
+				if (!hitTest(lCursor, point)) return false;
+				if (!disabled) {
+					cursor.setCurrent('line', point);
+					activeItem.clear();
+					paper.view.draw();
+				}
+				return true;
+			}
+		};
+	})();
+	menu.disable();
+
+
+
+
+	var activeItem = (function () {
+		// elements
+		var item  = null;
+		var origin = null;
+		// attributes
+		var color = 'black';
+		var thickness = 1.2;
+		var opacity = 0.8;
+		// methods
+		function createCircle(point) {
+			origin = point;
+			item = new paper.Path.Circle({
+				center: origin,
+				radius: 1,
+				strokeWidth: thickness,
+				strokeColor: color,
+				opacity: opacity
+			});
+			item.data.type = 'circle';
+		}
+		function createLine(point) {
+			origin = point;
+			item = new paper.Path.Line({
+				from: origin,
+				to: origin,
+				strokeWidth: thickness,
+				strokeColor: color,
+				opacity: opacity
+			});
+			item.data.type = 'line';
+		}
+		function updateCircle(point, nearPoint) {
+			var radius = origin.subtract(point).length;
+			var newItem = new paper.Path.Circle({
+				center: origin,
+				radius: radius,
+				strokeWidth: thickness,
+				strokeColor: color,
+				opacity: opacity
+			});
+			item.remove();
+			item = newItem;
+			item.data.type = 'circle';
+			if (nearPoint) {
+				item.strokeColor = '#6C0';
+				item.data.nearPoint = nearPoint;
+			}
+		}
+		function updateLine(point, nearPoint) {
+			var newItem = new paper.Path.Line({
+				from: origin,
+				to: point,
+				strokeWidth: thickness,
+				strokeColor: color,
+				opacity: opacity
+			});
+			item.remove();
+			item = newItem;
+			item.data.type = 'line';
+			if (nearPoint) {
+				item.strokeColor = '#6C0';
+				item.data.nearPoint = nearPoint;
+			}
+		}
+		// interface
+		return {
+			create: function (point) {
+				switch (cursor.current.data.type) {
+					case 'circle':
+						createCircle(point);
+						break;
+					case 'line':
+						createLine(point);
+						break;
+				}
+			},
+			update: function (point) {
+				var nearPoint;
+				switch (cursor.current.data.type) {
+					case 'circle':
+						nearPoint = items.getPointNearItem(item);
+						updateCircle(point, nearPoint);
+						break;
+					case 'line':
+						nearPoint = items.getPointNearPoint(point);
+						updateLine(point, nearPoint);
+						break;
+				}
+			},
+			commit: function (nearPoint) {
+				if (nearPoint) {
+					switch (cursor.current.data.type) {
+						case 'circle':
+							updateCircle(nearPoint);
+							break;
+						case 'line':
+							updateLine(nearPoint);
+							break;
+					}
+				}
+				items.add(item);
+				item = null;
+				origin = null;
+			},
+			clear: function () {
+				if (!item) return;
+				item.remove();
+				item = null;
+				origin = null;
+			},
+			handleMousemove: function (e) {
+				if (!item) return;
+				activeItem.update(e.point);
+			},
+			handleMousedown: function (e) {
+				if (items.count() === 0) {
+					// first drawing
+					if (!item) {
+						// no active, create
+						activeItem.create(e.point);
+					} else {
+						// active, commit
+						activeItem.commit();
+					}
+				} else if (items.count() === 1 && !item) {
+					// second drawing
+					if (!item) {
+						// no active, create if valid
+						var hitResult = items.get(0).hitTest(e.point, {
+							tolerance: 5,
+							stroke: true
+						});
+						if (hitResult) {
+							activeItem.create(hitResult.point);
+						}
+					}
+				} else {
+					// third+ drawing or finish second
+					if (item && item.data.nearPoint) {
+						// valid place to commit
+						activeItem.commit(item.data.nearPoint);
+					} else {
+						// no active, create?
+						var nearPoint = items.getPointNearPoint(e.point);
+						if (nearPoint) {
+							activeItem.create(nearPoint);
+						}
+					}
+				}
+			}
+		};
+	})();
+
+
+	// user interactions
+	var tool = new paper.Tool();
+
+	tool.onMouseMove = function (e) {
+		cursor.current.position = e.point;
+		activeItem.handleMousemove(e);
+		paper.view.draw();
+	};
+	
+	tool.onMouseDown = function (e) {
+		if (menu.hitCircle(e.point)) return;
+		if (menu.hitLine(e.point)) return;
+		// else, handle active item
+		activeItem.handleMousedown(e);
+		paper.view.draw();
+
+	};
+
+	tool.onKeyDown = function (e) {
+		switch (e.key) {
+			case 'escape':
+			case 'enter':
+				activeItem.clear();
+				break;
+		}
+	};
+
+
+
+	/**
+	 * first draw
+	 */
+	paper.view.draw();
+
+
+</script>
+</body>
+</html>

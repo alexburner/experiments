@@ -1,0 +1,163 @@
+<!--
+
+
+
+holy balls nevermind
+nontrivial rendering
+
+just fall back to plugin
+good-looking candidate:
+
+http://colpick.com/plugin
+
+
+
+
+
+-->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>color test</title>
+<style type="text/css" media="screen">
+	html, body {
+		margin: 0;
+		padding: 0;
+		background: #222;
+	}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+
+
+function createHuePicker(x, y) {
+
+	function createSwatch(r, g, b, i, j) {
+		var swatch = document.createElement('div');
+		swatch.style.width = 40;
+		swatch.style.height = 1 / 4;
+		swatch.style.position = 'absolute';
+		swatch.style.top = y + (i * 255 + j) / 4;
+		swatch.style.left = x;
+		swatch.style.background = 'rgb(' + r + ',' + g + ',' + b + ')';
+		swatch.setAttribute('data-type', 'H');
+		swatch.setAttribute('data-r', r);
+		swatch.setAttribute('data-g', g);
+		swatch.setAttribute('data-b', b);
+		document.body.appendChild(swatch);
+	}
+
+	/* cycle through rgb rainbow */
+	for (var i = 0; i < 6; i++) {
+		for (var j = 0; j < 255; j++) {
+			var r, g, b;
+			switch (i) {
+				case 0:
+					r = 255;
+					g = 0;
+					b = 255 - j;
+					break;
+				case 1:
+					r = 255;
+					g = j;
+					b = 0;
+					break;
+				case 2:
+					r = 255 - j;
+					g = 255;
+					b = 0;
+					break;
+				case 3:
+					r = 0;
+					g = 255;
+					b = j;
+					break;
+				case 4:
+					r = 0;
+					g = 255 - j;
+					b = 255;
+					break;
+				case 5:
+					r = j;
+					g = 0;
+					b = 255;
+					break;
+			}
+			createSwatch(r, g, b, i, j);
+		}
+	}
+}
+
+createHuePicker(10, 10);
+
+console.log('hi?');
+
+
+function createSaturationAndValuePicker(x, y, r, g, b, length) {
+	
+	function createSwatch(r, g, b, i, j) {
+		var swatch = document.createElement('div');
+		swatch.style.width = 1;
+		swatch.style.height = 1;
+		swatch.style.position = 'absolute';
+		swatch.style.top = y + (length - i);
+		swatch.style.left = x + (length - j);
+		swatch.style.background = 'rgb(' + r + ',' + g + ',' + b + ')';
+		swatch.setAttribute('data-type', 'SV');
+		swatch.setAttribute('data-r', r);
+		swatch.setAttribute('data-g', g);
+		swatch.setAttribute('data-b', b);
+		document.body.appendChild(swatch);
+	}
+
+	for (var i = 0; i < length; i++) {
+		var rValue = (r / length) * i;
+		var gValue = (g / length) * i;
+		var bValue = (b / length) * i;
+		var greyValue = (255 / length) * i;
+		var rDiff = greyValue - rValue;
+		var gDiff = greyValue - gValue;
+		var bDiff = greyValue - bValue;
+		var rIncr = rDiff / length;
+		var gIncr = gDiff / length;
+		var bIncr = bDiff / length;
+		for (var j = 0; j < length; j++) {
+			rVS = rValue + rIncr * j;
+			gVS = gValue + gIncr * j;
+			bVS = bValue + bIncr * j;
+			createSwatch(rVS, gVS, bVS, i, j);
+		}
+	}
+}
+
+console.log('hi');
+
+document.body.addEventListener('mousedown', function (e) {
+	if (e && e.target && e.target.hasAttribute('data-type')) {
+
+		console.log('hit');
+
+		var r = e.target.getAttribute('data-r');
+		var g = e.target.getAttribute('data-g');
+		var b = e.target.getAttribute('data-b');
+		switch (e.target.getAttribute('data-type')) {
+			case 'H':
+				createSaturationAndValuePicker(
+					60,
+					10,
+					r,
+					g,
+					b,
+					(255 * 6) / 4
+				);
+				break;
+		}
+	}
+});
+	
+
+
+</script>
+</body>
+</html>

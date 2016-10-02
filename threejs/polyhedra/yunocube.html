@@ -1,0 +1,600 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>y u no cube</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: black;
+		color: white;
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+
+
+<div id="container"></div>
+
+
+<!-- https://stemkoski.github.io/Three.js/Shader-Glow.html -->
+<script id="vertexShader" type="x-shader/x-vertex">
+	uniform vec3 viewVector;
+	uniform float c;
+	uniform float p;
+	varying float intensity;
+	void main()
+	{
+	    vec3 vNormal = normalize( normalMatrix * normal );
+		vec3 vNormel = normalize( normalMatrix * viewVector );
+		intensity = pow( c - dot(vNormal, vNormel), p );
+
+	    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+	}
+</script>
+<script id="fragmentShader" type="x-shader/x-vertex">
+	uniform vec3 glowColor;
+	varying float intensity;
+	void main()
+	{
+		vec3 glow = glowColor * intensity;
+	    gl_FragColor = vec4( glow, 1.0 );
+	}
+</script>
+
+
+<script type="text/javascript" src="../js/pusher.color.js"></script>
+<script type="text/javascript" src="../js/three.min.js"></script>
+<script type="text/javascript" src="../js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript" src="../js/examples/controls/TrackballControls.js"></script>
+<script type="text/javascript">
+
+
+
+
+
+
+
+
+
+
+
+
+function coinFlip() {
+  return Math.random() > 0.5;
+}
+
+function randomPosNeg(max) {
+  var random = Math.random() * max;
+  return coinFlip() ? random : -random;
+}
+
+function roundToNearest(num, multiple) {
+	return multiple * Math.round(num / multiple);
+}
+
+function drawLine(from, to, color) {
+
+	color = color || 0xFFFFFF;
+
+	var geometry = new THREE.Geometry();
+	geometry.vertices.push(from);
+	geometry.vertices.push(to);
+
+	var material = new THREE.LineBasicMaterial({
+		linecap: 'round',
+		linejoin: 'round',
+		linewidth: 3,
+		color: color
+	});
+
+	var line = new THREE.Line(geometry, material);
+
+	scene.add(line);
+
+	return line;
+
+}
+
+function arcLength(pointA, pointB, radius) {
+	var angle = pointA.angleTo(pointB);
+	return angle * radius;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// set the scene size
+var WIDTH = window.innerWidth,
+	HEIGHT = window.innerHeight;
+
+// set some camera attributes
+var VIEW_ANGLE = 45,
+	ASPECT = WIDTH / HEIGHT,
+	NEAR = 0.1,
+	FAR = 10000;
+
+// get the DOM element to attach to
+// - assume we've got jQuery to hand
+//var $container = $('#container');
+var containerEl = document.getElementById('container');
+
+// create a WebGL renderer, camera
+// and a scene
+var renderer = new THREE.WebGLRenderer({ antialias: true });
+var camera =
+	new THREE.PerspectiveCamera(
+		VIEW_ANGLE,
+		ASPECT,
+		NEAR,
+		FAR);
+
+var scene = new THREE.Scene();
+
+// add the camera to the scene
+scene.add(camera);
+
+// the camera starts at 0,0,0
+// so pull it back
+//camera.position.z = 1600;
+camera.position.z = 240;
+
+// start the renderer
+renderer.setSize(WIDTH, HEIGHT);
+
+// attach the render-supplied DOM element
+//$container.append(renderer.domElement);
+containerEl.appendChild(renderer.domElement);
+
+
+
+// create a point light
+var pointLight =
+	new THREE.PointLight(0xFFFFFF);
+
+// set its position
+pointLight.position.x = 10;
+pointLight.position.y = 50;
+pointLight.position.z = 130;
+
+// add to the scene
+scene.add(pointLight);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function Sphere(position, radius, material) {
+
+	position = position || new THREE.Vector3(0, 0, 0);
+	radius = radius || 1;
+	material = material || Sphere.materials.BUBBLE;
+
+	this.geometry = new THREE.SphereGeometry(
+		radius,
+		32, // segments
+		32 // rings
+	);
+
+	this.material = material;
+
+	this.mesh = new THREE.Mesh(
+		this.geometry,
+		this.material
+	);
+
+	this.mesh.position = position;
+
+	scene.add(this.mesh);
+
+}
+
+Sphere.materials = {
+	BASIC: new THREE.MeshBasicMaterial({
+		color: 0xFFFF00
+	}),
+	BALL: new THREE.MeshLambertMaterial({
+		color: 0xFFFFFF,
+		transparent: true,
+		opacity: 0.33
+	}),
+	BUBBLE: new THREE.ShaderMaterial({
+		uniforms: {
+			c: {
+				type: "f",
+				value: 1.0
+			},
+			p: {
+				type: "f",
+				value: 1.4
+			},
+			glowColor: {
+				type: "c",
+				value: new THREE.Color(0xFFFFFF)
+			},
+			viewVector: {
+				type: "v3",
+				value: camera.position
+			}
+		},
+		vertexShader: document.getElementById('vertexShader').textContent,
+		fragmentShader: document.getElementById('fragmentShader').textContent,
+		side: THREE.FrontSide,
+		blending: THREE.AdditiveBlending,
+		transparent: true
+	})
+};
+
+
+
+
+
+
+
+
+
+
+
+function PointSpread(args) {
+	// attributes
+	this.count = args.count;
+	this.radius = args.radius;
+	this.center = args.center;
+	// elements
+	this.points = [];
+	this.lines = [];
+	this.linesByLength = {};
+	// construction
+	this.makePoints();
+}
+
+PointSpread.prototype.makePoints = function () {
+	for (var i = 0; i < this.count; i++) {
+		var x = randomPosNeg(this.radius);
+		var y = randomPosNeg(this.radius);
+		var z = randomPosNeg(this.radius);
+		this.points.push(new THREE.Vector3(x, y, z));
+	}
+
+	// this.points.push(new THREE.Vector3(this.radius, this.radius, this.radius));
+	// this.points.push(new THREE.Vector3(-this.radius, this.radius, this.radius));
+	// this.points.push(new THREE.Vector3(this.radius, -this.radius, this.radius));
+	// this.points.push(new THREE.Vector3(this.radius, this.radius, -this.radius));
+	// this.points.push(new THREE.Vector3(-this.radius, -this.radius, this.radius));
+	// this.points.push(new THREE.Vector3(this.radius, -this.radius, -this.radius));
+	// this.points.push(new THREE.Vector3(-this.radius, this.radius, -this.radius));
+	// this.points.push(new THREE.Vector3(-this.radius, -this.radius, -this.radius));
+
+	this.constrainPoints();
+};
+
+var hi = 0;
+var bye = 3000;
+
+PointSpread.prototype.animateFrame = function () {
+
+	hi++;
+	if (hi > bye) return;
+
+	// move points away from each other
+	this.spreadPoints();
+	// constrain points to sphere (w/in radius of center)
+	this.constrainPoints();
+	// clear & draw lines
+	this.clearLines();
+	this.drawLines();
+
+	//if (hi === bye) this.lines[0].material.color.setRGB(255, 0, 0);
+	if (hi === bye) this.explode();
+};
+
+
+var lastShortPointIndex = -1;
+var lastLongPointIndex = -1;
+
+var lastShortPointIndex1 = -1;
+var lastShortPointIndex2 = -1;
+
+PointSpread.prototype.spreadPoints = function () {
+
+	//var shortestVectors = [];
+
+	var mostShortestLength = Infinity;
+	var mostShortestVector = null;
+	var mostShortestIndex = -1;
+
+	var haveVector = {};
+
+	this.points.forEach(function (pointA, indexA) {
+
+		// find vectors from pointA to every other point
+		var vectors = [];
+		this.points.forEach(function (pointB, indexB) {
+			if (indexA === indexB) return;
+
+			if (haveVector[indexA + ',' + indexB] || haveVector[indexB + ',' + indexA]) {
+				return
+			} else {
+				haveVector[indexA + ',' + indexB] = true;
+			}
+
+			var vector = pointA.clone().sub(pointB);
+			vector.setLength(arcLength(pointA, pointB, this.radius));
+			vectors.push(vector);
+		}, this);
+
+		// find shortest vector
+		var shortestLength = Infinity;
+		var shortestVector = null;
+		var shortestIndex = -1;
+		vectors.forEach(function (vector, index) {
+			var length = vector.length();
+			if (length < shortestLength) {
+				shortestLength = length;
+				shortestVector = vector;
+				shortestIndex = index;
+			}
+		});
+
+		// find longest vector
+		// var longestLength = -1;
+		// var longestVector = null;
+		// vectors.forEach(function (vector) {
+		// 	var length = vector.length();
+		// 	if (length > longestLength) {
+		// 		longestLength = length;
+		// 		longestVector = vector;
+		// 	}
+		// });
+
+		//shortestVectors.push(shortestVector);
+		// longestVectors.push(longestVector);
+
+		if (shortestLength < mostShortestLength) {
+
+			if (indexA === lastShortPointIndex1 ||
+				indexA === lastShortPointIndex2 ||
+				shortestIndex === lastShortPointIndex1 ||
+				shortestIndex === lastShortPointIndex2) {
+				return;
+			} else {
+				lastShortPointIndex1 = indexA;
+				lastShortPointIndex2 = shortestIndex;
+			}
+
+			mostShortestLength = shortestLength;
+			mostShortestVector = shortestVector;
+			mostShortestIndex = indexA;
+		}
+
+	}, this);
+
+	// apply shortest vectors
+	// shortestVectors.forEach(function (vector, index) {
+	// 	vector.setLength(0.2);
+	// 	this.points[index].add(vector);
+	// }, this);
+
+	// find shortest vector
+	// var shortestLength = Infinity;
+	// var shortestVector = null;
+	// var shortestIndex = -1;
+	// shortestVectors.forEach(function (vector, index) {
+
+	// 	if (index === lastShortPointIndex) return;
+	// 	lastShortPointIndex = index;
+
+	// 	var length = vector.length();
+	// 	if (length < shortestLength) {
+	// 		shortestLength = length;
+	// 		shortestVector = vector;
+	// 		shortestIndex = index;
+	// 	}
+	// });
+
+	// find longest vector
+	// var longestLength = -1;
+	// var longestVector = null;
+	// var longestIndex = -1;
+	// longestVectors.forEach(function (vector, index) {
+
+	// 	if (index === lastLongPointIndex) return;
+	// 	lastLongPointIndex = index;
+
+	// 	var length = vector.length();
+	// 	if (length > longestLength) {
+	// 		longestLength = length;
+	// 		longestVector = vector;
+	// 		longestIndex = index;
+	// 	}
+	// });
+
+	// apply shortest vector
+	// shortestVector.setLength(2);
+	// this.points[shortestIndex].add(shortestVector);
+
+	// apply longest vector
+	// longestVector.setLength(1);
+	// this.points[longestIndex].sub(longestVector);
+
+	mostShortestVector.setLength(0.2);
+	this.points[mostShortestIndex].add(mostShortestVector);
+
+};
+
+PointSpread.prototype.constrainPoints = function () {
+	this.points.forEach(function (point) {
+		point.setLength(radius);
+	});
+};
+
+PointSpread.prototype.clearLines = function () {
+	this.lines.forEach(function (line) {
+		scene.remove(line);
+	});
+	this.lines = [];
+};
+
+PointSpread.prototype.drawLines = function () {
+
+	this.linesByLength = {};
+
+	this.points.forEach(function (pointA, indexA) {
+		this.points.forEach(function (pointB, indexB) {
+			if (indexA === indexB) return;
+
+			var line = drawLine(pointA, pointB);
+
+			var distance = pointA.distanceTo(pointB);
+			var diameter = this.radius * 2;
+
+			var hueShift = Math.ceil(180 / (diameter / distance));
+
+			var color = pusher.color('red');
+			color = color.hue(hueShift);
+
+			line.material.color.setRGB(
+				color.red() / 255,
+				color.blue() / 255,
+				color.green() / 255
+			);
+
+			this.lines.push(line);
+
+			var length = roundToNearest(pointA.distanceTo(pointB), Math.round(this.radius / 3));
+			if (!this.linesByLength[length]) this.linesByLength[length] = [];
+			this.linesByLength[length].push(line);
+
+		}, this);
+	}, this);
+};
+
+PointSpread.prototype.explode = function () {
+	var count = 0;
+	Object.keys(this.linesByLength).forEach(function (length) {
+		count++;
+		this.linesByLength[length].forEach(function (line) {
+
+			var translate = count * this.radius * 2;
+
+			var pointA = line.geometry.vertices[0].clone();
+			var pointB = line.geometry.vertices[1].clone();
+
+			pointA.x += translate;
+			pointB.x += translate;
+
+			drawLine(pointA, pointB, line.material.color);
+
+		}, this);
+	}, this);
+};
+
+
+
+
+
+
+
+var radius = 36;
+var center = new THREE.Vector3(0, 0, 0);
+
+var sphere = new Sphere(
+	center,
+	radius
+);
+
+// var sphere2 = new Sphere(
+// 	center,
+// 	radius / 24,
+// 	Sphere.materials.BASIC
+// );
+
+
+var pointSpread = new PointSpread({
+	count: 8,
+	radius: radius,
+	center: center
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// draw!
+
+var controls = new THREE.TrackballControls(camera);
+controls.addEventListener('change', render);
+
+var render = function () {
+
+	pointSpread.animateFrame();
+
+	requestAnimationFrame(render);
+	renderer.render(scene, camera);
+
+	controls.update();
+};
+
+render();
+
+
+
+
+// Create an event listener that resizes the renderer with the browser window.
+// via http://blog.teamtreehouse.com/the-beginners-guide-to-three-js
+window.addEventListener('resize', function() {
+	var WIDTH = window.innerWidth;
+	var HEIGHT = window.innerHeight;
+	renderer.setSize(WIDTH, HEIGHT);
+	camera.aspect = WIDTH / HEIGHT;
+	camera.updateProjectionMatrix();
+});
+
+
+</script>
+</body>
+</html>

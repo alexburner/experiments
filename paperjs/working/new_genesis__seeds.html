@@ -1,0 +1,1086 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>new genesis _ seeds</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#canvas {
+		width: 5000px;
+		height: 5000px;
+	}
+</style>
+<script type="text/javascript" src="../paper.v.0.9.9.js"></script>
+<script type="text/paperscript" canvas="canvas">
+
+
+
+
+
+
+
+	var radius = 60;
+	var vesica = Math.sqrt(3) * radius;
+
+
+
+
+
+
+	// TODO 
+
+	// move out of paperscript back into vanilla
+	// otherwise cannot FF debug
+
+	// factor out ColumnSet
+	// each with global config
+	// - radius
+	// - vesica
+	// - colors
+	// - weights
+
+	// just use global config as _defaults? for ColumnSet (which NEEDS)
+
+	// and grid out this dern canvas
+
+	// and make user resize controls
+
+	// n clicking
+	// n hovering
+	// n labels
+	// n such
+
+
+
+
+	// GenesisMaster
+	// Genesis
+	// GenesisSeries (was column) or wait Row and Column ?
+	// SeriesSet
+
+	// grid
+
+
+
+
+
+
+
+	function Grid(options) {
+
+		// options
+		this.sizes = options.sizes;
+		this.count = options.count || {};
+		this.origin = options.origin || new Point(0, 0);
+		this.visible = options.visible;
+
+		// cells[x index][y index] = {rectangle, path}
+		this.cells = [];
+
+		// construction
+		this.makeCells();
+
+	}
+
+	Grid.prototype.makeCells = function () {
+
+		// position tracking
+		var xPos = this.origin.x + this.sizes.margin.left;
+		var yPos = this.origin.y + this.sizes.margin.top;
+		
+		// stopping point
+		var colCount = this.count.col = this.count.col || this.findMaxCellCount('col');
+		var rowCount = this.count.row = this.count.row || this.findMaxCellCount('row');
+		
+		// convenience references
+		var cellWidth = this.sizes.cell.width;
+		var cellHeight = this.sizes.cell.height;
+		var gutterHorizontal = this.sizes.gutter.horizontal;
+		var gutterVertical = this.sizes.gutter.vertical;
+		
+		// for each column (x progression)
+		for (var i = 0, l = colCount; i < l; i++) {
+			
+			// prepare 2D matrix
+			this.cells[i] = [];
+			
+			// for each row (y progression)	
+			for (var ii = 0, ll = rowCount; ii < ll; ii++) {
+				
+				// make cell components
+				var point = new Point(xPos, yPos);
+				var size = new Size(cellWidth, cellHeight);
+				var rectangle = new Rectangle(point, size);
+				var path = new Path.Rectangle(rectangle);
+					path.strokeCap = 'round';
+					path.strokeColor = 'black';
+					path.strokeWidth = 1;
+					path.opacity = 0.1;
+					path.visible = this.visible;
+
+				// store reference
+				this.cells[i].push({
+					rectangle: rectangle,
+					path: path
+				});
+				
+				// increment y position
+				yPos += cellHeight;
+				yPos += gutterVertical;
+
+			}
+
+			// reset y position
+			yPos = this.origin.y + this.sizes.margin.top;
+
+			// increment x position
+			xPos += cellWidth;
+			xPos += gutterHorizontal;
+
+		}
+	};
+
+	Grid.prototype.findMaxCellCount = function (type) {
+		var cellCount = 0;
+		var current = 0;
+		var margin;
+		var gutter;
+		var cell;
+		var max;
+		switch (type) {
+			case 'col':
+				// finding maximum columns
+				margin = this.sizes.margin.left + this.sizes.margin.right;
+				gutter = this.sizes.gutter.horizontal;
+				cell = this.sizes.cell.width;
+				max = this.sizes.view.width;
+				break;
+			case 'row':
+				// finding maximum rows
+				margin = this.sizes.margin.top + this.sizes.margin.bottom;
+				gutter = this.sizes.gutter.vertical;
+				cell = this.sizes.cell.height;
+				max = this.sizes.view.height;
+				break;
+		}
+		// compensate for margin & extra gutter
+		current = current + margin - gutter;
+		// continue until exhausted
+		while (current < max) {
+			cellCount++;
+			current = current + cell + gutter;
+		}
+		cellCount--;
+		// hooray
+		return cellCount;
+	};
+
+
+
+
+	var grid = new Grid({
+		visible: false,
+		sizes: {
+			margin: {
+				top: radius * 2,
+				left: radius * 3,
+				right: radius * 3,
+				bottom: radius * 2
+			},
+			gutter: {
+				horizontal: radius,
+				vertical: 0
+			},
+			cell: {
+				width: radius * 9 / 2,
+				height: radius * 9 / 2
+			},
+			view: {
+				width: view.size.width,
+				height: view.size.height
+			}
+		}
+	});
+
+
+
+
+
+
+
+
+
+
+
+
+	function roundish(number) {
+		return (Math.round(number * 4) / 4);
+	}
+
+	function getCentroid(paths) {
+		var centroid = new Point();
+		for (var i = 0, l = paths.length; i < l; i++) {
+			centroid += paths[i].position;
+		}
+		return centroid / paths.length;
+	}
+
+	function moireIn(circle) {
+		var step = 2;
+		var circleRadius = circle.bounds.width / 2;
+		var currentRadius = circleRadius  - step;
+		while (currentRadius > 0) {
+			var newCircle = circle.clone();
+			newCircle.position.x = circle.position.x;
+			newCircle.position.y = circle.position.y;
+			newCircle.scale(currentRadius / circleRadius);
+			currentRadius -= step;
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	function Vesica(circle1, circle2) {
+		this.circle1 = circle1;
+		this.circle2 = circle2;
+	}
+	Vesica.prototype.getCentroid = function () {
+		return getCentroid([this.circle1, this.circle2]);
+	};
+
+	function Triad(circle1, circle2, circle3) {
+		this.circle1 = circle1;
+		this.circle2 = circle2;
+		this.circle3 = circle3;
+	}
+	Triad.prototype.getCentroid = function () {
+		return getCentroid([this.circle1, this.circle2, this.circle3]);
+	};
+
+	function Petal(circle1, circle2) {
+		this.circle1 = circle1;
+		this.circle2 = circle2;
+	}
+	Petal.prototype.getCentroid = function () {
+		return getCentroid([this.circle1, this.circle2]);
+	};
+
+
+
+
+
+
+
+	// 'EDA' = orange
+	// 'DEA' = green
+	// 'AED' = aqua
+	// 'ADE' = blue
+	// 'DAE' = violet
+	// 'EAD' = magenta
+
+
+	function CircleMaster(center) {
+		return new Path.Circle({
+			center: center,
+			radius: radius,
+			strokeCap: 'round',
+			strokeColor: '#ADE',
+			strokeWidth: 2,
+			visible: false
+		});
+	}
+
+	function R2CircleMaster(center) {
+		var circle = new CircleMaster(center);
+		circle.scale(1 / 2);
+		circle.strokeColor = '#000';
+		circle.opacity = 0.5;
+		return circle;
+	}
+
+	function V2CircleMaster(center) {
+		var circle = new CircleMaster(center);
+		circle.scale(1 / Math.sqrt(3));
+		circle.scale(3);
+		circle.scale(1/2);
+		circle.strokeColor = '#000';
+		circle.opacity = 0.5;
+		return circle;
+	}
+
+	function V3CircleMaster(center) {
+		var circle = new CircleMaster(center);
+		circle.scale(1 / Math.sqrt(3));
+		circle.strokeColor = '#000';
+		circle.opacity = 0.5;
+		return circle;
+	}
+
+	function LineMaster(from, to) {
+		return new Path.Line({
+			from: from,
+			to: to,
+			strokeCap: 'round',
+			strokeColor: '#000',
+			strokeWidth: 2,
+			opacity: 0.5,
+			visible: false
+		});
+	}
+
+
+
+	function GenesisMaster(center, stage) {
+		// public attributes
+		this.stage = stage;
+		this.center = center;
+		this.circles = [];
+		this.lines = [];
+		this.group = new Group();
+		this.vesicas = [];
+		this.triads = [];
+		this.petals = [];
+		// pattern creation
+		this.makeCircles();
+		this.makeLines();
+		// find meta shapes
+		this.findVesicas();
+		this.findTriads();
+		this.findPetals();
+	}
+
+
+	GenesisMaster.prototype.makeCircles = function () {
+
+		// position delta vector
+		var shift = new Point(this.center);
+		shift.length = radius;
+
+
+		//
+		// 1st
+		this.circles.push(new CircleMaster(this.center, radius));
+		this.circles[0].data.index = 0;
+		this.group.addChild(this.circles[0]);
+
+		//this.circles[0].strokeColor = 'red';
+
+		if (this.stage === 1) {
+			this.group.position = this.center;
+			return;
+		}
+		
+
+		//
+		// 2nd
+		shift.angle = 0;
+		this.circles.push(new CircleMaster(this.center + shift));
+		this.circles[1].data.index = 1;
+		this.group.addChild(this.circles[1]);
+
+		if (this.stage === 2) {
+			this.group.position = this.center;
+			return;
+		}
+
+
+		//
+		// 3rd
+		shift.angle = 60;
+		this.circles.push(new CircleMaster(this.center + shift));
+		this.circles[2].data.index = 2;
+		this.group.addChild(this.circles[2]);
+
+		if (this.stage === 3) {
+			this.group.rotate(-60, this.center);
+			this.group.position = this.center;
+			return;
+		}
+
+
+		//
+		// 4th
+		shift.angle = -60;
+		this.circles.push(new CircleMaster(this.center + shift));
+		this.circles[3].data.index = 3;
+		this.group.addChild(this.circles[3]);
+
+		if (this.stage === 4) {
+			this.group.rotate(-90, this.center);
+			this.group.position = this.center;
+			return;
+		}
+
+
+		//
+		// 5th
+		shift.angle = -120;
+		this.circles.push(new CircleMaster(this.center + shift));
+		this.circles[4].data.index = 4;
+		this.group.addChild(this.circles[4]);
+
+		if (this.stage === 5) {
+			this.group.rotate(-60, this.center);
+			this.group.position = this.center;
+			return;
+		}
+
+
+		//
+		// 6th
+		shift.angle = 120;
+		this.circles.push(new CircleMaster(this.center + shift));
+		this.circles[5].data.index = 5;
+		this.group.addChild(this.circles[5]);
+
+		if (this.stage === 6) {
+			this.group.rotate(-90, this.center);
+			this.group.position = this.center;
+			return;
+		}
+
+
+		//
+		// 7th
+		shift.angle = 180;
+		this.circles.push(new CircleMaster(this.center + shift));
+		this.circles[6].data.index = 6;
+		this.group.addChild(this.circles[6]);
+		
+		if (this.stage === 7) {
+			this.group.rotate(-30, this.center);
+			this.group.position = this.center;
+			return;
+		}
+
+	};
+
+
+
+	GenesisMaster.prototype.makeLines = function() {
+
+		// TODO 
+		// untangle loop repetition
+		// fragment into methods
+		// - find intersections
+		// - find lines
+
+		var intersectionPoints = [];
+		var isIntersectionPointAt = {};
+		var isLineAt = {};
+		// find & connect circle intersection points
+		for (var i = 0, l = this.circles.length; i < l; i++) {
+			var thisCircle = this.circles[i];
+			for (var ii = 0, ll = l; ii < ll; ii++) {
+				if (i === ii) {
+					continue;
+				}
+				var thatCircle = this.circles[ii];
+				var circleVector = thisCircle.position - thatCircle.position;
+				var circleGap = roundish(circleVector.length);
+				if (circleGap >= radius * 2) {
+					continue;
+				}
+				var intersections = thisCircle.getIntersections(thatCircle);
+				for (var iii = 0, lll = intersections.length; iii < lll; iii++) {
+					var intersectionPoint = intersections[iii].point;
+					var x = (roundish(intersectionPoint.x));
+					var y = (roundish(intersectionPoint.y));
+					var coords = '('+x+','+y+')';
+					if (!isIntersectionPointAt[coords]) {
+						isIntersectionPointAt[coords] = true;
+						intersectionPoints.push(intersectionPoint);
+						for (var iiii = 0, llll = intersectionPoints.length - 1; iiii < llll; iiii++) {
+							var thatIntersectionPoint = intersectionPoints[iiii];
+							var thatX = (roundish(thatIntersectionPoint.x));
+							var thatY = (roundish(thatIntersectionPoint.y));
+							var thoseCoords = '('+thatX+','+thatY+')';
+							if (!isLineAt[coords+thoseCoords] &&
+								!isLineAt[thoseCoords+coords]) {
+								isLineAt[coords+thoseCoords] = true;
+								var line = new LineMaster(intersectionPoint, thatIntersectionPoint);
+								var lineLength = roundish(line.length);
+								if (lineLength !== radius * 2 &&
+									lineLength !== radius * 3 &&
+									lineLength !== roundish(vesica * 2)) {
+									this.lines.push(line);
+									this.group.addChild(line);
+								} else {
+									line.remove();
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		
+		// also find & connect circle centers
+		for (i = 0, l = this.circles.length; i < l; i++) {
+			intersectionPoint = this.circles[i].position;
+			x = (roundish(intersectionPoint.x));
+			y = (roundish(intersectionPoint.y));
+			coords = '('+x+','+y+')';
+			if (!isIntersectionPointAt[coords]) {
+				isIntersectionPointAt[coords] = true;
+				intersectionPoints.push(intersectionPoint);
+				for (iiii = 0, llll = intersectionPoints.length - 1; iiii < llll; iiii++) {
+					thatIntersectionPoint = intersectionPoints[iiii];
+					thatX = (roundish(thatIntersectionPoint.x));
+					thatY = (roundish(thatIntersectionPoint.y));
+					thoseCoords = '('+thatX+','+thatY+')';
+					if (!isLineAt[coords+thoseCoords] &&
+						!isLineAt[thoseCoords+coords]) {
+						isLineAt[coords+thoseCoords] = true;
+						line = new LineMaster(intersectionPoint, thatIntersectionPoint);
+						lineLength = roundish(line.length);
+						if (lineLength !== radius * 2 &&
+							lineLength !== radius * 3 &&
+							lineLength !== roundish(vesica * 2)) {
+							this.lines.push(line);
+							this.group.addChild(line);
+						} else {
+							line.remove();
+						}
+					}
+				}
+			}
+		}
+
+		
+	};
+
+
+	GenesisMaster.prototype.findVesicas = function() {
+		var foundIndex = {};
+		for (var i = 0, l = this.circles.length; i < l; i++) {
+			var thisCircle = this.circles[i];
+			for (var ii = 0, ll = l; ii < ll; ii++) {
+				if (i === ii) {
+					continue;
+				}
+				if (foundIndex[i + ',' + ii] || foundIndex[ii + ',' + i]) {
+					continue;
+				}
+				var thatCircle = this.circles[ii];
+				var circleVector = thisCircle.position - thatCircle.position;
+				if (roundish(circleVector.length) === radius) {
+					this.vesicas.push(new Vesica(thisCircle, thatCircle));
+					foundIndex[i + ',' + ii] = true;
+				}
+			}
+		}
+	};
+
+	GenesisMaster.prototype.findTriads = function() {
+		var foundIndex = {};
+		for (var i = 0, l = this.vesicas.length; i < l; i++) {
+			var thisVesica = this.vesicas[i];
+			for (var ii = 0, ll = this.circles.length; ii < ll; ii++) {
+				if (foundIndex[ii]) {
+					continue;
+				}
+				var thisCircle = this.circles[ii];
+				var i1 = ii;
+				var i2 = thisVesica.circle1.data.index;
+				var i3 = thisVesica.circle2.data.index;
+				if (foundIndex[i1+','+i2+','+i3] || 
+					foundIndex[i1+','+i3+','+i2] ||
+					foundIndex[i2+','+i1+','+i3] ||
+					foundIndex[i2+','+i3+','+i1] ||
+					foundIndex[i3+','+i1+','+i2] ||
+					foundIndex[i3+','+i2+','+i1]) {
+					continue;
+				}
+				var vector1 = thisCircle.position - thisVesica.circle1.position;
+				var vector2 = thisCircle.position - thisVesica.circle2.position;
+				if (roundish(vector1.length) === radius && roundish(vector2.length) === radius) {
+					this.triads.push(new Triad(thisCircle, thisVesica.circle1, thisVesica.circle2));
+					foundIndex[i1+','+i2+','+i3] = true;
+				}
+			}
+		}
+	};
+
+	GenesisMaster.prototype.findPetals = function() {
+		var foundIndex = {};
+		for (var i = 0, l = this.circles.length; i < l; i++) {
+			var thisCircle = this.circles[i];
+			for (var ii = 0, ll = l; ii < ll; ii++) {
+				if (i === ii) {
+					continue;
+				}
+				if (foundIndex[i + ',' + ii] || foundIndex[ii + ',' + i]) {
+					continue;
+				}
+				var thatCircle = this.circles[ii];
+				var circleVector = thisCircle.position - thatCircle.position;
+				if (roundish(circleVector.length) === roundish(vesica)) {
+					this.petals.push(new Vesica(thisCircle, thatCircle));
+					foundIndex[i + ',' + ii] = true;
+				}
+			}
+		}
+	};
+
+
+
+
+
+
+
+
+
+
+	var genesisMasters = {};
+	(function () {
+		for (var i = 0; i < 7; i++) {
+			genesisMasters[i + 1] = new GenesisMaster(new Point(0, 0), i + 1);
+		}
+	})();
+
+
+
+
+
+
+
+
+
+
+	function Genesis(center, stage) {
+		// public attributes
+		this.radius = radius;
+		this.vesica = vesica;
+		this.stage = stage; // 1 2 3 4 5 6 7
+		this.center = center; // paper point
+		this.circles = [];
+		this.lines = [];
+		this.group = new Group();
+		this.vesicas = [];
+		this.triads = [];
+		this.petals = [];
+		// make elements
+		this.cloneMaster();
+		this.showCircles();
+		// adjust group
+		this.group.position = this.center;
+	}
+
+	Genesis.prototype.cloneMaster = function () {
+		var master = genesisMasters[this.stage];
+		this._cloneMasterElements(master, 'circles');
+		this._cloneMasterElements(master, 'lines');
+		this._cloneMasterVesicas(master);
+		this._cloneMasterTriads(master);
+		this._cloneMasterPetals(master);
+	};
+	Genesis.prototype._cloneMasterElements = function (master, elements) {
+		for (var i = 0, l = master[elements].length; i < l; i++) {
+			this[elements].push(master[elements][i].clone());
+			this[elements][i].data = master[elements][i].data;
+		}
+		this.group.addChildren(this[elements]);
+	};
+	Genesis.prototype._cloneMasterVesicas = function (master) {
+		for (var i = 0, l = master.vesicas.length; i < l; i++) {
+			var masterVesica = master.vesicas[i];
+			var circle1 = this.circles[masterVesica.circle1.data.index];
+			var circle2 = this.circles[masterVesica.circle2.data.index];
+			this.vesicas.push(new Vesica(circle1, circle2));
+		}
+	};
+	Genesis.prototype._cloneMasterTriads = function (master) {
+		for (var i = 0, l = master.triads.length; i < l; i++) {
+			var masterTriad = master.triads[i];
+			var circle1 = this.circles[masterTriad.circle1.data.index];
+			var circle2 = this.circles[masterTriad.circle2.data.index];
+			var circle3 = this.circles[masterTriad.circle3.data.index];
+			this.triads.push(new Triad(circle1, circle2, circle3));
+		}
+	};
+	Genesis.prototype._cloneMasterPetals = function (master) {
+		for (var i = 0, l = master.petals.length; i < l; i++) {
+			var masterPetal = master.petals[i];
+			var circle1 = this.circles[masterPetal.circle1.data.index];
+			var circle2 = this.circles[masterPetal.circle2.data.index];
+			this.petals.push(new Petal(circle1, circle2));
+		}
+	};
+
+	Genesis.prototype.showCircles = function () {
+		for (var i = 0, l = this.circles.length; i < l; i++) {
+			this.circles[i].visible = true;
+		}
+	};
+
+	Genesis.prototype.showAllLines = function () {
+		for (var i = 0, l = this.lines.length; i < l; i++) {
+			this.lines[i].visible = true;
+		}
+	};
+
+	Genesis.prototype.showVesicaLines = function () {
+		for (var i = 0, l = this.lines.length; i < l; i++) {
+			var line = this.lines[i];
+			if (roundish(line.length) === roundish(this.vesica)) {
+				line.visible = true;
+			}
+		}
+	};
+
+	Genesis.prototype.showRadiusLines = function () {
+		for (var i = 0, l = this.lines.length; i < l; i++) {
+			var line = this.lines[i];
+			if (roundish(line.length) === this.radius) {
+				line.visible = true;
+			}
+		}
+	};
+
+	Genesis.prototype.showCenterStars = function () {
+		for (var i = 0, l = this.lines.length; i < l; i++) {
+			var line = this.lines[i];
+			line.visible = true;
+			if (!line.hitTest(getCentroid(this.circles), {
+					type: 'PathItem',
+					fill: false,
+					stroke: true,
+					segments: true,
+					tolerance: this.radius / 2
+				})) {
+					line.visible = false;
+			}
+		}
+	};
+
+
+	Genesis.prototype.showCenterLines = function () {
+		for (var i = 0, l = this.lines.length; i < l; i++) {
+			var line = this.lines[i];
+			line.visible = true;
+			if (!line.hitTest(getCentroid(this.circles), {
+					type: 'PathItem',
+					fill: false,
+					stroke: true,
+					segments: true,
+					tolerance: 1
+				})) {
+					line.visible = false;
+			}
+		}
+	};
+
+	Genesis.prototype.showCenterTest = function () {
+		for (var i = 0, l = this.circles.length; i < l; i++) {
+			new Path.Circle({
+				center: this.circles[i].position,
+				radius: 2,
+				strokeColor: 'black',
+				strokeWidth: 1
+			});
+		}
+	};
+
+	Genesis.prototype.showCenteroidTest = function () {
+		new Path.Circle({
+			center: getCentroid(this.circles),
+			radius: 2,
+			strokeColor: 'red',
+			strokeWidth: 1
+		});
+	};
+
+	Genesis.prototype.showOriginTest = function () {
+
+		var counter = 1;
+		for (var i = 0, l = this.vesicas.length; i < l; i++) {
+			var centroid = getCentroid([this.vesicas[i].circle1, this.vesicas[i].circle2]);
+			new Path.Circle({
+				center: centroid,
+				radius: counter * 2,
+				strokeColor: 'orange',
+				strokeWidth: 1
+			});
+		}
+
+		var counter = 1;
+		for (var i = 0, l = this.triads.length; i < l; i++) {
+			var centroid = getCentroid([this.triads[i].circle1, this.triads[i].circle2, this.triads[i].circle3]);
+			new Path.Circle({
+				center: centroid,
+				radius: counter * 2,
+				strokeColor: 'green',
+				strokeWidth: 1
+			});
+		}
+
+		var counter = 1;
+		for (var i = 0, l = this.petals.length; i < l; i++) {
+			var centroid = getCentroid([this.petals[i].circle1, this.petals[i].circle2]);
+			new Path.Circle({
+				center: centroid,
+				radius: counter * 2,
+				strokeColor: 'blue',
+				strokeWidth: 1
+			});
+		}
+
+	};
+
+	Genesis.prototype.showV2VesicaCircles_origins = function () {
+		for (var i = 0, l = this.vesicas.length; i < l; i++) {
+			var circle = new V2CircleMaster(this.vesicas[i].getCentroid());
+			circle.visible = true;
+			this.group.addChild(circle);
+
+			/* moireIn(circle); */
+		}
+	};
+
+	Genesis.prototype.showR2VesicaCircles_origins = function () {
+		for (var i = 0, l = this.vesicas.length; i < l; i++) {
+			var circle = new R2CircleMaster(this.vesicas[i].getCentroid());
+			circle.visible = true;
+			this.group.addChild(circle);
+
+			/* moireIn(circle); */
+		}
+	};
+	Genesis.prototype.showR2VesicaCircles_cores = function () {
+		for (var i = 0, l = this.circles.length; i < l; i++) {
+			var circle = new R2CircleMaster(this.circles[i].position);
+			circle.visible = true;
+			this.group.addChild(circle);
+
+			/* moireIn(circle); */
+		}
+	};
+
+	Genesis.prototype.showR2PetalCircles_origins = function () {
+		for (var i = 0, l = this.petals.length; i < l; i++) {
+			var circle = new R2CircleMaster(this.petals[i].getCentroid());
+			circle.visible = true;
+			this.group.addChild(circle);
+
+			/* moireIn(circle); */
+		}
+	};
+	Genesis.prototype.showR2PetalCircles_cores = function () {
+		for (var i = 0, l = this.circles.length; i < l; i++) {
+			var circle = new R2CircleMaster(this.circles[i].position);
+			circle.visible = true;
+			this.group.addChild(circle);
+
+			/* moireIn(circle); */
+		}
+	};
+
+	Genesis.prototype.showV3TriadCircles_origins = function () {
+		for (var i = 0, l = this.triads.length; i < l; i++) {
+			var circle = new V3CircleMaster(this.triads[i].getCentroid());
+			circle.visible = true;
+			this.group.addChild(circle);
+
+			/* moireIn(circle); */
+		}
+	};
+	Genesis.prototype.showV3TriadCircles_cores = function () {
+		for (var i = 0, l = this.circles.length; i < l; i++) {
+			var circle = new V3CircleMaster(this.circles[i].position);
+			circle.visible = true;
+			this.group.addChild(circle);
+
+			/* moireIn(circle); */
+		}
+	};
+
+
+
+
+
+
+
+
+
+
+
+	function Column(col, row) {
+		// public attributes
+		this.geneses = [];
+		this.circles = [];
+		this.lines = [];
+		this.group = new Group();
+		// pattern creation
+		this.makeGeneses(col, row);
+	}
+
+
+	Column.prototype.makeGeneses = function (col, row) {
+		for (var i = 0; i < 7; i++) {
+			this.geneses.push(new Genesis(grid.cells[col][row].rectangle.center, i + 1));
+			this.circles = this.circles.concat(this.geneses[i].circles);
+			this.lines = this.lines.concat(this.geneses[i].lines);
+			this.group.addChildren(this.geneses[i].circles);
+			this.group.addChildren(this.geneses[i].lines);
+			row--;
+		}
+	};
+
+
+	Column.prototype.doGeneses = function (action) {
+		for (var i = 0, l = this.geneses.length; i < l; i++) {
+			this.geneses[i][action]();
+		}	
+	};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	(function () {
+		var columns = [];
+		var col = 0;
+		var row = 6;
+		for (var i = 0; i < 12; i++) {
+			columns.push(new Column(col, row));
+			col++;
+		}
+
+
+		//columns[0].doGeneses('showV2VesicaCircles_origins');
+		columns[1].doGeneses('showR2PetalCircles_origins');
+		columns[2].doGeneses('showV3TriadCircles_origins');
+		
+		columns[3].doGeneses('showR2PetalCircles_origins');
+		columns[3].doGeneses('showV3TriadCircles_origins');
+		
+
+
+		columns[5].doGeneses('showR2PetalCircles_cores');
+		columns[6].doGeneses('showV3TriadCircles_cores');
+		
+		columns[7].doGeneses('showR2PetalCircles_cores');
+		columns[7].doGeneses('showV3TriadCircles_cores');
+
+		
+
+
+		columns[9].doGeneses('showR2PetalCircles_origins');
+		columns[9].doGeneses('showV3TriadCircles_origins');
+
+		columns[10].doGeneses('showR2PetalCircles_cores');
+		columns[10].doGeneses('showV3TriadCircles_cores');
+
+		columns[11].doGeneses('showR2PetalCircles_origins');
+		columns[11].doGeneses('showV3TriadCircles_origins');
+		columns[11].doGeneses('showR2PetalCircles_cores');
+		columns[11].doGeneses('showV3TriadCircles_cores');
+
+
+
+		columns[0].doGeneses('showOriginTest');
+		columns[1].doGeneses('showOriginTest');
+		columns[2].doGeneses('showOriginTest');
+		columns[3].doGeneses('showOriginTest');
+		columns[4].doGeneses('showOriginTest');
+		columns[5].doGeneses('showOriginTest');
+		columns[6].doGeneses('showOriginTest');
+		columns[7].doGeneses('showOriginTest');
+		columns[8].doGeneses('showOriginTest');
+		columns[9].doGeneses('showOriginTest');
+		columns[10].doGeneses('showOriginTest');
+		columns[11].doGeneses('showOriginTest');
+
+
+		
+		
+	})();
+
+
+
+	(function () {
+		var columns = [];
+		var col = 0;
+		var row = 14;
+		for (var i = 0; i < 12; i++) {
+			columns.push(new Column(col, row));
+			col++;
+		}
+
+
+
+		columns[1].doGeneses('showR2PetalCircles_origins');
+		columns[2].doGeneses('showV3TriadCircles_origins');
+		
+		columns[3].doGeneses('showR2PetalCircles_origins');
+		columns[3].doGeneses('showV3TriadCircles_origins');
+		
+
+
+		columns[5].doGeneses('showR2PetalCircles_cores');
+		columns[6].doGeneses('showV3TriadCircles_cores');
+		
+		columns[7].doGeneses('showR2PetalCircles_cores');
+		columns[7].doGeneses('showV3TriadCircles_cores');
+
+		
+
+
+		columns[9].doGeneses('showR2PetalCircles_origins');
+		columns[9].doGeneses('showV3TriadCircles_origins');
+
+		columns[10].doGeneses('showR2PetalCircles_cores');
+		columns[10].doGeneses('showV3TriadCircles_cores');
+
+		columns[11].doGeneses('showR2PetalCircles_origins');
+		columns[11].doGeneses('showV3TriadCircles_origins');
+		columns[11].doGeneses('showR2PetalCircles_cores');
+		columns[11].doGeneses('showV3TriadCircles_cores');
+
+
+
+		
+	})();
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+</html>

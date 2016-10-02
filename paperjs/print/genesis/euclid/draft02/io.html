@@ -1,0 +1,186 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>io</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: #DDD;
+	}
+	canvas {
+		margin: 30px;
+		background: white;
+	}
+</style>
+</head>
+<body>
+<script type="text/javascript" src="../../../../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelCol.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript" src="js/RectGrid.js"></script>
+<script type="text/javascript">
+
+
+	var pageWidth = 1100;
+	var pageHeight = 850;
+
+
+	// initialize paper with new canvas element
+	var canvas = document.createElement('canvas');
+	canvas.width = pageWidth;
+	canvas.height = pageHeight;
+	document.body.appendChild(canvas);
+	paper.setup(canvas);
+
+	var radius = 40;
+    var vesica = util.getVesicaLength(radius);
+
+    var center = new paper.Point(
+        3 * (pageWidth / 4),
+        pageHeight / 2
+    );
+
+    function drawMark(point, radius, strokeWidth) {
+        var offset = radius * 2;
+
+        new paper.Path.Circle({
+            center: point,
+            radius: radius,
+            strokeColor: 'black',
+            strokeWidth: strokeWidth
+        });
+
+        new paper.Path.Line({
+            from: new paper.Point(point.x, point.y - offset),
+            to: new paper.Point(point.x, point.y + offset),
+            strokeCap: 'flat',
+            strokeColor: 'black',
+            strokeWidth: strokeWidth
+        });
+    }
+
+
+
+    drawMark(
+        new paper.Point(
+            3 * (pageWidth / 4),
+            2 * (pageHeight / 4)
+        ),
+        20,
+        1
+    );
+
+
+
+
+    // drawMark(
+    //     new paper.Point(
+    //         3 * (pageWidth / 4),
+    //         1 * (pageHeight / 4)
+    //     ),
+    //     40,
+    //     9
+    // );
+
+    // drawMark(
+    //     new paper.Point(
+    //         2 * (pageWidth / 4),
+    //         1 * (pageHeight / 4)
+    //     ),
+    //     40,
+    //     7
+    // );
+
+    // drawMark(
+    //     new paper.Point(
+    //         1 * (pageWidth / 4),
+    //         1 * (pageHeight / 4)
+    //     ),
+    //     40,
+    //     5
+    // );
+
+
+
+
+
+
+    // drawMark(
+    //     new paper.Point(
+    //         3 * (pageWidth / 4),
+    //         2 * (pageHeight / 4)
+    //     ),
+    //     10,
+    //     1
+    // );
+
+    // drawMark(
+    //     new paper.Point(
+    //         2 * (pageWidth / 4),
+    //         2 * (pageHeight / 4)
+    //     ),
+    //     20,
+    //     3
+    // );
+
+    // drawMark(
+    //     new paper.Point(
+    //         1 * (pageWidth / 4),
+    //         2 * (pageHeight / 4)
+    //     ),
+    //     30,
+    //     5
+    // );
+
+
+
+
+    // drawMark(
+    //     new paper.Point(
+    //         3 * (pageWidth / 4),
+    //         3 * (pageHeight / 4)
+    //     ),
+    //     10,
+    //     1
+    // );
+
+    // drawMark(
+    //     new paper.Point(
+    //         2 * (pageWidth / 4),
+    //         3 * (pageHeight / 4)
+    //     ),
+    //     20,
+    //     1
+    // );
+
+    // drawMark(
+    //     new paper.Point(
+    //         1 * (pageWidth / 4),
+    //         3 * (pageHeight / 4)
+    //     ),
+    //     30,
+    //     1
+    // );
+
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+</script>
+<script type="text/javascript" src="../../../svg-export.js"></script>
+</body>
+</html>

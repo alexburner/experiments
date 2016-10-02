@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>bubbles_d3</title>
+<script type="text/javascript" src="js/d3.v2.js"></script>
+<style type="text/css">
+
+	body, html { padding: 0; margin: 0; }
+
+	body {
+		background: #FFF;
+	}
+
+	svg {
+		margin: auto;
+	}
+
+	circle {
+		cursor: pointer;
+		stroke-width: 6px;
+		fill: none;
+	}
+
+</style>
+</head>
+<body>
+<script type="text/javascript">
+
+	
+	// normalize/shim requestAnimationFrame handler	
+	// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+	(function() {
+		var lastTime = 0;
+		var vendors = ['ms', 'moz', 'webkit', 'o'];
+		for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+			window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+			window.cancelAnimationFrame = 
+			  window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+		}
+
+		if (!window.requestAnimationFrame)
+			window.requestAnimationFrame = function(callback, element) {
+				var currTime = new Date().getTime();
+				var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+				var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+				  timeToCall);
+				lastTime = currTime + timeToCall;
+				return id;
+			};
+
+		if (!window.cancelAnimationFrame)
+			window.cancelAnimationFrame = function(id) {
+				clearTimeout(id);
+			};
+	}());
+
+	// parallel & serial frame animation module
+	var animations = ( function () {
+		// state
+		var isPaused = false;
+		// animation storage
+		var parallelList = [];
+		var serialQueue = [];
+		var currentSerial;
+		// execute each parallel frame animation
+		function handleParallels( time ) {
+			for ( var i = 0, l = parallelList.length; i < l; i++ ) {
+				// parallel handlers return bool flag to terminate
+				var isComplete = parallelList[ i ]( time );
+				if ( isComplete ) parallelList.slice( i, 1 );
+			}
+		}
+		// execute current serial frame animation
+		function handleSerials( time ) {
+			if ( !currentSerial && !serialQueue.length ) return;
+			if ( !currentSerial ) currentSerial = serialQueue.shift();
+			// serial handlers return themselves to continue
+			currentSerial = currentSerial( time );
+		}
+		// fires on each animation frame
+		function handleFrame( time ) {
+			if ( isPaused ) return;
+			handleParallels( time );
+			handleSerials( time );
+			// pass handler to browser for next frame
+			requestAnimationFrame( handleFrame );
+		}
+		// interface
+		return {
+			start: function () { handleFrame( new Date().getTime() ); },
+			addSerial: function ( animation ) { serialQueue.push( animation ); },
+			addParallel: function ( animation ) { parallelList.push( animation ); },
+			togglePause: function () { isPaused = !isPaused; }
+		};
+	} )();
+
+
+</script>
+</body>
+</html>

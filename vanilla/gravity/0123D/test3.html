@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>0123D t3</title>
+    <style>
+        * {
+            box-sizing: content-box;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #333;
+        }
+        .contents {
+            width: 1200px;
+            height: 800px;
+            margin: auto;
+        }
+        .row {
+            position: relative;
+            width: 1100px;
+            height: 200px;
+            margin: 25px;
+        }
+        .still-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 201px;
+            height: 201px;
+            border: 1px solid #444;
+            overflow: hidden;
+        }
+        .trails-container {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 875px;
+            height: 201px;
+            border: 1px solid #444;
+            border-top-style: dotted;
+            border-bottom-style: dotted;
+            overflow: hidden;
+        }
+
+        .axis {
+            width: 1px;
+            height: 200%;
+            position: absolute;
+            top: -50%;
+            left: calc(50% - 1px);
+            background: #EEE;
+            opacity: 0.1;
+            z-index: 10;
+        }
+
+        .two.axis-2 {
+            transform: rotate(90deg);
+        }
+
+        .three.axis-2 {
+            transform: rotate(60deg);
+        }
+
+        .three.axis-3 {
+            transform: rotate(-60deg);
+        }
+    </style>
+</head>
+<body>
+<script src="../lib/lodash.min.js"></script>
+<script src="../shared/Maths.js"></script>
+<script src="../shared/Vector.js"></script>
+<script src="../shared/Gravity.js"></script>
+<script src="../shared/Body.js"></script>
+<script>
+
+    function addEl(tagName, className, parentEl) {
+        var el = document.createElement(tagName);
+        el.className = className;
+        parentEl.appendChild(el);
+        return el;
+    }
+
+    function addContext(width, height, parentEl) {
+        var canvasEl = document.createElement('canvas');
+        var context = canvasEl.getContext('2d');
+        canvasEl.width = width;
+        canvasEl.height = height;
+        canvasEl.style.position = 'absolute';
+        canvasEl.style.top = '-1px';
+        canvasEl.style.left = '-1px';
+        parentEl.appendChild(canvasEl);
+        return context;
+    }
+
+    var contentsEl = addEl('div', 'contents', document.body);
+
+    var fillStyle = 'rgba(255, 255, 255, 0.1)';
+    var strokeStyle = 'rgba(0, 0, 0, 0.3)';
+
+    //
+    // ZERO DEE
+    //
+    (function () {
+
+        var rowEl = addEl('div', 'row', contentsEl);
+
+        var gravity = new Gravity();
+
+        var attractors = [
+            new Body({
+                dimensions: 0,
+                mass: 30,
+            })
+        ];
+
+        var bodies = [
+            new Body({
+                dimensions: 0,
+                mass: 10,
+            })
+        ];
+
+        function update() {
+            // apply forces to each body
+            _.each(bodies, function (body) {
+                _.each(attractors, function (attractor) {
+                    var force = gravity.attract(body, attractor);
+                    body.applyForce(force);
+                });
+                body.update();
+            });
+        }
+
+        // still
+        var stillView = (function () {
+            var containerEl = addEl('div', 'still-container', rowEl);
+            var rect = containerEl.getBoundingClientRect();
+            var width = rect.width;
+            var height = rect.height;
+            var context = addContext(width, height, containerEl);
+            return {
+                render: function () {
+                    context.fillStyle = fillStyle;
+                    context.strokeStyle = strokeStyle;
+                    _.each(_.concat(bodies, attractors), function (body) {
+                        var x = width / 2;
+                        var y = height / 2;
+                        var r = body.mass / 2;
+                        context.beginPath();
+                        context.arc(x, y, r, 0, Math.PI * 2);
+                        context.fill();
+                        context.stroke();
+                    });
+                },
+            };
+        })();
+
+        // trails
+        var trailsView = (function () {
+            var containerEl = addEl('div', 'trails-container', rowEl);
+            var rect = containerEl.getBoundingClientRect();
+            var width = rect.width;
+            var height = rect.height;
+            var context = addContext(width, height, containerEl);
+            var xShift = 0;
+            return {
+                render: function () {
+                    context.fillStyle = fillStyle;
+                    context.strokeStyle = strokeStyle;
+                    _.each(_.concat(bodies, attractors), function (body) {
+                        var x = xShift;
+                        var y = height / 2;
+                        var r = body.mass / 2;
+                        context.beginPath();
+                        context.arc(x, y, r, 0, Math.PI * 2);
+                        context.fill();
+                        context.stroke();
+                    });
+                    xShift++;
+                },
+            };
+        })();
+
+        function animate() {
+            update();
+            stillView.render();
+            trailsView.render();
+            window.requestAnimationFrame(animate);
+        }
+
+        animate();
+
+    })();
+
+    //
+    // ONE DEE
+    //
+    (function () {
+
+        var width = 200;
+        var height = width;
+
+        var rowEl = addEl('div', 'row', contentsEl);
+
+        var gravity = new Gravity({
+            gravitation: 1/2,
+            minDistance: 10,
+            maxDistance: 10
+        });
+
+        var attractors = [
+            new Body({
+                dimensions: 1,
+                mass: 30,
+                location: new Vector([width / 2]),
+            })
+        ];
+
+        var bodies = [
+            new Body({
+                dimensions: 1,
+                mass: 10,
+                location: new Vector([3 * width / 4]),
+                velocity: new Vector([2]),
+            })
+        ];
+
+        function update() {
+            // apply forces to each body
+            _.each(bodies, function (body) {
+                _.each(attractors, function (attractor) {
+                    var force = gravity.attract(body, attractor);
+                    body.applyForce(force);
+                });
+                body.update();
+            });
+        }
+
+        function render() {
+            context.fillStyle = fillStyle;
+            context.strokeStyle = strokeStyle;
+            _.each(_.concat(bodies, attractors), function (body) {
+                var x = body.location.tuple[0];
+                var y = height / 2;
+                var r = body.mass / 2;
+                context.beginPath();
+                context.arc(x, y, r, 0, Math.PI * 2);
+                context.fill();
+                context.stroke();
+            });
+        }
+
+        // still
+        var stillView = (function () {
+            var containerEl = addEl('div', 'still-container', rowEl);
+            var axis1 = addEl('div', 'one axis axis-1', containerEl);
+            var rect = containerEl.getBoundingClientRect();
+            var width = rect.width;
+            var height = rect.height;
+            var context = addContext(width, height, containerEl);
+            return {
+                render: function () {
+                    context.fillStyle = fillStyle;
+                    context.strokeStyle = strokeStyle;
+                    _.each(_.concat(bodies, attractors), function (body) {
+                        var x = width / 2;
+                        var y = body.location.tuple[0];
+                        var r = body.mass / 2;
+                        context.beginPath();
+                        context.arc(x, y, r, 0, Math.PI * 2);
+                        context.fill();
+                        context.stroke();
+                    });
+                },
+            };
+        })();
+
+        // trails
+        var trailsView = (function () {
+            var containerEl = addEl('div', 'trails-container', rowEl);
+            var rect = containerEl.getBoundingClientRect();
+            var width = rect.width;
+            var height = rect.height;
+            var context = addContext(width, height, containerEl);
+            var xShift = 0;
+            return {
+                render: function () {
+                    context.fillStyle = fillStyle;
+                    context.strokeStyle = strokeStyle;
+                    _.each(_.concat(bodies, attractors), function (body) {
+                        var x = xShift;
+                        var y = body.location.tuple[0];
+                        var r = body.mass / 2;
+                        context.beginPath();
+                        context.arc(x, y, r, 0, Math.PI * 2);
+                        context.fill();
+                        context.stroke();
+                    });
+                    xShift++;
+                },
+            };
+        })();
+
+        function animate() {
+            update();
+            stillView.render();
+            trailsView.render();
+            window.requestAnimationFrame(animate);
+        }
+
+        animate();
+
+    })();
+
+    //
+    // TWO DEE
+    //
+    (function () {
+
+        var width = 200;
+        var height = width;
+
+        var rowEl = addEl('div', 'row', contentsEl);
+
+        var gravity = new Gravity();
+
+        var attractors = [
+            new Body({
+                dimensions: 2,
+                mass: 30,
+                location: new Vector([
+                    width / 2,
+                    height / 2,
+                ]),
+            })
+        ];
+
+        var bodies = [
+            new Body({
+                dimensions: 2,
+                mass: 10,
+                location: new Vector([
+                    width / 4,
+                    height / 2,
+                ]),
+                velocity: new Vector([0, 3/2]),
+            })
+        ];
+
+        function update() {
+            // apply forces to each body
+            _.each(bodies, function (body) {
+                _.each(attractors, function (attractor) {
+                    var force = gravity.attract(body, attractor);
+                    body.applyForce(force);
+                });
+                body.update();
+            });
+        }
+
+        // still
+        var stillView = (function () {
+            var containerEl = addEl('div', 'still-container', rowEl);
+            var axis1 = addEl('div', 'two axis axis-1', containerEl);
+            var axis2 = addEl('div', 'two axis axis-2', containerEl);
+            var rect = containerEl.getBoundingClientRect();
+            var width = rect.width;
+            var height = rect.height;
+            var context = addContext(width, height, containerEl);
+            return {
+                render: function () {
+                    context.fillStyle = fillStyle;
+                    context.strokeStyle = strokeStyle;
+                    _.each(_.concat(bodies, attractors), function (body) {
+                        var x = body.location.tuple[0];
+                        var y = body.location.tuple[1];
+                        var r = body.mass / 2;
+                        context.beginPath();
+                        context.arc(x, y, r, 0, Math.PI * 2);
+                        context.fill();
+                        context.stroke();
+                    });
+                },
+            };
+        })();
+
+        // trails
+        var trailsView = (function () {
+            var containerEl = addEl('div', 'trails-container', rowEl);
+            var rect = containerEl.getBoundingClientRect();
+            var width = rect.width;
+            var height = rect.height;
+            var context = addContext(width, height, containerEl);
+            var xShift = 0;
+            return {
+                render: function () {
+                    context.fillStyle = fillStyle;
+                    context.strokeStyle = strokeStyle;
+                    _.each(_.concat(bodies, attractors), function (body) {
+                        var x = body.location.tuple[0] - 100 + xShift;
+                        var y = body.location.tuple[1];
+                        var r = body.mass / 2;
+                        context.beginPath();
+                        context.arc(x, y, r, 0, Math.PI * 2);
+                        context.fill();
+                        context.stroke();
+                    });
+                    xShift++;
+                },
+            };
+        })();
+
+        function animate() {
+            update();
+            stillView.render();
+            trailsView.render();
+            window.requestAnimationFrame(animate);
+        }
+
+        animate();
+
+    })();
+
+    //
+    // THREE DEE
+    //
+    (function () {
+
+        var width = 200;
+        var height = width;
+
+        var rowEl = addEl('div', 'row', contentsEl);
+
+        var gravity = new Gravity();
+
+        var attractors = [
+            new Body({
+                dimensions: 3,
+                mass: 30,
+                location: new Vector([
+                    width / 2,
+                    height / 2,
+                    height / 2,
+                ]),
+            })
+        ];
+
+        var bodies = [
+            new Body({
+                dimensions: 3,
+                mass: 10,
+                location: new Vector([
+                    width / 4,
+                    height / 2,
+                    height / 2,
+                ]),
+                velocity: new Vector([0, 3/2, 3/2]),
+            })
+        ];
+
+        function update() {
+            // apply forces to each body
+            _.each(bodies, function (body) {
+                _.each(attractors, function (attractor) {
+                    var force = gravity.attract(body, attractor);
+                    body.applyForce(force);
+                });
+                body.update();
+            });
+        }
+
+        // still
+        var stillView = (function () {
+            var containerEl = addEl('div', 'still-container', rowEl);
+            var axis1 = addEl('div', 'three axis axis-1', containerEl);
+            var axis2 = addEl('div', 'three axis axis-2', containerEl);
+            var axis3 = addEl('div', 'three axis axis-3', containerEl);
+            var rect = containerEl.getBoundingClientRect();
+            var width = rect.width;
+            var height = rect.height;
+            var context = addContext(width, height, containerEl);
+            return {
+                render: function () {
+                    context.fillStyle = fillStyle;
+                    context.strokeStyle = strokeStyle;
+                    _.each(_.concat(bodies, attractors), function (body) {
+                        var x = body.location.tuple[0];
+                        var y = body.location.tuple[1];
+                        var z = body.location.tuple[2];
+                        var r = body.mass / 2;
+                        context.beginPath();
+                        context.arc(x, y, r, 0, Math.PI * 2);
+                        context.fill();
+                        context.stroke();
+                    });
+                },
+            };
+        })();
+
+        // trails
+        var trailsView = (function () {
+            var containerEl = addEl('div', 'trails-container', rowEl);
+            var rect = containerEl.getBoundingClientRect();
+            var width = rect.width;
+            var height = rect.height;
+            var context = addContext(width, height, containerEl);
+            var xShift = 0;
+            return {
+                render: function () {
+                    context.fillStyle = fillStyle;
+                    context.strokeStyle = strokeStyle;
+                    _.each(_.concat(bodies, attractors), function (body) {
+                        var x = body.location.tuple[0] - 100 + xShift;
+                        var y = body.location.tuple[1];
+                        var z = body.location.tuple[2];
+                        var r = body.mass / 2;
+                        context.beginPath();
+                        context.arc(x, y, r, 0, Math.PI * 2);
+                        context.fill();
+                        context.stroke();
+                    });
+                    xShift++;
+                },
+            };
+        })();
+
+        function animate() {
+            update();
+            stillView.render();
+            trailsView.render();
+            window.requestAnimationFrame(animate);
+        }
+
+        animate();
+
+    })();
+
+</script>
+</body>
+</html>

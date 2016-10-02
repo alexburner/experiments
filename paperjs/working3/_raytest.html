@@ -1,0 +1,100 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>_raytest</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+	}
+	#workspace {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_nite.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelCol.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+var backdrop = new shapes.Backdrop();
+
+
+
+	var box = new paper.Path.Rectangle(paper.view.bounds);
+
+	
+	(function () {
+
+		// draw a number of radials on a box
+		function drawBoxRadials(box, count) {
+			var angle = 360 / count;
+			var radials = [];
+			var width = box.bounds.width;
+			var height = box.bounds.height;
+			var length = Math.max(width, height);
+			var origin = box.position;
+			var vector = new paper.Point(origin);
+			vector.length = length;
+			vector.angle = 0;
+			for (var i = 0, l = count; i < l; i++) {
+				vector.angle = angle * i;
+				vector.angle -= 90;
+				//vector.angle %= 360;
+				var point = util.getConfinedPoint(
+					origin, 
+					origin.add(vector), 
+					box
+				);
+				radials.push(
+					new shapes.Line(origin, point)
+				);
+			}
+			return radials;
+		}
+
+		// user click to draw
+		var tool = new paper.Tool();
+		var n = 0;
+		var radials = [];
+		tool.onMouseDown = function (e) {
+			(new paper.Group(radials)).removeChildren();
+			radials = drawBoxRadials(
+				box, 3 * Math.pow(2, n++)
+			);
+		};
+	})();
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

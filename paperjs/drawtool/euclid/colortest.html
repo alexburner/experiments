@@ -1,0 +1,218 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>color test</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#pane {
+		width: 2000px;
+		height: 2000px;
+	}
+</style>
+</head>
+<body>
+<canvas id="pane"></canvas>
+<script type="text/javascript" src="../../paper.v.0.9.18.js"></script>
+<script type="text/javascript">
+
+
+	/**
+	 * initialize paper with pane canvas element
+	 */
+	paper.setup(document.getElementById('pane'));
+
+
+	var background = new paper.Path.Rectangle(paper.view.bounds);
+	background.fillColor = '#222';
+
+	var origin = new paper.Point(50, 50);
+	var size = new paper.Size(4, 4);
+
+/*
+	for (var r = 0; r < 255; r++) {
+		for (var g = 0; g < 255; g++) {
+			for (var b = 0; b < 255; b++) {
+				var swatch = new paper.Path.Rectangle(origin, size);
+				swatch.fillColor = 'rgb(' + r + ',' + g + ',' + b + ')';
+				origin.x += size.width;
+			}
+		}
+	}
+*/
+
+function createHuePicker(x, y) {
+
+	function createSwatch(r, g, b, i, j) {
+		
+		setTimeout(function () {
+
+			var swatch = new paper.Path.Rectangle(
+				new paper.Point(x, y + (i * 255 + j) / 10),
+				new paper.Size(40, 1 / 10)
+			);
+			swatch.fillColor = 'rgb(' + r + ',' + g + ',' + b + ')';
+			swatch.data = {
+				type: 'H',
+				r: r,
+				g: g,
+				b: b
+			};
+
+			paper.view.draw();
+
+		}, 1);
+
+	}
+
+	/* cycle through rgb rainbow */
+	for (var i = 0; i < 6; i++) {
+		for (var j = 0; j < 255; j++) {
+			var r, g, b;
+			switch (i) {
+				case 0:
+					r = 255;
+					g = 0;
+					b = 255 - j;
+					break;
+				case 1:
+					r = 255;
+					g = j;
+					b = 0;
+					break;
+				case 2:
+					r = 255 - j;
+					g = 255;
+					b = 0;
+					break;
+				case 3:
+					r = 0;
+					g = 255;
+					b = j;
+					break;
+				case 4:
+					r = 0;
+					g = 255 - j;
+					b = 255;
+					break;
+				case 5:
+					r = j;
+					g = 0;
+					b = 255;
+					break;
+			}
+			createSwatch(r, g, b, i, j);
+		}
+	}
+}
+
+createHuePicker(10, 10);
+
+
+function createSaturationAndValuePicker(x, y, r, g, b, length) {
+	
+	function createSwatch(r, g, b, i, j) {
+
+		setTimeout(function () {
+
+			var swatch = new paper.Path.Rectangle(
+				new paper.Point(x + (length - j), y + (length - i)),
+				new paper.Size(1, 1)
+			);
+			swatch.fillColor = 'rgb(' + r + ',' + g + ',' + b + ')';
+			swatch.data = {
+				type: 'SV',
+				r: r,
+				g: g,
+				b: b
+			};
+
+			paper.view.draw();
+
+		}, 1);
+
+	}
+
+	for (var i = 0; i < length; i++) {
+		var rValue = (r / length) * i;
+		var gValue = (g / length) * i;
+		var bValue = (b / length) * i;
+		var greyValue = (255 / length) * i;
+		var rDiff = greyValue - rValue;
+		var gDiff = greyValue - gValue;
+		var bDiff = greyValue - bValue;
+		var rIncr = rDiff / length;
+		var gIncr = gDiff / length;
+		var bIncr = bDiff / length;
+		for (var j = 0; j < length; j++) {
+			rVS = rValue + rIncr * j;
+			gVS = gValue + gIncr * j;
+			bVS = bValue + bIncr * j;
+			createSwatch(rVS, gVS, bVS, i, j);
+		}
+	}
+}
+
+
+var tool = new paper.Tool();
+
+tool.onMouseDown = function (e) {
+	var hitResult = paper.project.hitTest(e.point);
+	if (hitResult && hitResult.item && hitResult.item.data.type) {
+		var data = hitResult.item.data;
+		switch (data.type) {
+			case 'H':
+				createSaturationAndValuePicker(
+					60,
+					10,
+					data.r,
+					data.g,
+					data.b,
+					(255 * 6) / 10
+				);
+				break;
+		}
+	}
+};
+	
+
+
+
+/*
+	var values = ['0', '6', 'C'];
+	var colors = [];
+	var origin = new paper.Point(50, 50);
+	var size = new paper.Size(50, 50);
+	values.forEach(function (value1, index1) {
+		values.forEach(function (value2, index2) {
+			//if (index1 === index2) return;
+			values.forEach(function (value3, index3) {
+				//if (index1 === index3) return;
+				//if (index2 === index3) return;
+				colors.push('#' + value1 + value2 + value3);
+			});
+		});
+	});
+	colors.forEach(function (color) {
+		var swatch = new paper.Path.Rectangle(origin, size);
+		swatch.fillColor = color;
+		var label = new paper.PointText(origin);
+		label.fillColor = 'white';
+		label.content = color;
+		origin.x += 50;
+	});
+*/
+
+
+
+	/**
+	 * first draw
+	 */
+	paper.view.draw();
+
+
+</script>
+</body>
+</html>

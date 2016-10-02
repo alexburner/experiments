@@ -1,0 +1,308 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>spheres</title>
+<style type="text/css" media="screen">
+  html, body, canvas {
+    margin: 0;
+    padding: 0;
+  }
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript" src="js/three.min.js"></script>
+<script type="text/javascript" src="js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript">
+
+function coinFlip() {
+  return Math.random() > 0.5;
+}
+
+function randomPosNeg(number) {
+  var random = Math.random() * number;
+  return coinFlip() ? random : -random;
+}
+
+function randomPosPosNeg(number) {
+  var random = Math.random() * number;
+  return coinFlip() && coinFlip() ? random : -random;
+}
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+AEROTWIST - GETTING STARTED WITH THREE.JS
+http://aerotwist.com/tutorials/getting-started-with-three-js/
+
+
+INTRODUCTION
+I have used Three.js [https://github.com/mrdoob/three.js/] for some of my experiments, and it does a really great job of abstracting away the headaches of getting going with 3D in the browser. With it you can create cameras, objects, lights, materials and more, and you have a choice of renderer, which means you can decide if you want your scene to be drawn using HTML 5’s canvas, WebGL or SVG. And since it’s open source you could even get involved with the project. But right now I’ll focus on what I’ve learned by playing with it as an engine, and talk you through some of the basics.
+
+For all the awesomeness of Three.js, there can be times where you might struggle. Typically you will need to spend quite a large amount of time with the examples, reverse engineering and (in my case certainly) hunting down specific functionality and occasionally asking questions via GitHub. If you have to ask questions, by the way, you should do that on Stack Overflow [http://stackoverflow.com/tags/three.js/info]!
+
+THE BASICS
+I will assume that you have at least a passing knowledge of 3D, and reasonable proficiency with JavaScript. If you don’t it may be worth learning a bit before you try and play with this stuff, as it can get a little confusing.
+
+In our 3D world we will have some of the following, which I will guide you through the process of creating:
+
+A scene
+A renderer
+A camera
+An object or two (with materials)
+You can, of course, do some crazy things, and my hope is that you will go on to do that and start to experiment with 3D in your browser.
+
+SUPPORT
+Just a quick note on support in the browsers. Google’s Chrome browser is, in my experience, the best browser to work with in terms of which renderers are supported, and the speed of the underlying JavaScript engine. Chrome supports Canvas, WebGL and SVG and it’s blazingly fast. Firefox is a close second; its JavaScript engine does seem to be a touch slower than Chrome’s, but again its support for the render technologies is great. It’s also getting faster with each version, which is handy. Opera also has WebGL support and Safari on Mac has an option to enable it. So while it has it, it’s best to work on the basis that Safari only supports Canvas rendering. Internet Explorer 9+ only supports Canvas rendering right now, although you never know what the future holds.
+
+SET THE SCENE
+I’ll assume you’ve chosen a browser that supports all the rendering technologies, and that you want to render with Canvas or WebGL, since they’re the more standard choices. Canvas is more widely supported than WebGL, but it’s worth noting that WebGL runs on your graphics card’s GPU, which means that your CPU can concentrate on other non-rendering tasks like any physics or user interaction you’re trying to do.
+
+Irrespective of your chosen renderer you should bear in mind that the JavaScript will need to optimised for performance. 3D isn’t a lightweight task for a browser (and it’s awesome that it’s even possible), so be careful to understand where any bottlenecks are in your code, and remove them if you can!
+
+So with that said, and on the assumption you have downloaded [https://github.com/mrdoob/three.js/tree/master/src] and included three.js in your HTML file, how do you go about setting up a scene? Like this:
+
+ */
+
+
+
+// set the scene size
+var WIDTH = window.innerWidth,
+  HEIGHT = window.innerHeight;
+
+// set some camera attributes
+var VIEW_ANGLE = 45,
+  ASPECT = WIDTH / HEIGHT,
+  NEAR = 0.1,
+  FAR = 10000;
+
+// get the DOM element to attach to
+// - assume we've got jQuery to hand
+//var $container = $('#container');
+var containerEl = document.getElementById('container');
+
+// create a WebGL renderer, camera
+// and a scene
+var renderer = new THREE.WebGLRenderer();
+var camera =
+  new THREE.PerspectiveCamera(
+    VIEW_ANGLE,
+    ASPECT,
+    NEAR,
+    FAR);
+
+var scene = new THREE.Scene();
+
+// add the camera to the scene
+scene.add(camera);
+
+// the camera starts at 0,0,0
+// so pull it back
+camera.position.z = 300;
+
+// start the renderer
+renderer.setSize(WIDTH, HEIGHT);
+
+// attach the render-supplied DOM element
+//$container.append(renderer.domElement);
+containerEl.appendChild(renderer.domElement);
+
+
+
+// create a point light
+var pointLight =
+  new THREE.PointLight(0xFFFFFF);
+
+// set its position
+pointLight.position.x = 10;
+pointLight.position.y = 50;
+pointLight.position.z = 130;
+
+// add to the scene
+scene.add(pointLight);
+
+
+
+
+
+
+
+function Sphere () {
+
+  // hm
+  this.delta = {
+    scale: {
+      x: randomPosNeg(0.01),
+      y: randomPosNeg(0.01),
+      z: randomPosNeg(0.01)
+    },
+    position: {
+      x: randomPosNeg(1),
+      y: randomPosNeg(1),
+      z: randomPosNeg(1)
+    },
+    rotation: {
+      x: randomPosNeg(0.001),
+      y: randomPosNeg(0.001),
+      z: randomPosNeg(0.001)
+    },
+  };
+
+
+  // elements
+  this.three = {
+    mesh: null
+  };
+
+  // construction
+  this.construct();
+
+}
+
+
+Sphere.three = {};
+
+Sphere.three.geometry =
+  new THREE.SphereGeometry(
+    16, // radius
+    32, // segments
+    32 // rings
+  );
+
+Sphere.three.material =
+  new THREE.MeshLambertMaterial({
+    transparent: true,
+    opacity: 0.93,
+    color: 0xFFFFFF
+  });
+
+
+Sphere.prototype.construct = function () {
+
+  this.three.mesh =
+    new THREE.Mesh(
+      Sphere.three.geometry,
+      Sphere.three.material
+    );
+
+  scene.add(this.three.mesh);
+
+};
+
+Sphere.prototype.animateFrame = function (time) {
+
+  // this.three.mesh.rotation.x += this.delta.rotation.x;
+  // this.three.mesh.rotation.y += this.delta.rotation.y;
+  // this.three.mesh.rotation.z += this.delta.rotation.z;
+
+  this.three.mesh.position.x += this.delta.position.x;
+  this.three.mesh.position.y += this.delta.position.y;
+  this.three.mesh.position.z += this.delta.position.z;
+
+  // this.three.mesh.scale.x += this.delta.scale.x;
+  // this.three.mesh.scale.y += this.delta.scale.y;
+  // this.three.mesh.scale.z += this.delta.scale.z;
+
+};
+
+
+
+var spheres = [];
+for (var i = 0, l = 2000; i < l; i++) {
+  spheres.push(new Sphere());
+}
+
+
+
+// draw!
+
+// http://threejs.org/docs/#Manual/Introduction/Creating_a_scene
+var render = function () {
+
+	requestAnimationFrame(render);
+
+  spheres.forEach(function (sphere) {
+    sphere.animateFrame();
+  });
+
+	renderer.render(scene, camera);
+
+};
+
+render();
+
+
+
+/*
+
+You’re probably going to want to render more than once, though, so if you’re going to do a loop you should really use requestAnimationFrame; it’s by far the smartest way of handling animation in the browser. It’s not fully supported as yet, so I’d totally recommend that you take a look at Paul Irish’s shim [http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/].
+
+COMMON OBJECT PROPERTIES
+If you take time to look through the code for Three.js you’ll see a lot of objects “inherit” from Object3D. This is a base object which contains some very useful properties, such as the position, rotation and scale information. In particular our Sphere is a Mesh which inherits from Object3D, to which it adds its own properties: geometry and materials. Why do I mention these? Well it’s unlikely you’re going to want to just have a sphere on your screen that does nothing, and these properties are worth investigating as they allow you to manipulate the underlying details of the meshes and materials on the fly.
+
+ */
+
+
+/*
+// sphere geometry
+console.log(sphere.geometry);
+
+// which contains the vertices and faces
+console.log(sphere.geometry.vertices); // an array
+console.log(sphere.geometry.faces); // also an array
+
+// its position
+console.log(sphere.position); // contains x, y and z
+console.log(sphere.rotation); // same
+console.log(sphere.scale); // ... same
+
+*/
+
+/*
+
+DIRTY LITTLE SECRETS
+I just wanted to quickly point out a quick gotcha for Three.js, which is that if you modify, for example, the vertices of a mesh, you will notice in your render loop that nothing changes. Why? Well because Three.js (as far as I can tell) caches the data for a mesh as something of an optimisation. What you actually need to do is to flag to Three.js that something has changed so it can recalculate whatever it needs to. You do this with the following:
+
+ */
+
+
+/*
+// set the geometry to dynamic
+// so that it allow updates
+sphere.geometry.dynamic = true;
+
+// changes to the vertices
+sphere.geometry.verticesNeedUpdate = true;
+
+// changes to the normals
+sphere.geometry.normalsNeedUpdate = true;
+*/
+
+
+/*
+
+Again there are more, but those two I’ve found are the most useful. You should obviously only flag the things that have changed to avoid unnecessary calculations.
+
+ */
+
+
+
+</script>
+</body>
+</html>

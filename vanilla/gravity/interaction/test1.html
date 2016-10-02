@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>gravity sketcher</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #4783EB;
+            cursor: pointer;
+        }
+
+        .particle {
+            position: absolute;
+            width: 0;
+            height: 0;
+            z-index: 10;
+        }
+
+        .dot {
+            margin-top: -6px;
+            margin-left: -6px;
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #111;
+            border-radius: 100%;
+            z-index: -1;
+        }
+
+        .disc {
+            margin-top: -1px;
+            margin-left: -1px;
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 100%;
+            z-index: -2;
+        }
+
+        .label {
+            padding: 0 12px;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 32px;
+            line-height: 32px;
+            letter-spacing: 0.1em;
+            font-family: sans-serif;
+            font-size: 12px;
+            color: white;
+        }
+
+        .label-left {
+            text-align: left;
+        }
+
+        .label-center {
+            text-align: center;
+        }
+
+        .label-right {
+            text-align: right;
+        }
+
+    </style>
+</head>
+<body>
+<div class="label label-left">[ click&amp;drag ] to add orbiter</div>
+<div class="label label-center">[ click&amp;drag + shift ] to add attractor</div>
+<div class="label label-right">[ esc ] to cancel</div>
+<script src="../lib/lodash.min.js"></script>
+<script src="../shared/Maths.js"></script>
+<script src="../shared/Vector.js"></script>
+<script src="../shared/Gravity.js"></script>
+<script src="../shared/Body.js"></script>
+<script src="AttractorView.js"></script>
+<script>
+
+    // experiments following Nature of Code book
+    // http://natureofcode.com/book/chapter-2-forces/
+
+    var hash = (
+        window.location.hash.length ?
+            Number(window.location.hash.slice(1)) :
+            NaN
+    );
+
+    var count = isNaN(hash) ? 24 : hash;
+
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    _.each(document.body.getElementsByClassName('label'), function (labelEl) {
+        labelEl.style.width = width + 'px';
+    });
+
+    function makeContext() {
+        var canvasEl = document.createElement('canvas');
+        var context = canvasEl.getContext('2d');
+        canvasEl.width = width;
+        canvasEl.height = height;
+        canvasEl.style.position = 'absolute';
+        canvasEl.style.top = 0;
+        canvasEl.style.left = 0;
+        document.body.appendChild(canvasEl);
+        return context;
+    }
+
+    var Model = (function () {
+        var gravity = new Gravity();
+        var attractors = [];
+        var bodies = [];
+        return {
+            getAttractors: function () {
+                return attractors;
+            },
+            getBodies: function () {
+                return bodies;
+            },
+            addAttractor: function (location, mass) {
+                var attractor = new Body({
+                    dimensions: 2,
+                    mass: mass || 30,
+                    location: location,
+                });
+                attractors.push(attractor);
+                return attractor;
+            },
+            addBody: function (location, velocity) {
+                var body = new Body({
+                    dimensions: 2,
+                    mass: 10,
+                    location: location,
+                    velocity: velocity,
+                });
+                bodies.push(body);
+                return body;
+            },
+            update: function () {
+                // apply forces to each body
+                _.each(bodies, function (body) {
+                    _.each(attractors, function (attractor) {
+                        var force = gravity.attract(body, attractor);
+                        body.applyForce(force);
+                    });
+                    body.update();
+                });
+            },
+        };
+    })();
+
+    var View = (function () {
+        var attractors = [];
+        var bodies = [];
+        var trailCtx = makeContext();
+        var bubbleCtx = makeContext();
+        return {
+            addAttractor: function (location, mass) {
+                var attractor = new AttractorView();
+                attractor.setMass(mass || 30);
+                attractor.setPosition(
+                    location.tuple[0],
+                    location.tuple[1]
+                );
+                attractors.push(attractor);
+                document.body.appendChild(attractor.el);
+                return attractor;
+            },
+            render: function () {
+                bubbleCtx.clearRect(0, 0, width, height);
+                _.each(Model.getBodies(), function (body, i) {
+                    var xp = body.locationp.tuple[0];
+                    var yp = body.locationp.tuple[1];
+                    var x = body.location.tuple[0];
+                    var y = body.location.tuple[1];
+                    var r = 6;
+                    // draw bubbles
+                    bubbleCtx.fillStyle = '#111';
+                    bubbleCtx.beginPath();
+                    bubbleCtx.arc(x, y, r, 0, Math.PI * 2);
+                    bubbleCtx.fill();
+                    // draw trails
+                    trailCtx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+                    trailCtx.beginPath();
+                    trailCtx.moveTo(xp, yp);
+                    trailCtx.lineTo(x, y);
+                    trailCtx.stroke();
+                });
+            },
+        };
+    })();
+
+    // render animation
+    (function animate() {
+        Model.update();
+        View.render();
+        window.requestAnimationFrame(animate);
+    })();
+
+
+
+    var Mouse = (function () {
+        var MIN_MASS = 8;
+        var isActive = false;
+        var isShift = false;
+        var isDrag = false;
+        var downX = null;
+        var downY = null;
+        var moveX = null;
+        var moveY = null;
+        var location = null;
+        var delta = null;
+        var attractorView = null;
+        var bodyCtx = makeContext();
+
+        function startEvent(e) {
+            e.preventDefault();
+            isActive = true;
+            isShift = e.shiftKey;
+            downX = e.pageX;
+            downY = e.pageY;
+            location = new Vector([downX, downY]);
+            moveX = downX;
+            moveY = downY;
+            delta = new Vector([0, 0]);
+            initView();
+            document.body.addEventListener('mousemove', moveEvent);
+            document.body.addEventListener('mouseleave', endEvent);
+            document.body.addEventListener('mouseup', endEvent);
+        }
+
+        function moveEvent(e) {
+            e.preventDefault();
+            isShift = e.shiftKey;
+            isDrag = true;
+            moveX = e.pageX;
+            moveY = e.pageY;
+            delta = new Vector([
+                moveX - downX,
+                moveY - downY,
+            ]);
+            updateView();
+        }
+
+        function endEvent(e) {
+            e.preventDefault();
+            closeView();
+            unsetEvent();
+        }
+
+        function unsetEvent() {
+            isActive = false;
+            isShift = false;
+            isDrag = false;
+            downX = null;
+            downY = null;
+            location = null;
+            document.body.removeEventListener('mousemove', moveEvent);
+            document.body.removeEventListener('mouseleave', endEvent);
+            document.body.removeEventListener('mouseup', endEvent);
+        }
+
+        function unsetAttractor() {
+            if (attractorView) {
+                attractorView.destroy();
+            }
+            attractorView = null;
+        }
+
+        function unsetBody() {
+            bodyCtx.clearRect(0, 0, width, height);
+        }
+
+        function initView() {
+            if (isShift) {
+                // add attractor view
+                attractorView = View.addAttractor(location, MIN_MASS);
+            }
+            else {
+                // draw temp body
+                bodyCtx.fillStyle = '#111';
+                bodyCtx.beginPath();
+                bodyCtx.arc(downX, downY, 6, 0, Math.PI * 2);
+                bodyCtx.fill();
+            }
+        }
+
+        function updateView() {
+            if (isShift) {
+                // clear out body justin case
+                unsetBody();
+                // make attractor if not already
+                if (!attractorView) {
+                    attractorView = View.addAttractor(location, MIN_MASS);
+                }
+                // update attractor view
+                var mass = delta.length();
+                mass = Math.max(mass, MIN_MASS);
+                attractorView.setMass(mass);
+            }
+            else {
+                // clear out attractor justin case
+                unsetAttractor();
+                // blank canvas
+                bodyCtx.clearRect(0, 0, width, height);
+                // draw velocity marker
+                bodyCtx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+                bodyCtx.beginPath();
+                bodyCtx.moveTo(downX, downY);
+                bodyCtx.lineTo(moveX, moveY);
+                bodyCtx.stroke();
+                bodyCtx.beginPath();
+                bodyCtx.arc(moveX, moveY, 5.5, 0, Math.PI * 2);
+                bodyCtx.stroke();
+                // draw temp body
+                bodyCtx.fillStyle = '#111';
+                bodyCtx.beginPath();
+                bodyCtx.arc(downX, downY, 6, 0, Math.PI * 2);
+                bodyCtx.fill();
+            }
+        }
+
+        function closeView() {
+            if (isShift) {
+                // add attractor
+                var mass = delta.length();
+                mass = Math.max(mass, MIN_MASS);
+                attractorView.setMass(mass);
+                Model.addAttractor(location, mass);
+                attractorView = null;
+            }
+            else {
+                // add body
+                var velocity = Vector.multiply(delta, 1/12);
+                Model.addBody(location, velocity);
+            }
+            unsetAttractor();
+            unsetBody();
+        }
+
+        document.body.addEventListener('mousedown', startEvent);
+
+        window.addEventListener('keydown', function (e) {
+            switch (e.which) {
+                case 16: // shift
+                    isShift = true;
+                    if (isActive) updateView();
+                    break;
+                case 27: // esc
+                    unsetEvent();
+                    unsetAttractor();
+                    unsetBody();
+                    break;
+            }
+        });
+
+        window.addEventListener('keyup', function (e) {
+            switch (e.which) {
+                case 16: // shift
+                    isShift = false;
+                    if (isActive) updateView();
+                    break;
+            }
+        });
+    })();
+
+</script>
+</body>
+</html>

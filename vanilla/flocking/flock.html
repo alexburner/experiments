@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Flocking</title>
+	<link rel="stylesheet" type="text/css" href="css/flock.css">
+</head>
+<body>
+<!--
+
+
+TODO
+
+abstract out config
+abstract out css
+
+have all overrides in .html
+
+people go to different pages
+get different content
+
+but common sources
+js, css, img, etc
+
+
+
+even
+webgl?
+
+
+
+oo config
+have presets
+like
+- original
+- trails problem
+- unflocked trails
+- slanty plaid
+
+
+
+
+-->
+<script type="text/javascript" src="js/addEvent.js"></script>
+<script type="text/javascript" src="js/frameHandler.js"></script>
+<script type="text/javascript" src="js/maths.js"></script>
+<script type="text/javascript" src="js/container.js"></script>
+<script type="text/javascript" src="js/canvas.js"></script>
+<script type="text/javascript" src="js/cursor.js"></script>
+<script type="text/javascript" src="js/keyboard.js"></script>
+<script type="text/javascript" src="js/flock.js"></script>
+<script type="text/javascript" src="js/bird.js"></script>
+<script type="text/javascript">
+	
+	//
+	// page start
+	//
+
+	// make birds
+	flock.createBirds(100);
+	// run animations
+	frameHandler.start();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>rd1</title>
+</head>
+<body>
+<script src="../lodash.min.js"></script>
+<script src="../WorkerLink.js"></script>
+<script>
+
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    width = 200;
+    height = 200;
+
+    var canvasEl = document.createElement('canvas');
+    canvasEl.width = width;
+    canvasEl.height = height;
+    canvasEl.style.position = 'fixed';
+    canvasEl.style.top = '0px';
+    canvasEl.style.left = '0px';
+    document.body.appendChild(canvasEl);
+    var ctx = canvasEl.getContext('2d');
+
+    var worker = new WorkerLink('worker.js');
+    var queue = [];
+
+    function init(args, callback) {
+        worker.send({
+            methodName: 'init',
+            argsArr: [args],
+        }, callback);
+    }
+
+    function set(grid, callback) {
+        worker.send({
+            methodName: 'set',
+            argsArr: [grid]
+        }, callback);
+    }
+
+    function tick() {
+        worker.send({
+            methodName: 'tick'
+        }, function (pixels) {
+            queue.push(pixels);
+        });
+    }
+
+    function render(pixels) {
+        ctx.putImageData(new ImageData(pixels, width, height), 0, 0);
+    }
+
+    function tickLoop() {
+        if (queue.length < 100) tick();
+        setTimeout(tickLoop, 0);
+    }
+
+    function renderLoop() {
+        if (queue.length) render(queue.shift());
+        window.requestAnimationFrame(renderLoop);
+    }
+
+    init({
+        c: {
+            WIDTH: width,
+            HEIGHT: height,
+            DA: 1,
+            DB: 0.5,
+            FEED: 0.055,
+            KILL: 0.062,
+            weight: {
+                CENTER: -1,
+                ADJACENT: 0.2,
+                DIAGONAL: 0.05,
+            },
+        },
+        seed: {
+            a: 1,
+            b: 0,
+        },
+    }, function (grid) {
+        // var halfsize = 5;
+        // var centerX = Math.round(width / 2);
+        // var centerY = Math.round(height / 2);
+        // var x1 = centerX - halfsize;
+        // var y1 = centerY - halfsize;
+        // var x2 = centerX + halfsize;
+        // var y2 = centerY + halfsize;
+        // for (var x = x1; x < x2; x++) {
+        //     for (var y = y1; y < y2; y++) {
+        //         grid[x][y].b = 1;
+        //     }
+        // }
+        for (var i = 100; i < 120; i++) {
+            for (var j = 100; j < 120; j++) {
+                grid[i][j].b = 1;
+            }
+        }
+        set(grid, function () {
+            // pre-calc 100 ticks
+            _.times(100, tick);
+            // start loops
+            renderLoop();
+            tickLoop();
+        });
+    });
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>dashed occlusion [example]</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: #EEE;
+		color: black;
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript" src="../../../js/three.min.js"></script>
+<script type="text/javascript" src="../../../js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript" src="../../../js/examples/controls/TrackballControls.js"></script>
+<script type="text/javascript" src="setup.js"></script>
+<script type="text/javascript">
+
+var points1 = [
+			[   5.0,  -5.0,  55.0],
+			[ -32.0,  -5.0,  55.0],
+			[ -32.0,  33.0,  55.0],
+			[   5.0,  33.0,  55.0],
+			[   5.0,  -5.0,  0.0],
+			[ -98.0,  -5.0,  0.0],
+			[ -98.0,  33.0,  0.0],
+			[   5.0,  33.0,  0.0],
+			[ -98.0,  -5.0,  23.0],
+			[ -98.0,  33.0,  23.0]
+		];
+var edges1 = [
+		    [0,1], [1,2], [2,3], [3,0],
+		    [0,4], [1,8], [2,9], [3,7],[8,5],[9,6],
+		    [4,5], [5,6], [6,7], [7,4],[8,9]
+		];
+var faces1 = [
+			[0,3,2,1],
+			[4,5,6,7],
+			[0,4,7,3],
+			[4,0,1,8,5],
+			[1,8,9,2],
+			[8,5,6,9],
+			[7,3,2,9,6]
+		];
+var points2 = [
+			[   5.0,  -5.0,  55.0],
+			[ -50.0,  -5.0,  55.0],
+			[ -50.0,  33.0,  55.0],
+			[   5.0,  33.0,  55.0],
+			[   5.0,  -5.0,  0.0],
+			[ -113.0,  -5.0,  0.0],
+			[ -113.0,  33.0,  0.0],
+			[   5.0,  33.0,  0.0]
+		];
+var edges2 = [
+		    [0,1], [1,2], [2,3], [3,0],
+		    [0,4], [3,7],
+		    [4,5], [5,6], [6,7], [7,4],
+		    [2,6],[1,5]
+		];
+var faces2 = [
+			[0,1,2,3],
+			[4,5,6,7],
+			[0,3,7,4],
+			[4,0,1,5],
+			[1,5,6,2],
+			[7,3,2,6]
+		];
+
+function createObjects(scene,points,edges,faces,rotation,positionx,positiony){
+	var filledShape = shape(points,edges,faces);
+	var dashedShape = shapeLines(points,edges);
+	filledShape.computeFaceNormals();
+	dashedShape.computeLineDistances();
+	var meshMaterial = new THREE.MeshBasicMaterial({color: false, side: THREE.DoubleSide, depthTest: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+    var lineDashedMaterial = new THREE.LineDashedMaterial({color: 0x000000, depthTest: false, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+    var lineMaterial = new THREE.LineBasicMaterial({color: 0x000000, depthTest: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1});
+	var object1 = new THREE.Mesh(filledShape, meshMaterial);
+object1.rotation.z = rotation;
+object1.position.x = positionx;
+object1.position.y = positiony;
+	scene.add(object1);
+	var object2 = new THREE.Line( dashedShape,lineDashedMaterial, THREE.LinePieces);
+object2.rotation.z = rotation;
+object2.position.x = positionx;
+object2.position.y = positiony;
+	scene.add(object2);
+	var object3 = new THREE.Line( dashedShape,lineMaterial, THREE.LinePieces);
+object3.rotation.z = rotation;
+object3.position.x = positionx;
+object3.position.y = positiony;
+	scene.add(object3);
+}
+function shape(points,edges,faces) {
+	var geometry = new THREE.Geometry();
+
+	for (var i=0; i < points.length; i++){
+		geometry.vertices.push(new THREE.Vector3(points[i][0],points[i][1],points[i][2]));
+	}
+	for (var j = 0; j < faces.length; j++){
+		var face = faces[j];
+		for (var k = 0; k<face.length-2; k++){
+			var point = face[k]
+			geometry.faces.push( new THREE.Face3(face[0],face[k+1],face[k+2]));
+		}
+	}
+	return geometry;
+}
+
+
+
+function shapeLines(points, edges) {
+	var geometry = new THREE.Geometry();
+	for (var i=0; i < edges.length; i++){
+		var edge = edges[i];
+		geometry.vertices.push(new THREE.Vector3(points[edge[0]][0],points[edge[0]][1],points[edge[0]][2]));
+		geometry.vertices.push(new THREE.Vector3(points[edge[1]][0],points[edge[1]][1],points[edge[1]][2]));
+	}
+
+	return geometry;
+
+}
+
+
+createObjects(scene,points1,edges1,faces1,-Math.PI/6,100,-10);
+createObjects(scene,points2,edges2,faces2,Math.PI/1.3,-40,0);
+
+
+</script>
+</body>
+</html>

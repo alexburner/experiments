@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title></title>
+<style type="text/css" media="screen">
+	html, body {
+		margin: 0;
+		padding: 0;
+		background: #222;
+	}
+	#canvas {
+		width: 3300px; /* 11(300) */
+		height: 2550px; /* 8.5(300) */
+		margin: auto;
+		background: white;
+	}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="text/javascript" src="../../../paper.v.0.9.18.js"></script>
+<script type="text/javascript" src="svgExport.js"></script>
+<script type="text/javascript" src="drawByLength.js"></script>
+<script type="text/javascript">
+
+
+	// initialize paper with canvas element
+	paper.setup(document.getElementById('canvas'));
+
+
+
+
+
+
+	var pageWidth = 3300;
+	var pageHeight = 2550;
+	var length = 180;
+
+	var leftCenter = new paper.Point([
+		(1 * pageWidth) / 4,
+		(1 * pageHeight) / 2
+	]);
+	var rightCenter = new paper.Point([
+		(3 * pageWidth) / 4,
+		(1 * pageHeight) / 2
+	]);
+
+
+	// label
+	var text = new paper.PointText({
+		content: 3,
+		fillColor: 'black',
+		fontFamily: 'Times',
+		fontWeight: 'bold',
+		fontSize: 120
+	});
+	text.position = leftCenter;
+
+	// lines
+	var radius = drawByLength(
+		rightCenter,
+		21,
+		length
+	);
+
+
+
+
+
+	paper.view.draw();
+
+
+
+
+</script>
+<!--<script type="text/javascript" src="../rulers.js"></script>-->
+</body>
+</html>

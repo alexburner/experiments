@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>2d diffuse - wild</title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            width: 100%;
+            height: 100%;
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="..//lib/lodash.min.js"></script>
+<script type="text/javascript" src="../shared/Maths.js"></script>
+<script type="text/javascript" src="Diffuse.js"></script>
+<script type="text/javascript" src="messageTypes.js"></script>
+<script type="text/javascript">
+
+    var hash = (
+        window.location.hash.length ?
+            Number(window.location.hash.slice(1)) :
+            NaN
+    );
+
+    var count = isNaN(hash) ? 12 : hash;
+    var space = 2;
+    var speed = 0.008;
+
+    var bounding = false;
+    var centering = !bounding;
+    var limiting = !bounding;
+
+    var radius = 200;
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    var centerX = width / 2;
+    var centerY = height / 2;
+
+    var canvasEl = document.createElement('canvas');
+    var context = canvasEl.getContext('2d');
+    canvasEl.width = width;
+    canvasEl.height = height;
+    canvasEl.style.position = 'absolute';
+    canvasEl.style.top = 0;
+    canvasEl.style.left = 0;
+    document.body.appendChild(canvasEl);
+
+    var init = false;
+    var frames = [];
+    var worker = new Worker('worker.js');
+    worker.addEventListener('message', function (e) {
+        frames.push(e.data);
+        if (!init) {
+            init = true;
+            animateFrame();
+        }
+    });
+
+    function initWorker() {
+        worker.postMessage({
+            type: messageTypes.INIT,
+            args: {
+                count: count,
+                space: space,
+                speed: speed,
+            },
+        });
+    }
+
+    function tickWorker() {
+        worker.postMessage({
+            type: messageTypes.TICK,
+            args: {
+                bounding: bounding,
+                centering: centering,
+                limiting: limiting,
+            },
+        });
+    }
+
+    function animateFrame() {
+        var particles = frames.shift();
+        context.clearRect(0, 0, width, height);
+        context.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        _.each(particles, function (particleA) {
+            var x1 = centerX + radius * particleA.vector[0];
+            var y1 = centerY + radius * particleA.vector[1];
+            _.each(particles, function (particleB) {
+                if (particleA === particleB) return;
+                var x2 = centerX + radius * particleB.vector[0];
+                var y2 = centerY + radius * particleB.vector[1];
+                context.beginPath();
+                context.moveTo(x1, y1);
+                context.lineTo(x2, y2);
+                context.stroke();
+            });
+        });
+        tickWorker();
+        window.requestAnimationFrame(animateFrame);
+    }
+
+    window.addEventListener('resize', function () {
+        canvasEl.style.top = (window.innerHeight / 2 - height / 2) + 'px';
+        canvasEl.style.left = (window.innerWidth / 2 - width / 2) + 'px';
+    });
+
+
+    //
+    //
+    // begin
+    initWorker();
+    var frontLoad = 100;
+    while (frontLoad--) {
+        tickWorker();
+    }
+
+</script>
+</body>
+</html>

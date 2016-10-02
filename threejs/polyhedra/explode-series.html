@@ -1,0 +1,591 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>explode series</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: black;
+		color: white;
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+
+
+<div id="container"></div>
+
+
+<!-- https://stemkoski.github.io/Three.js/Shader-Glow.html -->
+<script id="vertexShader" type="x-shader/x-vertex">
+	uniform vec3 viewVector;
+	uniform float c;
+	uniform float p;
+	varying float intensity;
+	void main()
+	{
+	    vec3 vNormal = normalize( normalMatrix * normal );
+		vec3 vNormel = normalize( normalMatrix * viewVector );
+		intensity = pow( c - dot(vNormal, vNormel), p );
+
+	    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+	}
+</script>
+<script id="fragmentShader" type="x-shader/x-vertex">
+	uniform vec3 glowColor;
+	varying float intensity;
+	void main()
+	{
+		vec3 glow = glowColor * intensity;
+	    gl_FragColor = vec4( glow, 1.0 );
+	}
+</script>
+
+
+<script type="text/javascript" src="../js/pusher.color.js"></script>
+<script type="text/javascript" src="../js/three.js"></script>
+<script type="text/javascript" src="../js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript" src="../js/examples/controls/TrackballControls.js"></script>
+<script type="text/javascript">
+
+
+
+
+
+
+
+
+
+
+
+
+function coinFlip() {
+  return Math.random() > 0.5;
+}
+
+function randomPosNeg(max) {
+  var random = Math.random() * max;
+  return coinFlip() ? random : -random;
+}
+
+function roundToNearest(num, multiple) {
+	return multiple * Math.round(num / multiple);
+}
+
+function drawLine(from, to, color) {
+
+	color = color || 0xFFFFFF;
+
+	var geometry = new THREE.Geometry();
+	geometry.vertices.push(from);
+	geometry.vertices.push(to);
+
+	var material = new THREE.LineBasicMaterial({
+		linecap: 'round',
+		linejoin: 'round',
+		linewidth: 2,
+		color: color
+	});
+
+	var line = new THREE.Line(geometry, material);
+
+	scene.add(line);
+
+	return line;
+
+}
+
+// via http://stemkoski.github.io/Three.js/Sprite-Text-Labels.html
+function makeTextSprite(args) {
+	args = args || {};
+
+	// properties
+	var message = args.message || "";
+	var fontface = args.fontface || "Arial";
+	var fontsize = args.fontsize || 180;
+	var fontcolor = args.fontcolor || { r: 255, g: 255, b: 255, a: 1.0 };
+	var alignment = args.alignment || 'topLeft';
+	var position = args.position || new THREE.Vector3();
+
+	// create canvas
+	var canvas = document.createElement('canvas');
+	var size = 256;
+	canvas.width = size;
+	canvas.height = size;
+
+	// draw text
+	var ctx = canvas.getContext('2d');
+	ctx.font = "Bold " + fontsize + "px " + fontface;
+	ctx.textAlign = 'center';
+	ctx.fillStyle = "rgba(" +
+		fontcolor.r + "," +
+		fontcolor.g + "," +
+		fontcolor.b + "," +
+		fontcolor.a + ")";
+	ctx.fillText(
+		message,
+		size / 2,
+		size / 2
+	);
+
+	// canvas contents will be used for a texture
+	var texture = new THREE.Texture(canvas);
+	texture.needsUpdate = true;
+
+	// create sprite
+	var sprite = new THREE.Sprite(
+		new THREE.SpriteMaterial({
+			map: texture,
+			useScreenCoordinates: false,
+			transparent: false,
+			color: 0xffffff
+		})
+	);
+	sprite.scale.set(10, 10, 1);
+	sprite.position.set(
+		position.x,
+		position.y,
+		position.z
+	);
+
+	return sprite;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// set the scene size
+var WIDTH = window.innerWidth,
+	HEIGHT = window.innerHeight;
+
+// set some camera attributes
+var VIEW_ANGLE = 45,
+	ASPECT = WIDTH / HEIGHT,
+	NEAR = 0.1,
+	FAR = 10000;
+
+// get the DOM element to attach to
+// - assume we've got jQuery to hand
+//var $container = $('#container');
+var containerEl = document.getElementById('container');
+
+// create a WebGL renderer, camera
+// and a scene
+var renderer = new THREE.WebGLRenderer({ antialias: true });
+var camera =
+	new THREE.PerspectiveCamera(
+		VIEW_ANGLE,
+		ASPECT,
+		NEAR,
+		FAR);
+
+var scene = new THREE.Scene();
+
+// add the camera to the scene
+scene.add(camera);
+
+// the camera starts at 0,0,0
+// so pull it back
+//camera.position.z = 1600;
+camera.position.z = 240;
+
+// start the renderer
+renderer.setSize(WIDTH, HEIGHT);
+
+// attach the render-supplied DOM element
+//$container.append(renderer.domElement);
+containerEl.appendChild(renderer.domElement);
+
+
+
+// create a point light
+var pointLight =
+	new THREE.PointLight(0xFFFFFF);
+
+// set its position
+pointLight.position.x = 10;
+pointLight.position.y = 50;
+pointLight.position.z = 130;
+
+// add to the scene
+scene.add(pointLight);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function Sphere(position, radius, material) {
+
+	position = position || new THREE.Vector3(0, 0, 0);
+	radius = radius || 1;
+	material = material || Sphere.materials.BUBBLE;
+
+	this.geometry = new THREE.SphereGeometry(
+		radius,
+		32, // segments
+		32 // rings
+	);
+
+	this.material = material;
+
+	this.mesh = new THREE.Mesh(
+		this.geometry,
+		this.material
+	);
+
+	this.mesh.position = position;
+
+	scene.add(this.mesh);
+
+}
+
+Sphere.materials = {
+	BASIC: new THREE.MeshBasicMaterial({
+		color: 0xFFFF00
+	}),
+	BALL: new THREE.MeshLambertMaterial({
+		color: 0xFFFFFF,
+		transparent: true,
+		opacity: 0.33
+	}),
+	BUBBLE: new THREE.ShaderMaterial({
+		uniforms: {
+			c: {
+				type: "f",
+				value: 1.0
+			},
+			p: {
+				type: "f",
+				value: 1.4
+			},
+			glowColor: {
+				type: "c",
+				value: new THREE.Color(0xFFFFFF)
+			},
+			viewVector: {
+				type: "v3",
+				value: camera.position
+			}
+		},
+		vertexShader: document.getElementById('vertexShader').textContent,
+		fragmentShader: document.getElementById('fragmentShader').textContent,
+		side: THREE.FrontSide,
+		blending: THREE.AdditiveBlending,
+		transparent: true
+	})
+};
+
+
+
+
+
+
+
+
+
+
+
+function PointSpread(args) {
+	if (args.pointLimit < 1) return;
+
+	// attributes
+	this.radius = args.radius; // radius of sphere of space
+	this.center = args.center.clone(); // center of sphere of space
+	this.pointLimit = args.pointLimit; // number of points to draw
+	this.frameLimit = args.frameLimit; // number of frames to do
+	this.frameCount = 0; // track frames done
+
+	this.skipAnimation = args.skipAnimation // whether to animate frames
+
+	// elements
+	this.points = []; // THREE.Vector3
+	this.lines = []; // THREE.Line
+	this.linesByLength = {}; // Number -> THREE.Line
+	// construction
+	this.makePoints();
+
+	// skip animating frames?
+	if (this.skipAnimation) {
+		this.doAllFrames();
+	}
+
+	// explode lines?
+	if (args.doExplode) {
+		this.explode();
+	}
+
+	// draw sphere?
+	if (args.drawSphere) {
+		new Sphere(
+			this.center,
+			this.radius
+		);
+	}
+
+	// draw label!
+	if (args.drawLabel) {
+		var labelposition = this.center.clone();
+		labelposition.setY(this.center.y + (this.radius * 1.2));
+		scene.add(makeTextSprite({
+			message: this.pointLimit + "",
+			position: labelposition
+		}));
+	}
+}
+
+PointSpread.prototype.makePoints = function () {
+	for (var i = 0; i < this.pointLimit; i++) {
+		var x = randomPosNeg(this.radius);
+		var y = randomPosNeg(this.radius);
+		var z = randomPosNeg(this.radius);
+		this.points.push(new THREE.Vector3(x, y, z));
+	}
+};
+
+PointSpread.prototype.doAllFrames = function () {
+	// iterate through point motions/reactions
+	while (this.frameCount < this.frameLimit) {
+		this.frameCount++;
+		this.spreadPoints();
+		this.constrainPoints();
+	}
+	// draw lines from resulting positions
+	this.drawLines();
+};
+
+PointSpread.prototype.animateFrame = function () {
+
+	if (this.skipAnimation) return;
+
+	if (this.frameCount > this.frameLimit) return;
+	this.frameCount++;
+
+	// move points away from each other
+	this.spreadPoints();
+	// constrain points to sphere (w/in radius of center)
+	this.constrainPoints();
+	// clear & draw lines
+	this.clearLines();
+	this.drawLines();
+};
+
+PointSpread.prototype.spreadPoints = function () {
+
+	// find all the shortest vectors between points
+	var shortestVectors = [];
+	this.points.forEach(function (pointA, indexA) {
+
+		// find vectors from pointA to every other point
+		var vectors = [];
+		this.points.forEach(function (pointB, indexB) {
+			if (indexA === indexB) return;
+			vectors.push(pointA.clone().sub(pointB));
+		}, this);
+
+		// find shortest vector
+		var shortestLength = Infinity;
+		var shortestVector = null;
+		vectors.forEach(function (vector) {
+			var length = vector.lengthSq();
+			if (length < shortestLength) {
+				shortestLength = length;
+				shortestVector = vector;
+			}
+		});
+
+		if (shortestVector) {
+			shortestVectors.push(shortestVector);
+		}
+
+	}, this);
+
+	// apply shortest vectors
+	shortestVectors.forEach(function (vector, index) {
+		vector.setLength(0.2);
+		this.points[index].add(vector);
+	}, this);
+
+
+};
+
+PointSpread.prototype.constrainPoints = function () {
+	this.points.forEach(function (point, index) {
+		var shift = this.center.clone();
+		shift.sub(point);
+		shift.setLength(this.radius);
+		point = this.center.clone();
+		point.add(shift);
+		this.points[index] = point;
+	}, this);
+};
+
+PointSpread.prototype.clearLines = function () {
+	this.lines.forEach(function (line) {
+		scene.remove(line);
+	});
+	this.lines = [];
+};
+
+PointSpread.prototype.drawLines = function () {
+
+	this.linesByLength = {};
+
+	this.points.forEach(function (pointA, indexA) {
+		this.points.forEach(function (pointB, indexB) {
+			if (indexA === indexB) return;
+
+			var line = drawLine(pointA, pointB);
+
+			var distance = pointA.distanceTo(pointB);
+			var diameter = this.radius * 2;
+
+			var hueShift = Math.ceil(180 / (diameter / distance));
+
+			var color = pusher.color('red');
+			color = color.hue(hueShift);
+
+			line.material.color.setRGB(
+				color.red() / 255,
+				color.blue() / 255,
+				color.green() / 255
+			);
+
+			this.lines.push(line);
+
+			var length = roundToNearest(
+				pointA.distanceTo(pointB),
+				Math.round(this.radius / 3)
+			);
+			if (!this.linesByLength[length]) {
+				this.linesByLength[length] = [];
+			}
+			this.linesByLength[length].push(line);
+
+		}, this);
+	}, this);
+};
+
+PointSpread.prototype.explode = function () {
+	Object.keys(this.linesByLength).reverse().forEach(function (length, lengthIndex) {
+		this.linesByLength[length].forEach(function (line) {
+
+			var translate = (lengthIndex + 1) * (this.radius * 2);
+
+			// copy and move line's vertices
+			var pointA = line.geometry.vertices[0].clone();
+			var pointB = line.geometry.vertices[1].clone();
+			pointA.y -= translate;
+			pointB.y -= translate;
+
+			// draw duplicate of line
+			drawLine(pointA, pointB, line.material.color);
+
+		}, this);
+	}, this);
+};
+
+
+
+
+
+
+
+var radius = 36;
+var position = new THREE.Vector3(0, 0, 0);
+var spreads = [];
+for (var i = 1; i < 13; i++) {
+//for (var i = 12; i > 0; i--) {
+	spreads.push(new PointSpread({
+		skipAnimation: true,
+		frameLimit: 5000,
+		pointLimit: i,
+		radius: radius,
+		center: position,
+		doExplode: true,
+		drawSphere: false,
+		drawLabel: true
+	}));
+	position.x += radius * 2;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// draw!
+
+var controls = new THREE.TrackballControls(camera);
+controls.addEventListener('change', render);
+
+var render = function () {
+
+	requestAnimationFrame(render);
+	renderer.render(scene, camera);
+
+	controls.update();
+};
+
+render();
+
+
+
+
+// Create an event listener that resizes the renderer with the browser window.
+// via http://blog.teamtreehouse.com/the-beginners-guide-to-three-js
+window.addEventListener('resize', function() {
+	var WIDTH = window.innerWidth;
+	var HEIGHT = window.innerHeight;
+	renderer.setSize(WIDTH, HEIGHT);
+	camera.aspect = WIDTH / HEIGHT;
+	camera.updateProjectionMatrix();
+});
+
+
+</script>
+</body>
+</html>

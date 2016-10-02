@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>points (fixed length) 12sheet</title>
+<style type="text/css" media="screen">
+	html, body {
+		margin: 0;
+		padding: 0;
+		background: #222;
+	}
+	#canvas {
+		width: 3300px; /* 11(300) */
+		height: 2550px; /* 8.5(300) */
+		margin: auto;
+		background: white;
+	}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="text/javascript" src="../../../paper.v.0.9.18.js"></script>
+<script type="text/javascript">
+
+
+
+
+	// initialize paper with canvas element
+	paper.setup(document.getElementById('canvas'));
+
+
+
+	function drawByLength(center, count, length) {
+
+        // var text = new paper.PointText({
+        //     content: count,
+        //     fillColor: 'black',
+        //     fontFamily: 'Times',
+        //     fontWeight: 'bold',
+        //     fontSize: 120
+        // });
+        // text.position = new paper.Point(
+        //     center.x - cellW / 2 + cellW / 8,
+        //     center.y - cellH / 2 + cellW / 8
+        // );
+        // text.rotate(180);
+
+
+        // var text2 = new paper.PointText({
+        //     content: count,
+        //     fillColor: 'black',
+        //     fontFamily: 'Times',
+        //     fontWeight: 'bold',
+        //     fontSize: 120
+        // });
+        // text2.position = new paper.Point(
+        //     center.x + cellW / 2 - cellW / 8,
+        //     center.y + cellH / 2 - cellW / 8
+        // );
+
+
+
+		// 0 has nothing
+		if (count < 1) {
+			return 0;
+		}
+
+		// 1 only a point
+		if (count < 2) {
+			new paper.Path.Circle({
+				fillColor: 'black',
+				center: center,
+				radius: 24
+			});
+			return 0;
+		}
+
+
+
+		var angle = 360 / count;
+		var angleRad = (2 * Math.PI) / count;
+		var radius = (length / 2) / (Math.sin(angleRad / 2));
+
+		// shift center to top
+		//center[1] += radius;
+
+
+		// var circle = new paper.Path.Circle({
+		// 	strokeColor: 'black',
+		// 	strokeWidth: 1,
+		// 	dashArray: [2, 2],
+		// 	center: center,
+		// 	radius: radius + 3 // compensate for stroke width
+		// });
+
+		var points = [];
+
+		var vector = new paper.Point(center);
+		vector.length = radius;
+		vector.angle = -90;
+
+		for (var i = 0, l = count; i < l; i++) {
+			var point = new paper.Point(center);
+			point = point.add(vector);
+			points.push(point);
+			vector.angle += angle;
+
+			new paper.Path.Circle({
+				fillColor: 'black',
+				center: point,
+				radius: 24
+			});
+
+		}
+
+		var lines = [];
+		var lineExists = {};
+		var linesByLength = {};
+		points.forEach(function (pointA, indexA) {
+			var coordsA = pointA.toString();
+			points.forEach(function (pointB, indexB) {
+				if (indexA === indexB) return;
+				var coordsB = pointB.toString();
+				if (lineExists[coordsA + coordsB]) return;
+				if (lineExists[coordsB + coordsA]) return;
+				lineExists[coordsA + coordsB] = true;
+
+				var length = pointA.subtract(pointB).length;
+				length = length.toFixed(2);
+
+				var line = new paper.Path.Line({
+					from: pointA,
+					to: pointB,
+					strokeCap: 'round',
+					strokeColor: 'black',
+					strokeWidth: 2,
+				});
+
+				lines.push(line);
+
+				if (!linesByLength[length]) {
+					linesByLength[length] = [];
+				}
+				linesByLength[length].push(line);
+
+			});
+		});
+
+		return radius;
+	}
+
+
+
+    var length = 120;
+
+	var pageW = 3300;
+	var pageH = 2550;
+
+    var rows = 3;
+    var cols = 4;
+
+    var cellW = pageW / cols;
+    var cellH = pageH / rows;
+
+    var cell = 1;
+
+    for (var row = 0; row < rows; row++) {
+        for (var col = 0; col < cols; col++) {
+            var x = cellW * col + cellW / 2;
+            var y = cellH * row + cellH / 2;
+            drawByLength(new paper.Point(x, y), cell, length);
+            cell++;
+        }
+    }
+
+
+
+	// label
+	// var text = new paper.PointText({
+	// 	content: 24,
+	// 	fillColor: 'black',
+	// 	fontFamily: 'Times',
+	// 	fontWeight: 'bold',
+	// 	fontSize: 120
+	// });
+	// text.position = leftCenter;
+
+
+
+
+
+
+
+	paper.view.draw();
+
+
+
+	/**
+	 * SVG export
+	 * via http://www.mikechambers.com/blog/2014/07/01/saving-svg-content-from-paper.js/
+	 */
+
+	// listen for shift+o
+	tool = new paper.Tool();
+	tool.onKeyUp = function(e) {
+		if (e.character == "O") {
+			openAsSVG();
+		}
+	}
+
+	function openAsSVG() {
+		var svgString = paper.project.exportSVG({asString: true});
+		var url = "data:image/svg+xml;utf8," + encodeURIComponent(svgString);
+		var link = document.createElement('a');
+		link.target = "_blank";
+		link.href = url;
+		link.click();
+	}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+		<title>moir&eacute;</title>
+		<script type="text/javascript" src="js/d3.v2.js"></script>
+		<style type="text/css">
+
+				body {
+					background: #FFF;
+					padding: 24px;
+				}
+
+				svg {
+					margin-right: 64px;
+					cursor: pointer;
+				}
+
+				circle {
+					fill: none;
+					stroke-width: 1.2px;
+				}
+
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript">
+		
+		var LIMIT = 100;
+		var STEP = 3;
+		var TIME = 60;
+		var w = 1200;
+		var h = 900;
+		
+		var count = 0;
+
+		var svg = d3.select( 'body' )
+			.append( 'svg:svg' )
+				.attr( 'width', w )
+				.attr( 'height', h )
+				.on( 'click', moire );
+
+		function moire() {
+			if ( count >= LIMIT ) { return; }
+			else count++;
+			//var color = moire.getColor();
+			var color = 'black';
+			var m = d3.svg.mouse( this );
+			var x = m[ 0 ];
+			var y = m[ 1 ];
+			var r = 0;
+			var t = 0;
+			var max = moire.longestRadius( x, y, w, h );
+			while ( r < max ) {
+				r += STEP;
+				t += TIME;
+				setTimeout( moire.paintClosure( x, y, r, color ), t );
+			}
+
+		}
+
+		moire.getColor = ( function () {
+			//var colors = [ '93F', '0CC', '03F' ];
+			var colors = [ '000', 'F00', '00F' ];
+			//var colors = [ '000' ];
+			var index = 0;
+			return function () {
+				index++;
+				if ( index >= colors.length ) index = 0;
+				return '#' + colors[ index ];
+			};
+		} )();
+
+		moire.longestRadius = function ( x, y, w, h ) {
+			var a = x > w / 2 ? x : w - x;
+			var b = y > h / 2 ? y : h - y;
+			var c = Math.sqrt( a * a + b * b );
+			return c;
+		};
+
+		moire.paintClosure = function ( x, y, r, color ) {
+			return function () {
+				svg.append( 'svg:circle' )
+					.attr( 'cx', x )
+					.attr( 'cy', y )
+					.attr( 'r', r )
+					.style( 'stroke', color )
+					.style( 'stroke-opacity', 1 );
+			};
+		}
+
+		d3.select( 'body' ).append( 'h1' ).html( 'moir&eacute;' );
+
+		</script>
+	</body>
+</html>

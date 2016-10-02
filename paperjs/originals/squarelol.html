@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>squareslol</title>
+	<link rel="icon" type="image/ico" href="img/favicon.ico">
+	<style type="text/css" media="screen">
+		#container { width: 800px; margin: auto; }
+		canvas { cursor: pointer; }
+	</style>
+	<script type="text/javascript" src="../paper.v.0.22.js"></script>
+	<script type="text/paperscript" canvas="vessel">
+
+
+
+		// state
+		var isRotating = false;
+		var isSpinning = false;
+
+
+
+		// backdrop
+		var background = new Path.Rectangle( view.bounds );
+		background.fillColor = 'white';
+
+
+
+		// animation
+		var rotaters = [];
+		function onFrame( event ) {
+			var length = rotaters.length;
+			if ( !length ) {
+				if ( isRotating ) isRotating = false;
+				return;
+			}
+			for ( var i = 0; i < length; i++ ) {
+				var isComplete = rotaters[ i ]();
+				if ( isComplete ) rotaters.splice( i, 1 );
+			}
+		}
+
+
+
+		// square factory
+		function Square( x, y, size ) {
+			
+
+			//
+			// PROPERTIES
+			var props = {
+				rotation: 0
+			};
+
+
+			//
+			// ELEMENTS
+			var squareB;
+			var squareS;
+			var group;
+
+
+			//
+			// METHODS
+
+			// constructor
+			function construct() {
+
+				// sizings
+				var centerX = x - size / 2;
+				var centerY = y - size / 2;
+				var scale = 2 / 3;
+
+				// make square
+				squareB = new Path.Rectangle( new Point( centerX, centerY ), new Size( size, size ) );
+				squareS = new Path.Rectangle( new Point( centerX * scale, centerY * scale ), new Size( size * scale, size * scale ) );
+
+				// color square
+				squareB.strokeColor = '#000';
+				squareS.strokeColor = '#000';
+
+				// group em
+				group = new Group( [ squareB, squareS ] );
+
+			}
+
+			// rotate group with animation
+			function animateRotation( angle ) { 
+				var increment = 1;
+				var remaining = angle;
+				var rotater = function () {
+					if ( !remaining ) {
+						// isComplete
+						rotater = null;
+						return true;
+					}
+					var thisAngle = increment;
+					if ( remaining - increment < 0 ) { thisAngle = remaining; }
+					group.rotate( thisAngle );
+					remaining -= thisAngle;
+					// !isComplete
+					return false;
+				};
+				rotaters.push( rotater );
+				props.rotation += angle;
+			}
+
+			// rotate group
+			function setRotation( angle ) {
+				group.rotate( angle );
+				props.rotation += angle;
+			}
+
+
+			//
+			// EXECUTION
+			construct();
+
+
+			//
+			// INTERFACE
+			return {
+				getRotation: function () { return props.rotation; },
+				animateRotation: animateRotation,
+				setRotation: setRotation
+			};
+
+
+		}; // end Square
+
+
+
+		// automation
+		var execute = ( function () {
+			var isBusy = false;
+			var squares = [];
+			var count = 0;
+			var X = 400;
+			var Y = 400;
+			var S = 400;
+			var i = 0;
+			var l = 0;
+			return function () {
+
+				// first time?
+				if ( !count ) {
+					count = 1;
+					squares.push( new Square( X, Y, S ) );
+					return;
+				}
+
+				// tracking!
+				var oldCount = count;
+				count = count + count;
+
+				// creation!
+				for ( i = 0, l = oldCount; i < l; i++ ) {
+					var currSquare = squares[ i ];
+					var newSquare = new Square( X, Y, S );
+					newSquare.setRotation( currSquare.getRotation() );
+					squares.push( newSquare );
+				}
+
+				// rotation!
+				isRotating = true;
+				var angle = 45 / oldCount;
+				for ( i = oldCount, l = count; i < l; i++ ) {
+					squares[ i ].animateRotation( angle );
+				}
+
+			};
+		} )();
+
+
+
+		// user interaction
+
+		// click
+		function onMouseUp( event ) {
+			if ( isSpinning ) return;
+			setTimeout( execute, 15 );
+		};
+
+		// drag
+		function onMouseDrag( event ) {
+			if ( isSpinning ) return;
+			else isSpinning = true;
+			rotaters.push( function () {
+				project.activeLayer.rotate( 1 );
+				return false;
+			} );
+		}
+
+
+
+	</script>
+</head>
+<body>
+	<div id="container">
+		<canvas id="vessel" width="800" height="800"></canvas>
+	</div>
+</body>
+</html>

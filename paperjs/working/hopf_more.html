@@ -1,0 +1,82 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>hopf</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#canvas {
+		width: 2000px;
+		height: 16000px;
+	}
+</style>
+<script type="text/javascript" src="../paper.v.0.9.9.js"></script>
+<script type="text/paperscript" canvas="canvas">
+
+
+	var background = new Path.Rectangle(view.bounds);
+	background.fillColor = '#222';
+
+
+	function CircleMaster(center, radius) {
+		return new Path.Circle({
+			center: center,
+			radius: radius || 2,
+			strokeCap: 'round',
+			strokeColor: '#FFF',
+			strokeWidth: 1
+		});
+	}
+
+
+
+	function hopfOutRight(circle, steps) {
+		var center = circle.position;
+		var prevRadius = circle.bounds.width / 2;		
+		for (var i = 1, l = steps; i <= l; i++) {
+			var thisRadius = prevRadius * 1.1;
+			var thisCenter = new Point(
+				center.x + thisRadius, 
+				center.y
+			);
+			new CircleMaster(thisCenter, thisRadius);
+			prevRadius = thisRadius;
+		}
+
+		circle.remove();
+	}
+	function hopfOutLeft(circle, steps) {
+		var center = circle.position;
+		var prevRadius = circle.bounds.width / 2;		
+		for (var i = 1, l = steps; i <= l; i++) {
+			var thisRadius = prevRadius * 1.1;
+			var thisCenter = new Point(
+				center.x - thisRadius, 
+				center.y
+			);
+			new CircleMaster(thisCenter, thisRadius);
+			prevRadius = thisRadius;
+		}
+
+		circle.remove();
+	}
+
+	var circleRight = new CircleMaster(new Point(600,500), 1);
+	var circleLeft = new CircleMaster(new Point(600,500), 1);
+
+	hopfOutRight(circleRight, 400);
+	hopfOutLeft(circleLeft, 400);
+
+
+
+
+
+
+</script>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+</body>
+</html>

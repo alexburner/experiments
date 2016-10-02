@@ -1,0 +1,552 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - facets</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 1120px;
+		height: 3500px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_nite.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelRow.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+var backdrop = new shapes.Backdrop();
+
+
+
+
+	/**
+	 * Playtime
+	 */
+	
+	(function () {
+		for (var i = 0, l = 38; i < l; i++) {
+			var set = new GenesisPanelRow({
+				width: 530,
+				height: 86,
+				radius: 12,
+				padding: 5,
+				originX: 20,
+				originY: 20 + (i * 91)
+			});
+			switch (i) {
+				case 1:
+					set.applyForEach('markPoints');
+					break;
+				case 2:
+					set.applyForEach('markPoints');
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('markFacets');
+					break;
+				case 3:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('markFacets');
+					break;
+				case 4:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('markFacets', ['vesica']);
+					break;
+				case 5:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('markFacets', ['treble']);
+					break;
+				case 6:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('markFacets', ['petal']);
+					break;
+				case 7:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+					break;
+				case 8:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+					break;
+				case 9:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+					break;
+				case 10:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+					break;
+				case 11:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+					break;
+				case 12:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+					break;
+				case 13:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+					break;
+				case 14:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+					break;
+				case 15:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+					break;
+				case 16:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+					break;
+				case 17:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+					set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+					set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+					break;
+				case 18:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+					break;
+				case 19:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+					break;
+				case 20:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+					break;
+				case 21:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+					break;
+				case 22:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+					break;
+				case 23:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+					break;
+				case 24:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+					break;
+				case 25:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+					break;
+				case 26:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+					break;
+				case 27:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+					set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+					set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+					break;
+				case 28:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+					break;
+				case 29:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+					break;
+				case 30:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+					break;
+				case 31:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+					break;
+				case 32:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+					break;
+				case 33:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+					break;
+				case 34:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+					break;
+				case 35:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+					break;
+				case 36:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+					break;
+			}
+		}
+	})();
+
+	(function () {
+		for (var i = 0, l = 38; i < l; i++) {
+			var set = new GenesisPanelRow({
+				width: 530,
+				height: 86,
+				radius: 12,
+				padding: 5,
+				originX: 570,
+				originY: 20 + (i * 91)
+			});
+			switch (i) {
+				case 1:
+					set.applyForEach('markPoints');
+					break;
+				case 2:
+					set.applyForEach('markPoints');
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('markFacets');
+					break;
+				case 3:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('markFacets');
+					break;
+				case 4:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('markFacets', ['vesica']);
+					break;
+				case 5:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('markFacets', ['treble']);
+					break;
+				case 6:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('markFacets', ['petal']);
+					break;
+				case 7:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+					break;
+				case 8:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+					break;
+				case 9:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+					break;
+				case 10:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+					break;
+				case 11:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+					break;
+				case 12:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+					break;
+				case 13:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+					break;
+				case 14:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+					break;
+				case 15:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+					break;
+				case 16:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+					break;
+				case 17:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+					set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+					set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+					break;
+				case 18:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+					break;
+				case 19:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+					break;
+				case 20:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+					break;
+				case 21:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+					break;
+				case 22:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+					break;
+				case 23:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+					break;
+				case 24:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+					break;
+				case 25:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+					break;
+				case 26:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+					break;
+				case 27:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+					set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+					set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+					break;
+				case 28:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+					break;
+				case 29:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+					break;
+				case 30:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+					break;
+				case 31:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+					break;
+				case 32:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+					break;
+				case 33:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+					break;
+				case 34:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+					break;
+				case 35:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+					break;
+				case 36:
+					set.applyForEach('extend', [GenesisFacets]);
+					set.applyForEach('makeFacets');
+					set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+					set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+					break;
+			}
+			set.geneses.forEach(function (genesis) {
+				genesis.circles.forEach(function (circle) {
+					circle.visible = false;
+				});
+			});
+		}
+	})();
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

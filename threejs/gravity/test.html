@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<title>3js test</title>
+<style type="text/css">
+    canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+</style>
+</head>
+<body>
+<script src="lib/three.min.js"></script>
+<script type="text/javascript" src="lib/examples/js/Detector.js"></script>
+<script type="text/javascript">
+    if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script src="lib/examples/js/controls/OrbitControls.js"></script>
+<script src="lib/examples/js/controls/TrackballControls.js"></script>
+<script src="setup.js"></script>
+<script>
+
+var geometry = new THREE.BoxGeometry(5, 5, 5);
+var material = new THREE.MeshLambertMaterial({ color: 0xFF0000 });
+var mesh = new THREE.Mesh(geometry, material);
+scene.add(mesh);
+
+// var light = new THREE.PointLight(0xFFFF00);
+// light.position.set(100, 100, 100);
+// scene.add(light);
+
+var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+scene.add( light );
+
+</script>
+</body>
+</html>

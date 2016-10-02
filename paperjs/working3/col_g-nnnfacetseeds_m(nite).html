@@ -1,0 +1,375 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - facet seeds</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 5000px;
+		height: 1200px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_nite.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelCol.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+
+
+/*
+overrides
+ */
+
+GenesisFacets.prototype.markFacets = function (type) {
+	// String type = all, vesica, treble, petal
+	type = type || 'all';
+	this.facets[type].forEach(function (facet) {
+		var mark = new shapes.Mark(facet.centroid);
+		this.group.addChild(mark);
+	}, this);
+};
+
+
+
+
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+	var backdrop = new shapes.Backdrop();
+
+
+
+	// genesis set command sequences
+	var argsLists = [
+
+		[
+			['hideCircles']
+		],
+
+
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],,
+			['drawSeeds', ['petal', 'within', 'selves']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],,
+			['drawSeeds', ['petal', 'around', 'selves']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['treble', 'within', 'selves']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['treble', 'around', 'selves']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'within', 'selves']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'around', 'selves']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'around', 'selves']],
+			['drawSeeds', ['treble', 'around', 'selves']],
+			['drawSeeds', ['petal', 'around', 'selves']],
+			['drawSeeds', ['vesica', 'within', 'selves']],
+			['drawSeeds', ['treble', 'within', 'selves']],
+			['drawSeeds', ['petal', 'within', 'selves']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'around', 'selves']],
+			['drawSeeds', ['vesica', 'within', 'selves']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['treble', 'around', 'selves']],
+			['drawSeeds', ['treble', 'within', 'selves']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],,
+			['drawSeeds', ['petal', 'around', 'selves']],
+			['drawSeeds', ['petal', 'within', 'selves']],
+		],
+
+
+
+		[
+			['hideCircles']
+		],
+		[
+			['hideCircles']
+		],
+		[
+			['hideCircles']
+		],
+
+
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],,
+			['drawSeeds', ['petal', 'around', 'centers']],
+			['drawSeeds', ['petal', 'within', 'centers']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['treble', 'around', 'centers']],
+			['drawSeeds', ['treble', 'within', 'centers']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'around', 'centers']],
+			['drawSeeds', ['vesica', 'within', 'centers']],
+		],
+
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'around', 'centers']],
+			['drawSeeds', ['vesica', 'within', 'centers']],
+			['drawSeeds', ['treble', 'around', 'centers']],
+			['drawSeeds', ['treble', 'within', 'centers']],
+			['drawSeeds', ['petal', 'around', 'centers']],
+			['drawSeeds', ['petal', 'within', 'centers']],
+		],
+
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'around', 'centers']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'within', 'centers']],
+		],
+
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['treble', 'around', 'centers']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['treble', 'within', 'centers']],
+		],
+
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],,
+			['drawSeeds', ['petal', 'around', 'centers']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],,
+			['drawSeeds', ['petal', 'within', 'centers']],
+		],
+
+
+		[
+			['hideCircles']
+		],
+		[
+			['hideCircles']
+		],
+		[
+			['hideCircles']
+		],
+
+
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['petal', 'around', 'selves']],
+			['drawSeeds', ['petal', 'within', 'selves']],
+			['drawSeeds', ['petal', 'around', 'centers']],
+			['drawSeeds', ['petal', 'within', 'centers']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['treble', 'around', 'selves']],
+			['drawSeeds', ['treble', 'within', 'selves']],
+			['drawSeeds', ['treble', 'around', 'centers']],
+			['drawSeeds', ['treble', 'within', 'centers']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'around', 'selves']],
+			['drawSeeds', ['vesica', 'within', 'selves']],
+			['drawSeeds', ['vesica', 'around', 'centers']],
+			['drawSeeds', ['vesica', 'within', 'centers']],
+		],
+
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'around', 'selves']],
+			['drawSeeds', ['vesica', 'within', 'selves']],
+			['drawSeeds', ['treble', 'around', 'selves']],
+			['drawSeeds', ['treble', 'within', 'selves']],
+			['drawSeeds', ['petal', 'around', 'selves']],
+			['drawSeeds', ['petal', 'within', 'selves']],
+			['drawSeeds', ['vesica', 'around', 'centers']],
+			['drawSeeds', ['vesica', 'within', 'centers']],
+			['drawSeeds', ['treble', 'around', 'centers']],
+			['drawSeeds', ['treble', 'within', 'centers']],
+			['drawSeeds', ['petal', 'around', 'centers']],
+			['drawSeeds', ['petal', 'within', 'centers']],
+		],
+
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'around', 'selves']],
+			['drawSeeds', ['vesica', 'around', 'centers']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'within', 'selves']],
+			['drawSeeds', ['vesica', 'within', 'centers']],
+		],
+
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['treble', 'around', 'selves']],
+			['drawSeeds', ['treble', 'around', 'centers']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['treble', 'within', 'selves']],
+			['drawSeeds', ['treble', 'within', 'centers']],
+		],
+
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],,
+			['drawSeeds', ['petal', 'around', 'selves']],
+			['drawSeeds', ['petal', 'around', 'centers']],
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],,
+			['drawSeeds', ['petal', 'within', 'selves']],
+			['drawSeeds', ['petal', 'within', 'centers']],
+		],
+
+		
+		
+		
+		
+	];
+
+
+	(function () {
+		
+		var config = {
+			isSquare: true,
+			width: 120,
+			//height: 500,
+			//height: 777,
+			radius: 24,
+			padding: 10,
+			originX: 20,
+			originY: 40
+		};
+		
+		argsLists.forEach(function (argsList, index) {
+			var settings = Object.create(config);
+			settings.originX += index * (settings.width + settings.padding);
+			var col = new GenesisPanelCol(settings);
+			argsList.forEach(function (args) {
+				col.applyForEach.apply(col, args);
+			});
+
+			col.geneses.forEach(function (genesis) {
+				genesis.panel.visible = false;
+			});
+		});
+
+	})();
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

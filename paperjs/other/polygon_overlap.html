@@ -1,0 +1,157 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>point sequence</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+		background: #222;
+	}
+	#container {
+		width: 2400px;
+		height: 2400px;
+		margin: auto;
+	}
+	#workspace {
+		width: 2400px;
+		height: 2400px;
+	}
+</style>
+</head>
+<body>
+<div id="container">
+	<canvas id="workspace"></canvas>
+</div>
+<script type="text/javascript" src="../paper.v.0.9.18.js"></script>
+<script type="text/javascript" src="js/pusher.color.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	var fill = new paper.Path.Rectangle(paper.view.bounds);
+	fill.fillColor = '#222';
+
+	function drawByDistance(center, count, distance) {
+		if (count < 2) return 0;
+		var angle = 360 / count;
+		var angleRad = (2 * Math.PI) / count;
+		var radius = (distance / 2) / (Math.sin(angleRad / 2));
+
+		center[1] += radius;
+
+		var circle = new paper.Path.Circle({
+			center: center,
+			radius: radius
+		});
+		var points = [];
+		var vector = new paper.Point(center);
+		vector.length = radius;
+		vector.angle = -90;
+		for (var i = 0, l = count; i < l; i++) {
+			var point = new paper.Point(center);
+			point = point.add(vector);
+			points.push(point);
+
+/*
+			// mark point
+			var mark = new paper.Path.Circle({
+				center: point,
+				radius: 2,
+				fillColor: 'white',
+				strokeWidth: 1.8,
+				blendMode: 'multiply'
+			});
+*/
+
+			vector.angle += angle;
+		}
+		var lines = [];
+		var lineExists = {};
+		points.forEach(function (pointA, indexA) {
+			var coordsA = pointA.toString();
+			points.forEach(function (pointB, indexB) {
+				if (indexA === indexB) return;
+				var coordsB = pointB.toString();
+				if (lineExists[coordsA + coordsB]) return;
+				if (lineExists[coordsB + coordsA]) return;
+				lineExists[coordsA + coordsB] = true;
+
+				var length = pointA.subtract(pointB).length;
+				length = length.toFixed(2);
+
+				if (length > distance) {
+					return;
+				}
+
+				var color = pusher.color('red');
+				color = color.hue(length - distance);
+				color = color.saturation(70);
+				color = color.shade(0);
+				color = color.hex6();
+
+				var line = new paper.Path.Line({
+					from: pointA,
+					to: pointB,
+					strokeCap: 'round',
+					strokeColor: color,
+					strokeWidth: 1.8,
+					opacity: 0.6,
+					// blendMode: 'multiply'
+				});
+				lines.push(line);
+			});
+		});
+
+		return radius;
+	}
+
+	var distance = 50;
+	var x = paper.view.center.x;
+	var y = 200;
+	// var dx = 0;
+	// var dy = distance * 1.6;
+	// var lastRadius = 0;
+	for (var i = 0, l = 121; i < l; i++) {
+		lastRadius = drawByDistance([x, y], i, distance);
+		//x += dx;
+		//y += dy + lastRadius * 2;
+	}
+
+
+	// unite by distance between points
+	// unite by polygon circle radius
+
+	paper.view.draw();
+
+
+
+	/**
+	 * SVG export
+	 * via http://www.mikechambers.com/blog/2014/07/01/saving-svg-content-from-paper.js/
+	 */
+
+	// listen for shift+o
+	tool = new paper.Tool();
+	tool.onKeyUp = function(e) {
+		if (e.character == "O") {
+			openAsSVG();
+		}
+	}
+
+	function openAsSVG() {
+		var svgString = paper.project.exportSVG({asString: true});
+		var url = "data:image/svg+xml;utf8," + encodeURIComponent(svgString);
+		var link = document.createElement('a');
+		link.target = "_blank";
+		link.href = url;
+		link.click();
+	}
+
+
+</script>
+</body>
+</html>

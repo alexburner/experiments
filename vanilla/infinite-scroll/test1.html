@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>∞ test 1</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        html, body {
+            background: gray;
+            color: #333;
+            font-family: sans-serif;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            padding: 0;
+            width: 100%;
+        }
+        .scroll {
+            background: red;
+            border: 10px solid #333;
+            height: calc(100% - 75px);
+            margin: 35px;
+            overflow: hidden;
+            /*overflow-y: scroll;*/
+            position: relative;
+            width: calc(100% - 70px);
+        }
+        .scroll-row {
+            background: white;
+            border-bottom: 1px dotted #CCC;
+            font-size: 64px;
+            font-weight: bold;
+            height: 200px;
+            left: 0;
+            line-height: 200px;
+            position: absolute;
+            text-align: center;
+            top: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<script src="Row.js"></script>
+<script src="Scroll.js"></script>
+<script>
+
+    var scroll = new Scroll();
+
+    scroll.el.addEventListener('wheel', function (e) {
+        scroll.scroll(e.deltaY);
+    });
+
+    // scroll.el.addEventListener('scroll', function (e) {
+    //     console.log(e);
+    // });
+
+    // document.body.addEventListener('keydown', function (e) {
+    //     var deltaY = 0;
+    //     switch (e.which) {
+    //         case 33: // page up
+    //             deltaY = 0.9 * scroll.elHeight;
+    //             break;
+    //         case 34: // page down
+    //             deltaY = -0.9 * scroll.elHeight;
+    //             break;
+    //         case 38: // arrow up
+    //             deltaY = 30;
+    //             break;
+    //         case 40: // arrow down
+    //             deltaY = -30;
+    //             break;
+    //         default:
+    //             return;
+    //     }
+    //     scroll.scroll(deltaY);
+    // });
+
+    document.body.appendChild(scroll.el);
+
+    scroll.initialize();
+
+    window.addEventListener('resize', scroll.update.bind(scroll));
+
+</script>
+</body>
+</html>

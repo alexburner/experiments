@@ -1,0 +1,102 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>hopf</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: #222;
+	}
+	#canvas {
+		width: 2000px;
+		height: 16000px;
+	}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.9.js"></script>
+<script type="text/javascript" src="js/pusher.color.js"></script>
+<script type="text/paperscript" canvas="canvas">
+
+
+	/**
+	 * infinite nesting circles
+	 * @param {Object} args
+	 * {
+	 * 		{paper Point} origin	Origin point
+	 * 		{Number} radius 	First radius
+	 * 		{Number} ratio 		Growth ratio
+	 * 		{Number} angle 		Rotation degrees
+	 * 		{Number} count		Iteration count
+	 * 		{Function} count	Color step thunk
+	 * }
+	 * @return {Array} circles 
+	 */
+	function hopf(args) {
+
+		var origin = args.origin;
+		var radius = args.radius;
+		var ratio = args.ratio;
+		var angle = args.angle;
+		var count = args.count;
+		var color = args.color;
+		
+		var circles = [];
+		
+		var shift = new paper.Point(origin);
+		var prevRadius = radius;
+
+		while (count--) {
+
+			radius = prevRadius * ratio;
+			shift.length = radius;
+			shift.angle = angle;
+
+			circles.push(new paper.Path.Circle({
+				center: origin.add(shift),
+				radius: radius,
+				strokeColor: color(count, ratio).hex6(),
+				strokeWidth: 1,
+				opacity: 0.8
+			}));
+
+			prevRadius = radius;
+		}
+		return circles;
+	}
+
+	hopf({
+		origin: new paper.Point([600, 600]),
+		radius: 1, 
+		ratio: 1.6180339, 
+		angle: 0,
+		count: 40,
+		color: (function () {
+			var color = pusher.color('white');
+			return function (count, ratio) {
+				return color;
+			};
+		})()
+	});
+
+	hopf({
+		origin: new paper.Point([600, 600]),
+		radius: 1, 
+		ratio: 1.6180339, 
+		angle: 180,
+		count: 40,
+		color: (function () {
+			var color = pusher.color('white');
+			return function (count, ratio) {
+				return color;
+			};
+		})()
+	});
+
+
+
+</script>
+</body>
+</html>

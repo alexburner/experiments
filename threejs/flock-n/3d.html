@@ -1,0 +1,104 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>flock 3d</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: #333;
+		color: white;
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript" src="js/lodash.min.js"></script>
+<script type="text/javascript" src="js/Maths.js"></script>
+<script type="text/javascript" src="js/Flock.js"></script>
+<script type="text/javascript" src="../js/three.min.js"></script>
+<script type="text/javascript" src="../js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript" src="../js/examples/controls/TrackballControls.js"></script>
+<script type="text/javascript" src="js/setup.js"></script>
+<script type="text/javascript">
+
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    var flock = new Flock({
+        count: 15,
+        aversion: 10,
+        awareness: 400,
+        minSpeed: 1,
+        maxSpeed: 3,
+        magic: 1000,
+        origin: [0, 0, 0],
+        dimensions: [width, height, height]
+    });
+
+    var particleGeometry = new THREE.Geometry();
+    var particleMaterial = new THREE.PointCloudMaterial({
+        sizeAttenuation: false,
+        color: 0xFFFFFF,
+        size: 1
+    });
+
+    _.each(flock.boids, function (boid) {
+        particleGeometry.vertices.push(new THREE.Vector3(
+            boid.position[0],
+            boid.position[1],
+            boid.position[2]
+        ));
+    });
+
+    var particleSystem = new THREE.PointCloud(
+        particleGeometry,
+        particleMaterial
+    );
+
+    scene.add(particleSystem);
+
+    function drawLine(from, to, color) {
+        color = color || 0xEEEEEE;
+        var geometry = new THREE.Geometry();
+        geometry.vertices.push(from);
+        geometry.vertices.push(to);
+        var material = new THREE.LineBasicMaterial({
+            linecap: 'round',
+            linejoin: 'round',
+            linewidth: 1,
+            color: color
+        });
+        var line = new THREE.Line(geometry, material);
+        scene.add(line);
+        return line;
+    }
+
+    function animateFrame() {
+        var boids = flock.tick();
+        _.each(boids, function (boid, i) {
+            var particle = particleGeometry.vertices[i];
+            var particle2 = particle.clone();
+            particle.x = boid.position[0];
+            particle.y = boid.position[1];
+            particle.z = boid.position[2];
+            drawLine(particle, particle2);
+        });
+        particleGeometry.verticesNeedUpdate = true;
+        renderer.render(scene, camera);
+        window.requestAnimationFrame(animateFrame);
+    }
+
+    animateFrame();
+
+
+</script>
+</body>
+</html>

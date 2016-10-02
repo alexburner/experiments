@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>diffuse -3d- bound</title>
+    <style type="text/css">
+        html, body, canvas {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            width: 100%;
+            height: 100%;
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="..//lib/lodash.min.js"></script>
+<script type="text/javascript" src="..//lib/three.min.js"></script>
+<script type="text/javascript" src="..//lib/three/Detector.js"></script>
+<script type="text/javascript" src="..//lib/three/OrthographicTrackballControls.js"></script>
+<script type="text/javascript" src="../shared/Maths.js"></script>
+<script type="text/javascript" src="../shared/Diffuse.js"></script>
+<script type="text/javascript" src="../shared/WorkerPool.js"></script>
+<script type="text/javascript">
+
+    var hash = (
+        window.location.hash.length ?
+            Number(window.location.hash.slice(1)) :
+            NaN
+    );
+
+    var count = isNaN(hash) ? 12 : hash;
+    var space = 3;
+    var speed = 0.008;
+
+    var bounding = true;
+    var centering = !bounding;
+    var scaling = !bounding;
+
+    var radius = 80;
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+
+    //
+    //
+    // <three.js>
+    //
+    //
+    if (!Detector.webgl) Detector.addGetWebGLMessage();
+
+    var d = 160;
+    var aspect = width / height;
+    var camera = new THREE.OrthographicCamera(
+        -d * aspect,
+        d * aspect,
+        d,
+        -d,
+        1,
+        12000
+    );
+    camera.position.set(0, 0, 200);
+
+    var scene = new THREE.Scene();
+    scene.add(camera);
+
+    var renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true
+    });
+
+    var controls = new THREE.OrthographicTrackballControls(camera);
+    controls.addEventListener('change', function () {
+        renderer.render(scene, camera);
+    });
+
+    renderer.setSize(width, height);
+    document.body.appendChild(renderer.domElement);
+
+    window.addEventListener('resize', function () {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        aspect = width / height;
+        camera.left = -d * aspect;
+        camera.right = d * aspect;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+        controls.handleResize();
+    });
+    //
+    //
+    // </three.js>
+    //
+    //
+
+
+    var pool = new WorkerPool('../shared/StatelessWorker.js', 2);
+
+    function initPool() {
+        pool.send(
+            {
+                moduleName: 'Diffuse',
+                methodName: 'init',
+                argArr: [count, space],
+            },
+            function (points) {
+                tickPool(points);
+            }
+        );
+    }
+
+    function tickPool(points) {
+        pool.send(
+            {
+                moduleName: 'Diffuse',
+                methodName: 'tick',
+                argArr: [
+                    points,
+                    {
+                        speed: speed,
+                        bounding: bounding,
+                        centering: centering,
+                        scaling: scaling,
+                    }
+                ],
+            },
+            function (points) {
+                window.requestAnimationFrame(function () {
+                    tickPool(points);
+                    render(points);
+                });
+            }
+        );
+    }
+
+
+    // pre-draw lines
+    var material = new THREE.LineBasicMaterial({
+        linecap: 'round',
+        linejoin: 'round',
+        linewidth: 0.6,
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.25
+    });
+    var geometry = new THREE.Geometry();
+    _.times(count * count - count, function () {
+        geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+        geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+    });
+    var lines = new THREE.Line(geometry, material);
+    scene.add(lines);
+
+    var isRotating = true;
+    function render(points) {
+        var index = 0;
+        // update line vertices with particle vectors
+        _.each(points, function (pointA) {
+            var x1 = radius * pointA[0];
+            var y1 = radius * pointA[1];
+            var z1 = radius * pointA[2];
+            // var z1 = 0; // for 2d version
+            _.each(points, function (pointB) {
+                if (pointA === pointB) return;
+                var x2 = radius * pointB[0];
+                var y2 = radius * pointB[1];
+                var z2 = radius * pointB[2];
+                // var z2 = 0; // for 2d version
+                var v1 = geometry.vertices[index++];
+                var v2 = geometry.vertices[index++];
+                v1.x = x1;
+                v1.y = y1;
+                v1.z = z1;
+                v2.x = x2;
+                v2.y = y2;
+                v2.z = z2;
+            });
+        });
+        if (isRotating) {
+            var slowdown = 800;
+            lines.rotateX(-Math.PI / 2 / slowdown / 10);
+            lines.rotateY(Math.PI / 2 / slowdown);
+            lines.rotateZ(-Math.PI / 2 / slowdown / 10);
+        }
+        geometry.verticesNeedUpdate = true;
+        renderer.render(scene, camera);
+        controls.update();
+    }
+
+    window.addEventListener('keydown', function (e) {
+        var key = e.which || e.keyCode;
+        switch (key) {
+            case 32: // spacebar
+                e.preventDefault();
+                isRotating = !isRotating;
+                break;
+        }
+    });
+
+
+    //
+    //
+    // begin
+    initPool();
+
+</script>
+</body>
+</html>

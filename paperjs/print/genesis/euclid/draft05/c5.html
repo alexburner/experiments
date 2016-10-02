@@ -1,0 +1,84 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>c5 centroid</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: #DDD;
+	}
+	canvas {
+		margin: 30px;
+		background: white;
+	}
+</style>
+</head>
+<body>
+<script type="text/javascript" src="../../../../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelCol.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript" src="js/RectGrid.js"></script>
+<script type="text/javascript">
+
+
+	var pageWidth = 1100;
+	var pageHeight = 850;
+
+
+	// initialize paper with new canvas element
+	var canvas = document.createElement('canvas');
+	canvas.width = pageWidth;
+	canvas.height = pageHeight;
+	document.body.appendChild(canvas);
+	paper.setup(canvas);
+
+	var radius = 24;
+
+    var center = new paper.Point(
+        3 * (pageWidth / 4),
+        pageHeight / 2
+    );
+
+    var size = new paper.Size(100, 100);
+
+
+    shapes.strokeColor = 'black';
+    shapes.strokeWidth = 1;
+
+
+    var genesis = new GenesisPanel(
+        7,
+        radius,
+        new paper.Point(center.x - size.width / 2, center.y - size.height / 2),
+        size,
+        true
+    );
+
+    genesis.hideCircles();
+    genesis.extend(GenesisCentroid);
+    genesis.findOtherCentroidRadii();
+    genesis.drawOtherCentroidCircles();
+    genesis.group.rotate(30, center);
+
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+</script>
+<script type="text/javascript" src="../../../svg-export.js"></script>
+</body>
+</html>

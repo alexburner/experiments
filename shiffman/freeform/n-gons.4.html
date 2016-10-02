@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>n-gons.4</title>
+    <style>
+        html, body {
+            background: hsl(0, 0%, 10%);
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+        canvas {
+            margin: 40px auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+<script src="../lodash.min.js"></script>
+<script src="../p5.js"></script>
+<script>
+
+var WIDTH = 1000;
+var HEIGHT = 800;
+var ORIGIN_X = WIDTH / 2;
+var ORIGIN_Y = HEIGHT / 2;
+var ORIGIN_A = (2 * Math.PI) / 4;
+var EDGE_LENGTH = 80;
+var STEP_COUNT = 80;
+var POINT_LIMIT = 60;
+
+function getStep(prev, next) {
+    var delta = next - prev;
+    return delta / STEP_COUNT;
+}
+
+function Circle() {
+    this.prevRadius = 0;
+    this.currRadius = 0;
+    this.nextRadius = 0;
+    this.step = 0;
+}
+
+
+function Point() {
+    this.prevAngle = 0;
+    this.currAngle = 0;
+    this.nextAngle = 0;
+    this.step = 0;
+    this.x = 0;
+    this.y = 0;
+}
+
+Point.prototype.setXY = function (radius, offset) {
+    this.x = radius * Math.cos(this.currAngle + ORIGIN_A);
+    this.y = radius * Math.sin(this.currAngle + ORIGIN_A);
+};
+
+var state = {
+    step: 0,
+    circle: new Circle(),
+    points: [],
+};
+
+function setup() {
+    createCanvas(WIDTH, HEIGHT);
+    background(color(0), 0);
+    blendMode(SCREEN);
+    colorMode(HSB);
+}
+
+function draw() {
+    if (
+        state.points.length === POINT_LIMIT &&
+        state.step === STEP_COUNT
+    ) {
+        return;
+    }
+    updateState();
+    var x = ORIGIN_X;
+    var y = ORIGIN_Y;
+    clear();
+    // drawCircle(x, y);
+    // drawPoints(x, y);
+    drawLines(x, y);
+}
+
+function updateState() {
+    if (!state.points.length || state.step === STEP_COUNT) {
+        // begin new stepping
+        state.step = 0;
+
+        // add new point
+        state.points.unshift(new Point(0, state.radius));
+
+        // get new angle & radius
+        var angle = TAU / state.points.length;
+        var radius = state.points.length > 1 ?
+            (EDGE_LENGTH / 2) / (Math.sin(angle / 2)) :
+            0 // 1 point has no circle
+        ;
+
+        // update circle prev & next
+        var circle = state.circle;
+        circle.prevRadius = circle.currRadius;
+        circle.nextRadius = radius;
+        circle.step = getStep(circle.prevRadius, circle.nextRadius);
+
+        // update point prev & next
+        _.each(state.points, function (point, index) {
+            point.prevAngle = point.currAngle;
+            point.nextAngle = angle * index;
+            point.step = getStep(point.prevAngle, point.nextAngle);
+        });
+    }
+
+    // update circle & point curr
+    state.circle.currRadius += state.circle.step;
+    _.each(state.points, function (point) {
+        point.currAngle += point.step;
+        point.setXY(state.circle.currRadius);
+    });
+
+    // step complete
+    state.step++;
+}
+
+function drawCircle(x, y) {
+    push();
+    stroke(100/3);
+    noFill();
+    ellipse(
+        x,
+        y,
+        state.circle.currRadius * 2
+    );
+    pop();
+}
+
+function drawPoints(x, y) {
+    push();
+    stroke(100);
+    _.each(state.points, function (point) {
+        ellipse(
+            point.x + x,
+            point.y + y,
+            12
+        );
+    });
+    pop();
+}
+
+function drawLines(x, y) {
+    push();
+    var beenDrawn = {};
+    _.each(state.points, function (pointA, indexA) {
+        _.each(state.points, function (pointB, indexB) {
+            if (pointA === pointB) return;
+            if (beenDrawn[indexB + ',' + indexA]) return;
+            beenDrawn[indexA + ',' + indexB] = true;
+            var xDiff = pointA.x - pointB.x;
+            var yDiff = pointA.y - pointB.y;
+            var length = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
+            var hueNum = (length - EDGE_LENGTH) / 4;
+            stroke(
+                hueNum % 360,
+                70,
+                90
+            );
+            line(
+                pointA.x + x,
+                pointA.y + y,
+                pointB.x + x,
+                pointB.y + y
+            );
+        });
+    });
+    pop();
+}
+
+
+
+// todo sometime
+// generative version
+// diffusion algorithm
+// lock one point at top
+// and spread the rest
+
+</script>
+</body>
+</html>

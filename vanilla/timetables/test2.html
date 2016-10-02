@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>timetables 2</title>
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<script type="text/javascript" src="js/lodash.min.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/moment.min.js"></script>
+<script type="text/javascript">
+
+function getHourColor(hour) {
+    hour = 24 - hour;
+    var h = 360 * (hour / 24);
+    var s = '65%';
+    var l = '75%';
+
+    h = (h + 60 + 180) % 360;
+
+    var hsl = ([h, s, l]).join(',');
+    return 'hsl(' + hsl + ')';
+}
+
+function getMonthColor(month) {
+    month = 12 - month;
+    var h = 360 * (month / 12);
+    var s = '65%';
+    var l = '75%';
+
+    h = (h + 60 + 180 - 30) % 360;
+
+    var hsl = ([h, s, l]).join(',');
+    return 'hsl(' + hsl + ')';
+}
+
+function Daytable(args) {
+    this.$table = $('<table>');
+    this.$table.addClass('daytable');
+
+    var $row = $('<tr>');
+    _.times(24, function (hour) {
+        var $cell = $('<td>');
+        var mHour = moment().set('hour', hour);
+        $cell.text(mHour.format('h'));
+        $cell.css({
+            backgroundColor: getHourColor(hour)
+        });
+        $row.append($cell);
+    });
+
+    this.$table.append($row);
+}
+
+function Yeartable(args) {
+    this.$table = $('<table>');
+    this.$table.addClass('yeartable');
+
+    var date = moment().set({
+        year: args.year,
+        month: 'January',
+        date: 1
+    });
+
+    var shift = date.day() + 1;
+    var year = date.year();
+
+    var dates = [];
+
+    _.times(shift, function () {
+        dates.push(null);
+    });
+
+    _.times(365, function (day) {
+        dates.push(moment(year + ' ' + (day + 1), 'YYYY DDD'));
+    });
+
+    if (date.isLeapYear()) {
+        dates.push(moment(year + ' 366', 'YYYY DDD'));
+    }
+
+    _.times(7, function (i) {
+        var $row = $('<tr>');
+        // var $cell = $('<td>');
+        // $cell.text(moment().set('day', 6 - i).format('dd'));
+        // $cell.css({color: 'white'});
+        // $row.append($cell);
+        var dayofweek = 7 - i;
+        _.times(54, function (j) {
+            var $cell = $('<td>');
+            var weekofyear = j;
+            var dayofyear = dayofweek + weekofyear * 7;
+
+            if (dayofyear >= dates.length) {
+                $cell.css({backgroundColor: 'hsl(0, 0%, 30%)'});
+                $row.append($cell);
+                return;
+            }
+
+            var mDay = dates[dayofyear];
+
+            if (mDay) {
+                $cell.text(mDay.date());
+                $cell.css({
+                    backgroundColor: getMonthColor(mDay.month())
+                });
+            } else {
+                $cell.css({backgroundColor: 'hsl(0, 0%, 30%)'});
+            }
+
+            $row.append($cell);
+        });
+        this.$table.append($row);
+    }.bind(this));
+}
+
+var daytable = new Daytable();
+$(document.body).append(daytable.$table);
+
+var yeartable = new Yeartable({ year: '2028' });
+$(document.body).append(yeartable.$table);
+
+</script>
+</body>
+</html>

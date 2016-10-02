@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>timetables 3</title>
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<script type="text/javascript" src="js/lodash.min.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/moment.min.js"></script>
+<script type="text/javascript">
+
+function getHourColor(hour) {
+    hour = 24 - hour;
+    var h = 360 * (hour / 24);
+    var s = '65%';
+    var l = '75%';
+
+    h = (h + 60 + 180) % 360;
+
+    var hsl = ([h, s, l]).join(',');
+    return 'hsl(' + hsl + ')';
+}
+
+function getMonthColor(month) {
+    month = 12 - month;
+    var h = 360 * (month / 12);
+    var s = '65%';
+    var l = '75%';
+
+    h = (h + 60 + 180 - 30) % 360;
+
+    var hsl = ([h, s, l]).join(',');
+    return 'hsl(' + hsl + ')';
+}
+
+function Daytable(args) {
+    this.$table = $('<table>');
+    this.$table.addClass('daytable');
+
+    var $row = $('<tr>');
+    _.times(24, function (hour) {
+        var $cell = $('<td>');
+        var mHour = moment().set('hour', hour);
+        $cell.text(mHour.format('h'));
+        $cell.css({backgroundColor: getHourColor(hour)});
+        $row.append($cell);
+    });
+
+    this.$table.append($row);
+}
+
+function Yeartable(args) {
+    this.$table = $('<table>');
+    this.$table.addClass('yeartable');
+
+    var date = moment().set({
+        year: args.year,
+        month: 'January',
+        date: 1
+    });
+
+    var year = date.year();
+
+    //
+    // Make date array
+
+    var dates = [];
+
+    // fill out blanks before
+    // note: .day() returns [0-6]
+    _.times(date.day(), function () {
+        dates.push(null);
+    });
+
+    // fill out 365 days
+    _.times(365, function (day) {
+        dates.push(moment(year + ' ' + (day + 1), 'YYYY DDD'));
+    });
+
+    // leap year? 1 more day
+    if (date.isLeapYear()) {
+        dates.push(moment(year + ' 366', 'YYYY DDD'));
+    }
+
+    // fill out blanks after
+    _.times(7 - (dates.length % 7), function () {
+        dates.push(null);
+    });
+
+    //
+    // Fill out table elements
+
+    // make 7 week rows
+    var rowEls = [];
+    _.times(7, function () {
+        var rowEl = document.createElement('tr');
+        rowEls.push(rowEl);
+    });
+    var $rows = $(rowEls);
+
+    // make all the date cells
+    _.each(dates, function (day, i) {
+        var row = 6 - i % 7;
+        var $cell = $('<td>');
+        if (day) {
+            $cell.text(day.date());
+            $cell.css({backgroundColor: getMonthColor(day.month())});
+        } else {
+            $cell.css({backgroundColor: 'hsl(0, 0%, 30%)'});
+        }
+        $rows.eq(row).append($cell);
+    });
+
+    this.$table.append($rows);
+}
+
+var daytable = new Daytable();
+$(document.body).append(daytable.$table);
+
+var yeartable = new Yeartable({ year: 2017 });
+$(document.body).append(yeartable.$table);
+
+</script>
+</body>
+</html>

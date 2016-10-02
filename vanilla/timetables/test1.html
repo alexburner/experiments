@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>timetables 1</title>
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<script type="text/javascript" src="js/lodash.min.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/moment.min.js"></script>
+<script type="text/javascript">
+
+function getHourColor(hour) {
+    hour = 24 - hour;
+    var h = 360 * (hour / 24);
+    var s = '65%';
+    var l = '75%';
+
+    h = (h + 60 + 180) % 360;
+
+    var hsl = ([h, s, l]).join(',');
+    return 'hsl(' + hsl + ')';
+}
+
+function getMonthColor(month) {
+    month = 12 - month;
+    var h = 360 * (month / 12);
+    var s = '65%';
+    var l = '75%';
+
+    h = (h + 60 + 180 - 30) % 360;
+
+    var hsl = ([h, s, l]).join(',');
+    return 'hsl(' + hsl + ')';
+}
+
+function Daytable(args) {
+    this.$table = $('<table>');
+    this.$table.addClass('daytable');
+
+    var $row = $('<tr>');
+    _.times(24, function (hour) {
+        var $cell = $('<td>');
+        var mHour = moment().set('hour', hour);
+        $cell.text(mHour.format('h'));
+        $cell.css({
+            backgroundColor: getHourColor(hour)
+        });
+        $row.append($cell);
+    });
+
+    this.$table.append($row);
+}
+
+function Yeartable(args) {
+    this.$table = $('<table>');
+    this.$table.addClass('yeartable');
+
+    var year = args.year;
+
+    _.times(7, function (i) {
+        var $row = $('<tr>');
+        var dayofweek = 7 - i;
+        _.times(52, function (j) {
+            var $cell = $('<td>');
+            var weekofyear = j;
+            var dayofyear = dayofweek + weekofyear * 7;
+            var mDay = moment(year + ' ' + dayofyear, 'YYYY DDD');
+            // $cell.text(mDay.date());
+            $cell.text(dayofyear - 1);
+            $cell.css({
+                backgroundColor: getMonthColor(mDay.month())
+            });
+            $row.append($cell);
+        });
+        this.$table.append($row);
+    }.bind(this));
+}
+
+var daytable = new Daytable();
+$(document.body).append(daytable.$table);
+
+var yeartable = new Yeartable({ year: '2028' });
+$(document.body).append(yeartable.$table);
+
+</script>
+</body>
+</html>

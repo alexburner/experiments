@@ -1,0 +1,181 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - lines: raw</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 10000px;
+		height: 4000px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+
+
+	/**
+	 * Playtime
+	 */
+	
+	 (function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 12;
+			var padding = 5;
+			var w = 70;
+			var h = 85;
+			var x = (i * w) + (count * padding);
+			var y = padding;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].markPoints();
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 60;
+			var padding = 20;
+			var w = 400;
+			var h = 500;
+			var x = (i * w) + (count * padding);
+			var y = padding + 100;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 60;
+			var padding = 20;
+			var w = 400;
+			var h = 500;
+			var x = (i * w) + (count * padding);
+			var y = padding + 620;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 60;
+			var padding = 20;
+			var w = 400;
+			var h = 500;
+			var x = (i * w) + (count * padding);
+			var y = padding + 1140;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 60;
+			var padding = 20;
+			var w = 400;
+			var h = 500;
+			var x = (i * w) + (count * padding);
+			var y = padding + 1660;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn(true);
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 45;
+			var padding = 20;
+			var w = 1000;
+			var h = 1200;
+			var x = (i * w) + (count * padding);
+			var y = padding + 2180;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn(true);
+		}
+	})();
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>flower</title>
+<style type="text/css" media="screen">
+    html, body, canvas {
+        margin: 0;
+        padding: 0;
+        background: #DDD;
+    }
+    canvas {
+        margin: 30px;
+        background: white;
+    }
+</style>
+</head>
+<body>
+<script type="text/javascript" src="../../../paper.v.0.9.21.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/Flower.js"></script>
+<script type="text/javascript">
+
+    var pageWidth = 1100;
+    var pageHeight = 850;
+
+
+    // initialize paper with new canvas element
+    var canvas = document.createElement('canvas');
+    canvas.width = pageWidth;
+    canvas.height = pageHeight;
+    document.body.appendChild(canvas);
+    paper.setup(canvas);
+
+
+    // config
+    var radius = 16;
+    var vradius = (util.getVesicaLength(radius) / 3) * 2;
+    var rings = 3;
+
+
+    // circle factory
+    function Circle(center, radius) {
+        return new paper.Shape.Circle({
+            center: center,
+            radius: radius,
+            strokeCap: 'round',
+            strokeColor: 'black',
+            strokeWidth: 1/2
+        });
+    }
+
+
+    (function () {
+
+        var center = new paper.Point(
+            1 * (pageWidth / 4),
+            2 * (pageHeight / 4)
+        );
+
+        // make flower patterns
+        var flower1 = new Flower(
+            center,
+            new Circle(center, radius),
+            radius,
+            rings
+        );
+
+        // initial rotation
+        flower1.group.rotate(30, center);
+
+    })();
+
+    (function () {
+
+        var center = new paper.Point(
+            3 * (pageWidth / 4),
+            2 * (pageHeight / 4)
+        );
+
+        // make flower patterns
+        var flower1 = new Flower(
+            center,
+            new Circle(center, radius),
+            radius,
+            rings
+        );
+        var flower2 = new Flower(
+            center,
+            new Circle(center, radius),
+            radius,
+            rings
+        );
+
+        // initial rotation
+        flower1.group.rotate(30, center);
+        flower2.group.rotate(120, center);
+
+    })();
+
+
+
+
+    /**
+     * Execute
+     */
+    paper.view.draw();
+
+
+</script>
+<script type="text/javascript" src="../../svg-export.js"></script>
+</body>
+</html>

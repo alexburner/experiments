@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Flocking</title>
+	<style type="text/css">
+		html, body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			background: #222;
+		}
+		#container {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			overflow: hidden;
+		}
+		.bird {
+			width: 0;
+			height: 0;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+		}
+		.body {
+			width: 10px;
+			height: 10px;
+			position: absolute;
+			z-index: 100;
+			top: 50%;
+			left: 50%;
+			margin-top: -5px;
+			margin-left: -5px;
+			border-radius: 50px;
+			/*background: rgba(0, 0, 0, 1);*/
+			/*background: #000;*/
+		}
+		.bubble {
+			width: 100px;
+			height: 100px;
+			position: absolute;
+			z-index: 10;
+			top: 50%;
+			left: 50%;
+			margin-top: -50px;
+			margin-left: -50px;
+			border-radius: 500px;
+			/*background: rgba(0, 0, 0, 0.06);*/
+			/*border: 1px solid #CCC;*/
+		}
+		.neighborhood {
+			width: 500px;
+			height: 500px;
+			position: absolute;
+			z-index: 1;
+			top: 50%;
+			left: 50%;
+			margin-top: -250px;
+			margin-left: -250px;
+			border-radius: 1000px;
+			/*background: rgba(0, 0, 0, 0.01);*/
+			/*border: 1px solid #EEE;*/
+		}
+		.neutral {
+			width: 10px;
+			height: 10px;
+			position: absolute;
+			z-index: 1000;
+			top: -1000px;
+			left: -1000px;
+			margin-top: -10px;
+			margin-left: -10px;
+			border-radius: 50px;
+			background: #CCC;
+
+			display: none;
+		}
+		.threat {
+			width: 10px;
+			height: 10px;
+			position: absolute;
+			z-index: 1000;
+			top: -1000px;
+			left: -1000px;
+			margin-top: -10px;
+			margin-left: -10px;
+			border-radius: 50px;
+			background: #F00;
+
+			display: none;
+		}
+		.food {
+			width: 10px;
+			height: 10px;
+			position: absolute;
+			z-index: 1000;
+			top: -1000px;
+			left: -1000px;
+			margin-top: -10px;
+			margin-left: -10px;
+			border-radius: 50px;
+			background: #0F0;
+
+			display: none;
+		}
+	</style>
+</head>
+<body>
+<script type="text/javascript" src="js/addEvent.js"></script>
+<script type="text/javascript" src="js/frameHandler.js"></script>
+<script type="text/javascript" src="js/unflock_trails.js"></script>
+</body>
+</html>

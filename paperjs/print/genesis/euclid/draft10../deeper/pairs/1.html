@@ -1,0 +1,287 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>1</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: #DDD;
+	}
+	canvas {
+		margin: 30px;
+		background: white;
+	}
+</style>
+</head>
+<body>
+<script type="text/javascript" src="../../../../../../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="../js/util.js"></script>
+<script type="text/javascript" src="../js/shapes.js"></script>
+<script type="text/javascript" src="../js/GenesisPanel.js"></script>
+<script type="text/javascript" src="../js/GenesisPanelCol.js"></script>
+<script type="text/javascript" src="../js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="../js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="../js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="../js/Facet.js"></script>
+<script type="text/javascript" src="../js/RectGrid.js"></script>
+<script type="text/javascript">
+
+
+	var pageWidth = 1100;
+	var pageHeight = 850;
+
+
+	// initialize paper with new canvas element
+	var canvas = document.createElement('canvas');
+	canvas.width = pageWidth;
+	canvas.height = pageHeight;
+	document.body.appendChild(canvas);
+	paper.setup(canvas);
+
+	var radius = 16;
+
+
+    (function () {
+
+        // background color shape
+        var gutterX = 20;
+        var gutterY = 25;
+        var backdrop = new paper.Path.Rectangle(
+            new paper.Point(
+                gutterX,
+                gutterY
+            ),
+            new paper.Size(
+                pageWidth / 2 - gutterX * 2,
+                pageHeight - gutterY * 2
+            )
+        );
+        backdrop.fillColor = 'black';
+
+        var grid = new RectGrid(
+            new paper.Point(0, 0),
+            new paper.Size(pageWidth / 2, pageHeight - 20),
+            120,
+            7,
+            5
+        );
+
+
+        for (var i = 0; i < grid.matrix.length; i++) {
+            var stage = i + 1;
+            for (var j = 0; j < grid.matrix[i].length; j++) {
+                var rect = grid.matrix[i][j];
+                var genesis = null;
+                switch (j) {
+                    case 0:
+                        // circles
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        break;
+                    case 1:
+                        // circles + points
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.markPoints();
+                        break;
+                    case 2:
+                        // points
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.markPoints();
+                        break;
+                    case 3:
+                        // points + lines
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.markPoints();
+                        genesis.extend(GenesisLines);
+                        genesis.drawAllLines('in');
+                        break;
+                    case 4:
+                        // lines
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisLines);
+                        genesis.drawAllLines('in');
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+    })();
+
+    (function () {
+
+        // background color shape
+        var gutterX = 20;
+        var gutterY = 25;
+        var backdrop = new paper.Path.Rectangle(
+            new paper.Point(
+                pageWidth / 2 + gutterX,
+                gutterY
+            ),
+            new paper.Size(
+                pageWidth / 2 - gutterX * 2,
+                pageHeight - gutterY * 2
+            )
+        );
+        backdrop.fillColor = 'black';
+
+        var grid = new RectGrid(
+            new paper.Point(pageWidth / 2, 0),
+            new paper.Size(pageWidth / 2, pageHeight - 20),
+            120,
+            9,
+            6
+        );
+
+
+        for (var i = 0; i < grid.matrix.length; i++) {
+            for (var j = 0; j < grid.matrix[i].length; j++) {
+                var rect = grid.matrix[i][j];
+                var stage = j + 2;
+                var genesis = null;
+                switch (i) {
+                    case 0:
+                        // lines (all)
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisLines);
+                        genesis.drawAllLines('in');
+                        break;
+                    case 7:
+                        // lines (vesica2)
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisLines);
+                        genesis.drawAllLines('in');
+                        genesis.hideAllLines();
+                        genesis.showLinesByLength('vesica2');
+                        break;
+                    case 6:
+                        // lines (radius3)
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisLines);
+                        genesis.drawAllLines('in');
+                        genesis.hideAllLines();
+                        genesis.showLinesByLength('radius3');
+                        break;
+                    case 5:
+                        // lines (strange)
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisLines);
+                        genesis.drawAllLines('in');
+                        genesis.hideAllLines();
+                        genesis.showLinesByLength('strange');
+                        break;
+                    case 4:
+                        // lines (radius2)
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisLines);
+                        genesis.drawAllLines('in');
+                        genesis.hideAllLines();
+                        genesis.showLinesByLength('radius2');
+                        break;
+                    case 3:
+                        // lines (vesica)
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisLines);
+                        genesis.drawAllLines('in');
+                        genesis.hideAllLines();
+                        genesis.showLinesByLength('vesica');
+                        break;
+                    case 2:
+                        // lines (radius)
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisLines);
+                        genesis.drawAllLines('in');
+                        genesis.hideAllLines();
+                        genesis.showLinesByLength('radius');
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+    })();
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+</script>
+<script type="text/javascript" src="../../../../../svg-export.js"></script>
+</body>
+</html>

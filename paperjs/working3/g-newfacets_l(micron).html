@@ -1,0 +1,222 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - facets</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 4880px;
+		height: 8000px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_micron.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelRow.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+var backdrop = new shapes.Backdrop();
+
+
+
+	// genesis set command sequences
+	var argsLists = [
+		[
+			['markPoints']
+		],
+		[
+			['markPoints'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['markFacets', ['vesica']],
+			['markFacets', ['treble']],
+			['markFacets', ['petal']]
+		],
+		[
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['markFacets', ['vesica']],
+			['markFacets', ['treble']],
+			['markFacets', ['petal']]
+		],
+		[
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['markFacets', ['vesica']]
+		],
+		[
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['markFacets', ['treble']]
+		],
+		[
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['markFacets', ['petal']]
+		],
+		[],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines']
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['edgeFacets', ['vesica']],
+			['edgeFacets', ['treble']],
+			['edgeFacets', ['petal']]
+		],
+		[
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['edgeFacets', ['vesica']],
+			['edgeFacets', ['treble']],
+			['edgeFacets', ['petal']]
+		],
+		[
+			['extend', [GenesisFacets]],	
+			['makeFacets'],
+			['edgeFacets', ['vesica']]
+		],
+		[
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['edgeFacets', ['treble']]
+		],
+		[
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['edgeFacets', ['petal']]
+		],
+		[],
+		[
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['petal', 'around', 'selves']],
+			['drawSeeds', ['petal', 'within', 'selves']],
+			['drawSeeds', ['treble', 'around', 'selves']],
+			['drawSeeds', ['treble', 'within', 'selves']],
+			['drawSeeds', ['vesica', 'around', 'selves']],
+			['drawSeeds', ['vesica', 'within', 'selves']]
+		],
+		[
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['vesica', 'around', 'selves']],
+			['drawSeeds', ['vesica', 'within', 'selves']]
+		],
+		[
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['treble', 'around', 'selves']],
+			['drawSeeds', ['treble', 'within', 'selves']]
+		],
+		[
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['drawSeeds', ['petal', 'around', 'selves']],
+			['drawSeeds', ['petal', 'within', 'selves']]
+		],
+		[]
+	];
+
+
+	(function () {
+		
+		var config = {
+			width: 2400,
+			height: 400,
+			radius: 56,
+			padding: 20,
+			originX: 20,
+			originY: 20
+		};
+		
+		argsLists.forEach(function (argsList, index) {
+			var settings = Object.create(config);
+			settings.originY += index * (settings.height + settings.padding);
+			var row = new GenesisPanelRow(settings);
+			argsList.forEach(function (args) {
+				row.applyForEach.apply(row, args);
+			});
+		});
+
+	})();
+
+	(function () {
+
+		var config = {
+			width: 2400,
+			height: 400,
+			radius: 56,
+			padding: 20,
+			originX: 2460,
+			originY: 20
+		};
+
+		argsLists.forEach(function (argsList, index) {
+			var settings = Object.create(config);
+			settings.originY += index * (settings.height + settings.padding);
+			var row = new GenesisPanelRow(settings);
+			argsList.forEach(function (args) {
+				row.applyForEach.apply(row, args);
+			});
+
+			// row.geneses.forEach(function (genesis) {
+			// 	genesis.extend(GenesisLines);
+			// 	genesis.drawAllLines('on');
+			// 	if (!genesis.centroid) {
+			// 		genesis.extend(GenesisCentroid);
+			// 	}
+			// 	genesis.findCentroidLines();
+			// 	genesis.hideLinesNotCentroid();
+			// });
+
+			row.geneses.forEach(function (genesis) {
+				genesis.circles.forEach(function (circle) {
+					circle.visible = false;
+				});
+			});
+		});
+
+	})();
+
+
+
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - centroids</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 2480px;
+		height: 3000px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelRow.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+	new shapes.Backdrop();
+
+
+
+
+	/**
+	 * Playtime
+	 */
+	
+	(function () {
+		for (var i = 0, l = 10; i < l; i++) {
+			var set = new GenesisPanelRow({
+				width: 1200,
+				height: 200,
+				radius: 28,
+				padding: 10,
+				originX: 20,
+				originY: 20 + (i * 210)
+			});
+			switch (i) {
+				case 1:
+					set.doMethod('markPoints');
+					break;
+				case 2:
+					set.doMethod('markPoints');
+					set.doMethod('markCentroid');
+					break;
+				case 3:
+					set.doMethod('drawLinesOnUnique');
+					set.doMethod('hideAllLines');
+					set.doMethod('showLinesByLength', ['radius']);
+					set.doMethod('showLinesByLength', ['vesica']);
+					set.doMethod('showLinesByLength', ['strange']);
+					set.doMethod('markCentroid');
+					break;
+				case 4:
+					set.doMethod('drawLinesIn');
+					set.doMethod('hideAllLines');
+					set.doMethod('showLinesByLength', ['radius']);
+					set.doMethod('showLinesByLength', ['vesica']);
+					set.doMethod('showLinesByLength', ['strange']);
+					set.doMethod('markCentroid');
+					break;
+				case 5:
+					set.geneses.forEach(function (genesis) {
+						genesis.points.forEach(function (point) {
+							new shapes.Line(point, genesis.centroid);
+							new shapes.Line(point, genesis.centroid);
+						});
+					});
+					set.doMethod('markCentroid');
+					break;
+				case 6:
+					set.doMethod('drawLinesIn');
+					set.doMethod('hideAllLines');
+					set.doMethod('showLinesByLength', ['radius']);
+					set.doMethod('showLinesByLength', ['vesica']);
+					set.doMethod('showLinesByLength', ['strange']);
+					set.doMethod('hideNotCentroidLines');
+					set.doMethod('markCentroid');
+					break;
+				case 7:
+					set.doMethod('drawLinesOnUnique');
+					set.doMethod('hideAllLines');
+					set.doMethod('showLinesByLength', ['radius']);
+					set.doMethod('showLinesByLength', ['vesica']);
+					set.doMethod('showLinesByLength', ['strange']);
+					set.doMethod('hideNotCentroidLines');
+					set.doMethod('markCentroid');
+					break;
+				case 8:
+
+					set.doMethod('drawLinesOnUnique');
+					set.doMethod('hideAllLines');
+					set.doMethod('showLinesByLength', ['radius']);
+					set.doMethod('showLinesByLength', ['vesica']);
+					set.doMethod('showLinesByLength', ['strange']);
+					set.doMethod('hideNotCentroidLines');
+
+					set.doMethod('drawCenterSeeds_manual');
+					break;
+				case 9:
+					set.doMethod('drawCenterSeeds_trying');
+					break;
+			}
+		}
+	})();
+
+	(function () {
+		for (var i = 0, l = 10; i < l; i++) {
+			var set = new GenesisPanelRow({
+				width: 1200,
+				height: 200,
+				radius: 28,
+				padding: 10,
+				originX: 1260,
+				originY: 20 + (i * 210)
+			});
+			switch (i) {
+				case 1:
+					set.doMethod('markPoints');
+					break;
+				case 2:
+					set.doMethod('markPoints');
+					set.doMethod('markCentroid');
+					break;
+				case 3:
+					set.doMethod('drawLinesOnUnique');
+					set.doMethod('hideAllLines');
+					set.doMethod('showLinesByLength', ['radius']);
+					set.doMethod('showLinesByLength', ['vesica']);
+					set.doMethod('showLinesByLength', ['strange']);
+					set.doMethod('markCentroid');
+					break;
+				case 4:
+					set.doMethod('drawLinesIn');
+					set.doMethod('hideAllLines');
+					set.doMethod('showLinesByLength', ['radius']);
+					set.doMethod('showLinesByLength', ['vesica']);
+					set.doMethod('showLinesByLength', ['strange']);
+					set.doMethod('markCentroid');
+					break;
+				case 5:
+					set.geneses.forEach(function (genesis) {
+						genesis.points.forEach(function (point) {
+							new shapes.Line(point, genesis.centroid);
+							new shapes.Line(point, genesis.centroid);
+						});
+					});
+					set.doMethod('markCentroid');
+					break;
+				case 6:
+					set.doMethod('drawLinesIn');
+					set.doMethod('hideAllLines');
+					set.doMethod('showLinesByLength', ['radius']);
+					set.doMethod('showLinesByLength', ['vesica']);
+					set.doMethod('showLinesByLength', ['strange']);
+					set.doMethod('hideNotCentroidLines');
+					set.doMethod('markCentroid');
+					break;
+				case 7:
+					set.doMethod('drawLinesOnUnique');
+					set.doMethod('hideAllLines');
+					set.doMethod('showLinesByLength', ['radius']);
+					set.doMethod('showLinesByLength', ['vesica']);
+					set.doMethod('showLinesByLength', ['strange']);
+					set.doMethod('hideNotCentroidLines');
+					set.doMethod('markCentroid');
+					break;
+				case 8:
+					set.doMethod('drawCenterSeeds_manual');
+					break;
+				case 9:
+					set.doMethod('drawCenterSeeds_trying');
+					break;
+			}
+			set.geneses.forEach(function (genesis) {
+				genesis.circles.forEach(function (circle) {
+					circle.visible = false;
+				});
+			});
+		}
+	})();
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

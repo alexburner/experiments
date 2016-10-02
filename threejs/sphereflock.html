@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Flocking 3D</title>
+	<link rel="stylesheet" type="text/css" href="css/flock.css">
+</head>
+<body>
+<script type="text/javascript" src="js/flocking/addEvent.js"></script>
+<script type="text/javascript" src="js/flocking/frameHandler.js"></script>
+<script type="text/javascript" src="js/flocking/maths.js"></script>
+<script type="text/javascript" src="js/flocking/container.js"></script>
+<script type="text/javascript" src="js/flocking/canvas.js"></script>
+<script type="text/javascript" src="js/flocking/cursor.js"></script>
+<script type="text/javascript" src="js/flocking/keyboard.js"></script>
+<script type="text/javascript" src="js/flocking/flock.js"></script>
+<script type="text/javascript" src="js/flocking/bird.js"></script>
+<script type="text/javascript">
+
+	//
+	// page start
+	//
+
+	// make birds
+	flock.createBirds(100);
+	// run animations
+	frameHandler.start();
+
+</script>
+</body>
+</html>

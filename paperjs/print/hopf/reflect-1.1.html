@@ -1,0 +1,122 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>hopf more</title>
+<style type="text/css" media="screen">
+	html, body {
+		margin: 0;
+		padding: 0;
+		background: #222;
+	}
+	#canvas {
+		width: 2550px; /* 8.5(300) */
+		height: 3300px; /* 11(300) */
+		margin: auto;
+		background: white;
+	}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="text/javascript" src="../../paper.v.0.9.21.js"></script>
+<script type="text/javascript">
+
+	paper.setup(document.getElementById('canvas'));
+
+
+	/**
+	 * infinite nesting circles
+	 * @param {Object} args
+	 * {
+	 * 		{paper Point} origin	Origin point
+	 * 		{Number} radius 	First radius
+	 * 		{Number} ratio 		Growth ratio
+	 * 		{Number} angle 		Rotation degrees
+	 * 		{Number} count		Iteration count
+	 * 		{Function} count	Color step thunk
+	 * }
+	 * @return {Array} circles
+	 */
+	function hopf(args) {
+
+		var origin = args.origin;
+		var radius = args.radius;
+		var ratio = args.ratio;
+		var angle = args.angle;
+		var count = args.count;
+
+		var circles = [];
+
+		var shift = new paper.Point(origin);
+		var prevRadius = radius;
+
+		while (count--) {
+
+			radius = prevRadius * ratio;
+			shift.length = radius;
+			shift.angle = angle;
+
+			circles.push(new paper.Path.Circle({
+				center: origin.add(shift),
+				radius: radius,
+				strokeColor: 'black',
+				strokeWidth: 2
+			}));
+
+			prevRadius = radius;
+		}
+		return circles;
+	}
+
+	hopf({
+		origin: paper.view.center,
+		radius: 1,
+		ratio: 1.1,
+		angle: 0,
+		count: 200
+	});
+
+	hopf({
+		origin: paper.view.center,
+		radius: 1,
+		ratio: 1.1,
+		angle: 180,
+		count: 200
+	});
+
+	paper.view.draw();
+
+
+
+
+
+	/**
+	 * SVG export
+	 * via http://www.mikechambers.com/blog/2014/07/01/saving-svg-content-from-paper.js/
+	 */
+
+	// listen for shift+o
+	tool = new paper.Tool();
+	tool.onKeyUp = function(e) {
+		if (e.character == "O") {
+			openAsSVG();
+		}
+	}
+
+	function openAsSVG() {
+		var svgString = paper.project.exportSVG({
+			matchShapes: true,
+			asString: true
+		});
+		var url = "data:image/svg+xml;utf8," + encodeURIComponent(svgString);
+		var link = document.createElement('a');
+		link.target = "_blank";
+		link.href = url;
+		link.click();
+	}
+
+
+
+</script>
+</body>
+</html>

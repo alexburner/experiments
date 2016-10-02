@@ -1,0 +1,102 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>flower</title>
+<style type="text/css" media="screen">
+	html, body {
+		margin: 0;
+		padding: 0;
+		background: #222;
+	}
+	#canvas {
+		width: 2550px; /* 8.5(300) */
+		height: 3300px; /* 11(300) */
+		margin: auto;
+		background: white;
+	}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="text/javascript" src="../../../paper.v.0.9.21.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/Flower.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('canvas'));
+
+
+	// config
+	var radius = 42;
+	var vradius = (util.getVesicaLength(radius) / 3) * 2;
+	var rings = 2;
+	var center = paper.view.center;
+
+
+	// circle factory
+	function Circle(center, radius) {
+		return new paper.Shape.Circle({
+			center: center,
+			radius: radius,
+			strokeCap: 'round',
+			strokeColor: 'black',
+			strokeWidth: 2
+		});
+	}
+
+
+
+	// make flower patterns
+	var flower1 = new Flower(
+		center,
+		new Circle(center, radius),
+		radius,
+		rings
+	);
+
+
+
+	// initial rotation
+	flower1.group.rotate(30, center);
+
+
+
+
+	/**
+	 * First render
+	 */
+	paper.view.draw();
+
+
+
+
+	/**
+	 * SVG export
+	 * via http://www.mikechambers.com/blog/2014/07/01/saving-svg-content-from-paper.js/
+	 */
+
+	// listen for shift+o
+	tool = new paper.Tool();
+	tool.onKeyUp = function(e) {
+		if (e.character == "O") {
+			openAsSVG();
+		}
+	}
+
+	function openAsSVG() {
+		var svgString = paper.project.exportSVG({
+			matchShapes: true,
+			asString: true
+		});
+		var url = "data:image/svg+xml;utf8," + encodeURIComponent(svgString);
+		var link = document.createElement('a');
+		link.target = "_blank";
+		link.href = url;
+		link.click();
+	}
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>treble_outlines_nest</title>
+	<link rel="icon" type="image/ico" href="img/favicon.ico">
+	<style type="text/css" media="screen">
+		html, body, canvas { margin: 0; padding: 0; }
+		canvas { cursor: pointer; }
+	</style>
+	<script type="text/javascript" src="../paper.v.0.22.js"></script>
+	<script type="text/paperscript" canvas="vessel">
+
+
+
+		// state
+		var isRotating = false;
+		var isSpinning = false;
+		var isFading = false;
+
+
+
+		// backdrop
+		var background = new Path.Rectangle( view.bounds );
+		background.fillColor = 'white';
+
+
+
+		// animation
+		var rotaters = [];
+		var opaciters = [];
+		function onFrame( event ) {
+			var length = rotaters.length;
+			if ( !length ) {
+				if ( isRotating ) isRotating = false;
+			} else {
+				for ( var i = 0; i < length; i++ ) {
+					var isComplete = rotaters[ i ]();
+					if ( isComplete ) rotaters.splice( i, 1 );
+				}
+			}
+			length = opaciters.length;
+			if ( length ) {
+				for ( var i = 0; i < length; i++ ) {
+					var isComplete = opaciters[ i ]();
+					if ( isComplete ) opaciters.splice( i, 1 );
+				}
+			}
+		}
+
+
+		
+		//
+		//
+		// color trinity factory
+		function Treble( x, y, radius, doFade ) {
+
+
+			//
+			// PROPERTIES
+			var props = {
+				position: new Point( x, y ),
+				rotation: 0
+			};
+
+
+			//
+			// ELEMENTS
+			var group;
+
+
+			//
+			// METHODS
+
+			// constructor
+			function construct() {
+
+				// find lengths
+				var c = radius;
+				var a = radius / 2;
+				var b = Math.sqrt( c * c - a * a );
+				var z = a / b;
+				var d = a * z;
+				var e = c * z;
+
+
+				// make circles
+				var circles = [];
+
+				var full = new Path.Circle( new Point( x, y ), radius * 2 );
+
+				var primary1 = new Path.Circle( new Point( x - a, y - d ), radius );
+				var primary2 = new Path.Circle( new Point( x + a, y - d ), radius );
+				var primary3 = new Path.Circle( new Point( x, y + e ), radius );
+
+				primary1.strokeColor = '#000';
+				primary2.strokeColor = '#000';
+				primary3.strokeColor = '#000';
+
+				if ( doFade ) {
+					primary1.opacity = 0;
+					primary2.opacity = 0;
+					primary3.opacity = 0;
+				}
+
+				circles.push( primary1 );
+				circles.push( primary2 );
+				circles.push( primary3 );
+
+				var scale = 0.5;
+				var theA = a * scale;
+				var theB = d * scale;
+				var theC = d;
+				for ( var i = 0; i < 6; i++ ) {
+					var newRadius = radius / Math.pow( 2, i + 1 );
+					var point1, point2, point3;
+					var circle1, circle2, circle3;
+
+					if ( i % 2 == 0 ) {
+						point1 = new Point( x - theA, y + theB )
+						point2 = new Point( x + theA, y + theB )
+						point3 = new Point( x, y - theC );
+					} else {
+						point1 = new Point( x - theA, y - theB )
+						point2 = new Point( x + theA, y - theB )
+						point3 = new Point( x, y + theC );
+					}
+
+					circle1 = new Path.Circle( point1, newRadius );
+					circle2 = new Path.Circle( point2, newRadius );
+					circle3 = new Path.Circle( point3, newRadius );
+
+					circle1.strokeColor = '#000';
+					circle2.strokeColor = '#000';
+					circle3.strokeColor = '#000';
+
+					if ( doFade ) {
+						circle1.opacity = 0;
+						circle2.opacity = 0;
+						circle3.opacity = 0;
+					}
+
+					circles.push( circle1 );
+					circles.push( circle2 );
+					circles.push( circle3 );
+
+					var tempA = theA * scale;
+					var tempB = theB * scale;
+					var tempC = theB;
+					theA = tempA;
+					theB = tempB;
+					theC = tempC;
+
+				}
+
+				// don't forget!
+				circles.push( full );
+
+				// make group
+				group = new Group( circles );
+
+				if ( doFade ) {
+
+					isFading = true;
+
+					// fade in circles
+					var increment = 0.033333;
+					var remaining = 1;
+					var current = 0;
+					var levels = i + 1;
+					var level = 0;
+					var opaciter = function () {
+						if ( !remaining ) {
+							if ( level < levels ) {
+								level++;
+								remaining = 1;
+								current = 0;
+								// !isComplete
+								isFading = true;
+								return false;
+							} else {
+								// isComplete
+								opaciter = null;
+								isFading = false;
+								return true;
+							}
+						}
+						var thisOpacity = increment;
+						if ( remaining - increment < 0 ) thisOpacity = remaining;
+						remaining -= thisOpacity;
+						current = current + thisOpacity;
+						for ( var i = 0; i < 3; i++ ) {
+							var index = i + level * 3;
+							if ( index >= circles.length ) continue;
+							circles[ index ].opacity = current;
+						}
+						// !isComplete
+						isFading = true;
+						return false;
+					};
+					opaciters.push( opaciter );
+
+				}
+
+			}
+
+			// rotate group with animation
+			function animateRotation( angle ) { 
+				var increment = 1;
+				var remaining = angle;
+				var rotater = function () {
+					if ( !remaining ) {
+						// isComplete
+						rotater = null;
+						return true;
+					}
+					var thisAngle = increment;
+					if ( remaining - increment < 0 ) { thisAngle = remaining; }
+					group.rotate( thisAngle );
+					remaining -= thisAngle;
+					// !isComplete
+					return false;
+				};
+				rotaters.push( rotater );
+				props.rotation += angle;
+			}
+
+			// rotate group
+			function setRotation( angle ) {
+				group.rotate( angle );
+				props.rotation += angle;
+			}
+
+			// position group
+			function setPosition( point ) {
+				group.position = point;
+				props.position = point;
+			}
+
+
+			//
+			// EXECUTION
+			construct();
+
+
+			//
+			// INTERFACE
+			return {
+				getRotation: function () { return props.rotation; },
+				animateRotation: animateRotation,
+				setRotation: setRotation,
+				setPosition: setPosition
+			};
+
+
+		}; // end Treble
+
+
+
+
+
+
+
+
+		// automation
+		var mgmt = ( function () {
+			var isBusy = false;
+			var shapes = [];
+			var count = 0;
+			var R = 500;
+			var i = 0;
+			var l = 0;
+			return {
+				getShapes: function () { return shapes; },
+				execute: function () {
+
+					var X = view.center.x;
+					var Y = view.center.y;
+
+					// first time?
+					if ( !count ) {
+						count = 1;
+						shapes.push( new Treble( X, Y, R, true ) );
+						return;
+					}
+
+					// don't kill yourself
+					if ( count === 256 ) return;
+
+					// tracking!
+					var theCount = count;
+					count = count + count;
+
+					// creation!
+					for ( i = 0, l = theCount; i < l; i++ ) {
+						var currTreble = shapes[ i ];
+						var newTreble = new Treble( X, Y, R, false );
+						newTreble.setRotation( currTreble.getRotation() );
+						shapes.push( newTreble );
+					}
+
+					// rotation!
+					isRotating = true;
+					var angle = 60 / theCount;
+					for ( i = theCount, l = count; i < l; i++ ) {
+						shapes[ i ].animateRotation( angle );
+					}
+
+				}
+			};
+		} )();
+
+
+
+		// user interaction
+
+		// click
+		function onMouseUp( event ) {
+			if ( isSpinning ) return;
+			if ( isFading ) return;
+			mgmt.execute();
+		};
+
+		// drag
+		function onMouseDrag( event ) {
+			if ( isSpinning ) return;
+			else isSpinning = true;
+			rotaters.push( function () {
+				project.activeLayer.rotate( 0.5, view.center );
+				return false;
+			} );
+		}
+
+		// resize
+		function onResize(event) {
+			var shapes = mgmt.getShapes();
+			for ( var i = 0, l = shapes.length; i < l; i++ ) {
+				shapes[ i ].setPosition( view.center );
+			}
+		}
+		
+		
+
+	</script>
+</head>
+<body>
+	<canvas id="vessel" resize></canvas>
+</body>
+</html>

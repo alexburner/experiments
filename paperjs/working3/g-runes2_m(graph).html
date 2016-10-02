@@ -1,0 +1,832 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - runes</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 6000px;
+		height: 1200px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_graph.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelCol.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+var backdrop = new shapes.Backdrop();
+
+
+
+
+
+	// TEMP NOTE WARN 
+	// fake genesis to fool/fill GF
+	function doFacets(parentGenesis, targetCircles) {
+
+		if (!targetCircles && targetCircles.length) return;
+
+		// new sizes scaled from parent
+		var targetRadius = targetCircles[0].bounds.width / 2;
+		var scaling = targetRadius / parentGenesis.sizes.radius;
+		var targetSizes = Object.create(parentGenesis.sizes);
+		Object.keys(targetSizes).forEach(function (type) {
+			targetSizes[type] *= scaling;
+			targetSizes[type] = util.roundish(targetSizes[type]);
+		});
+
+		console.log(targetSizes);
+		
+		// fake genesis
+		var duckGenesis = {
+			circles: targetCircles,
+			sizes: targetSizes,
+			//sizes: parentGenesis.sizes,
+			group: parentGenesis.group
+		};
+
+		// extend duck genesis with facet module
+		new GenesisFacets(duckGenesis);
+
+		//console.log(duckGenesis.facets);
+
+		// make facets & draw things
+		duckGenesis.makeFacets();
+		duckGenesis.facets.petal.forEach(function (facet) {
+			facet.makeIntersect();
+			facet.intersect.fillColor = '#111';
+		});
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	var genesisBuilders = [
+
+
+		// 
+		// genesis
+		function (genesis) {},
+
+
+		function (genesis) {genesis.hideCircles();},
+
+
+		//
+		// petal
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('petal', 'around', 'selves');
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('petal', 'around', 'centers');
+		},
+
+
+		function (genesis) {genesis.hideCircles();},
+
+
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('petal', 'around', 'centers');
+			genesis.hideCircles();
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('petal', 'around', 'selves');
+			genesis.hideCircles();
+		},
+
+
+		//function (genesis) {genesis.hideCircles();},
+
+
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('petal', 'around', 'selves');
+			genesis.drawSeeds('petal', 'around', 'centers');
+			genesis.hideCircles();
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.hideCircles();
+
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+			});
+
+			doFacets(genesis, circles);
+
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.hideCircles();
+
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			var newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+			circles = circles.concat(newCircles);
+			points = util.getCirclePoints(circles);
+			unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+
+			circles = circles.concat(newCircles);
+			doFacets(genesis, circles);
+
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.hideCircles();
+
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			var newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+			circles = circles.concat(newCircles);
+			points = util.getCirclePoints(circles);
+			unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+
+			circles = circles.concat(newCircles);
+			points = util.getCirclePoints(circles);
+			unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+
+			circles = circles.concat(newCircles);
+			doFacets(genesis, circles);
+
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.hideCircles();
+
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			var newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+			circles = circles.concat(newCircles);
+			points = util.getCirclePoints(circles);
+			unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+
+			circles = circles.concat(newCircles);
+			points = util.getCirclePoints(circles);
+			unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+
+			circles = circles.concat(newCircles);
+			points = util.getCirclePoints(circles);
+			unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+
+			circles = circles.concat(newCircles);
+			doFacets(genesis, circles);
+
+		},
+
+
+		function (genesis) {genesis.hideCircles();},
+
+
+		// 
+		// treble
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('treble', 'around', 'selves');
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('treble', 'around', 'centers');
+		},
+
+
+		function (genesis) {genesis.hideCircles();},
+
+
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('treble', 'around', 'centers');
+			genesis.hideCircles();
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('treble', 'around', 'selves');
+			genesis.hideCircles();
+		},
+
+
+		//function (genesis) {genesis.hideCircles();},
+
+
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('treble', 'around', 'selves');
+			genesis.drawSeeds('treble', 'around', 'centers');
+			genesis.hideCircles();
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.hideCircles();
+
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+			});
+
+			doFacets(genesis, circles);
+
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.hideCircles();
+
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			var newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+			circles = circles.concat(newCircles);
+			points = util.getCirclePoints(circles);
+			unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+
+			circles = circles.concat(newCircles);
+			doFacets(genesis, circles);
+
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.hideCircles();
+
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			var newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+			circles = circles.concat(newCircles);
+			points = util.getCirclePoints(circles);
+			unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+
+			circles = circles.concat(newCircles);
+			points = util.getCirclePoints(circles);
+			unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+
+			circles = circles.concat(newCircles);
+			doFacets(genesis, circles);
+
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.hideCircles();
+
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			var newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+			circles = circles.concat(newCircles);
+			points = util.getCirclePoints(circles);
+			unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+
+			circles = circles.concat(newCircles);
+			points = util.getCirclePoints(circles);
+			unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+
+			circles = circles.concat(newCircles);
+			points = util.getCirclePoints(circles);
+			unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			newCircles = [];
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+				newCircles.push(circle);
+			});
+
+			circles = circles.concat(newCircles);
+			doFacets(genesis, circles);
+
+		},
+
+
+		//
+		// easter eggs?
+		function (genesis) {genesis.hideCircles();},
+		function (genesis) {genesis.hideCircles();},
+		function (genesis) {genesis.hideCircles();},
+
+		// petal & treble around selves
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('petal', 'around', 'selves');
+			genesis.hideCircles();
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('treble', 'around', 'selves');
+			genesis.hideCircles();
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('petal', 'around', 'selves');
+			genesis.drawSeeds('treble', 'around', 'selves');
+			genesis.hideCircles();
+		},
+
+		function (genesis) {genesis.hideCircles();},
+
+		// petal & treble around centers
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('petal', 'around', 'centers');
+			genesis.hideCircles();
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('treble', 'around', 'centers');
+			genesis.hideCircles();
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('petal', 'around', 'centers');
+			genesis.drawSeeds('treble', 'around', 'centers');
+			genesis.hideCircles();
+		},
+
+	];
+
+
+	(function () {
+		
+		var config = {
+			width: 135,
+			height: 777,
+			radius: 24,
+			padding: 10,
+			originX: 40,
+			originY: 40
+		};
+		
+		genesisBuilders.forEach(function (buildFn, index) {
+			var settings = Object.create(config);
+			settings.originX += index * (settings.width + settings.padding);
+			var col = new GenesisPanelCol(settings);
+			col.geneses.forEach(function (genesis) {
+				buildFn(genesis);
+				genesis.panel.visible = false;
+			});
+		});
+
+	})();
+
+	/*(function () {
+
+		var config = {
+			width: 1000,
+			height: 170,
+			radius: 24,
+			padding: 10,
+			originX: 1060,
+			originY: 20
+		};
+
+		genesisBuilders.forEach(function (build, index) {
+			var settings = Object.create(config);
+			settings.originY += index * (settings.height + settings.padding);
+			var col = new GenesisPanelCol(settings);
+			col.geneses.forEach(function (genesis) {
+				build(genesis);
+				genesis.circles.forEach(function (circle) {
+					circle.visible = false;
+				});
+			});
+		});
+
+	})();*/
+
+
+
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>g 2</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+<script src="lib/lodash.min.js"></script>
+<script src="shared/Maths.js"></script>
+<script src="shared/Vector.js"></script>
+<script src="shared/Gravity.js"></script>
+<script src="shared/Body.js"></script>
+<script>
+
+    // experiments following Nature of Code book
+    // http://natureofcode.com/book/chapter-2-forces/
+
+    var hash = (
+        window.location.hash.length ?
+            Number(window.location.hash.slice(1)) :
+            NaN
+    );
+
+    var count = isNaN(hash) ? 2 : hash;
+
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    var gravity = new Gravity();
+
+    var attractor = new Body({
+        dimensions: 2,
+        mass: 20,
+        location: new Vector([
+            width / 2,
+            height / 2,
+        ]),
+    });
+
+    var bodies = _.times(count, function (i) {
+        if (i === 0) {
+            return new Body({
+                dimensions: 2,
+                location: new Vector([
+                    width / 2 + 100,
+                    height / 2,
+                ]),
+                velocity: new Vector([0, 2]),
+            });
+        }
+
+        return new Body({
+            dimensions: 2,
+            location: new Vector([
+                Maths.random(0, width),
+                Maths.random(0, height),
+            ]),
+            velocity: new Vector([
+                Maths.random(),
+                Maths.random(),
+            ]),
+        });
+    });
+
+    var trails = (function () {
+        var canvasEl = document.createElement('canvas');
+        var context = canvasEl.getContext('2d');
+        canvasEl.width = width;
+        canvasEl.height = height;
+        canvasEl.style.position = 'absolute';
+        canvasEl.style.top = 0;
+        canvasEl.style.left = 0;
+        document.body.appendChild(canvasEl);
+        return {
+            render: function () {
+                context.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                _.each(bodies, function (body) {
+                    var x = body.location.tuple[0];
+                    var y = body.location.tuple[1];
+                    var r = 1;
+                    context.beginPath();
+                    context.arc(x, y, r, 0, Math.PI * 2);
+                    context.fill();
+                });
+            },
+        };
+    })();
+
+    var bubbles = (function () {
+        var canvasEl = document.createElement('canvas');
+        var context = canvasEl.getContext('2d');
+        canvasEl.width = width;
+        canvasEl.height = height;
+        canvasEl.style.position = 'absolute';
+        canvasEl.style.top = 0;
+        canvasEl.style.left = 0;
+        document.body.appendChild(canvasEl);
+        return {
+            render: function () {
+                context.clearRect(0, 0, width, height);
+                context.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                context.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                _.each(bodies, function (body) {
+                    var x = body.location.tuple[0];
+                    var y = body.location.tuple[1];
+                    var r = 10;
+                    context.beginPath();
+                    context.arc(x, y, r, 0, Math.PI * 2);
+                    context.fill();
+                    context.stroke();
+                });
+            },
+        };
+    })();
+
+    function update() {
+        // apply forces to each body
+        _.each(bodies, function (body) {
+            var force = gravity.attract(body, attractor);
+            body.applyForce(force);
+            body.update();
+        });
+    }
+
+    function animate() {
+        update();
+        trails.render();
+        bubbles.render();
+        window.requestAnimationFrame(animate);
+    }
+
+    animate();
+
+</script>
+</body>
+</html>

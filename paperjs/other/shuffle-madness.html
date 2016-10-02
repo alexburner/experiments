@@ -1,0 +1,271 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>shuffle test</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+		background: #222;
+	}
+	#container {
+		width: 1250px;
+		height: 10000px;
+		margin: auto;
+	}
+	#workspace {
+		width: 1250px;
+		height: 10000px;
+	}
+</style>
+</head>
+<body>
+<div id="container">
+	<canvas id="workspace"></canvas>
+</div>
+<script type="text/javascript" src="../paper.v.0.9.18.js"></script>
+<script type="text/javascript" src="js/pusher.color.js"></script>
+<script type="text/javascript">
+
+
+
+	var util = {
+
+			// calls action on each element
+			arrForEach: function (arr, action, thisArg) {
+				for (var i = 0, l = arr.length; i < l; i++) {
+					action.call(thisArg, arr[i], i, arr);
+				}
+				return arr;
+			},
+
+			// calls action on each element until falsy
+			arrEvery: function (arr, action, thisArg) {
+				for (var i = 0, l = arr.length; i < l; i++) {
+					if (!action.call(thisArg, arr[i], i, arr)) {
+						return false;
+					}
+				}
+				return true;
+			},
+
+			// calls action on each element until truthy
+			arrSome: function (arr, action, thisArg) {
+				for (var i = 0, l = arr.length; i < l; i++) {
+					if (action.call(thisArg, arr[i], i, arr)) {
+						return true;
+					}
+				}
+				return false;
+			},
+
+			// return a random index from an array
+			getRandomIndex: function (arr) {
+				return Math.floor(Math.random() * arr.length);
+			},
+
+			// return a random element from an array
+			getRandomElement: function (arr) {
+				return arr[util.getRandomIndex(arr)];
+			},
+
+			// returns copy of array with shuffled elements
+			getShuffledArray: (function () {
+				// private helper
+				function addShuffledElement(element, shuffledArr, index, length) {
+					index = index % length;
+					if (!shuffledArr[index]) {
+						shuffledArr[index] = element;
+					} else {
+						addShuffledElement(
+							element, 
+							shuffledArr, 
+							index + 1, 
+							length
+						);
+					}
+				}
+				// actual function
+				return function (elementArr) {
+					var length = elementArr.length;
+					var shuffledArr = new Array(length);
+					util.arrForEach(elementArr, function (element) {
+						var randomIndex = util.getRandomIndex(elementArr);
+						addShuffledElement(
+							element, 
+							shuffledArr, 
+							randomIndex, 
+							length
+						);
+					});
+					return shuffledArr;
+				};
+			})(),
+
+			// returns copy of array with shuffled elements
+			getShuffledArray2: (function () {
+				// private helper
+				function addShuffledElement(element, shuffledArr, index, length) {
+					index = index % length;
+					if (!shuffledArr[index]) {
+						shuffledArr[index] = element;
+					} else {
+						addShuffledElement(
+							element, shuffledArr, 
+							index + 2, 
+							length
+						);
+					}
+				}
+				// actual function
+				return function (elementArr) {
+					var length = elementArr.length;
+					var shuffledArr = new Array(length);
+					util.arrForEach(elementArr, function (element) {
+						var randomIndex = util.getRandomIndex(elementArr);
+						addShuffledElement(
+							element, 
+							shuffledArr, 
+							randomIndex, 
+							length
+						);
+					});
+					return shuffledArr;
+				};
+			})(),
+
+			// returns copy of array with shuffled elements
+			getShuffledArray3: (function () {
+				// private helper
+				function addShuffledElement(element, shuffledArr, index, length) {
+					index = index % length;
+					if (!shuffledArr[index]) {
+						shuffledArr[index] = element;
+					} else {
+						addShuffledElement(
+							element, 
+							shuffledArr, 
+							index + Math.floor(length / 3), 
+							length
+						);
+					}
+				}
+				// actual function
+				return function (elementArr) {
+					var length = elementArr.length;
+					var shuffledArr = new Array(length);
+					util.arrForEach(elementArr, function (element) {
+						var randomIndex = util.getRandomIndex(elementArr);
+						addShuffledElement(
+							element, 
+							shuffledArr, 
+							randomIndex, 
+							length
+						);
+					});
+					return shuffledArr;
+				};
+			})()
+
+		};
+
+
+
+
+
+
+
+
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+
+
+
+	function doThing() {
+
+		var colors = [];
+		var cellCount = 48;
+		var colorShift = (360 / cellCount);
+		for (var i = 0, l = cellCount; i < l; i++) {
+			var color = pusher.color('red');
+			color = color.hue(colorShift * i);
+			color = color.saturation(70);
+			color = color.shade(0);
+			color = color.hex6();
+			colors.push(color);
+		}
+
+		var colorShuffle1 = util.getShuffledArray(colors);
+		//var colorShuffle2 = util.getShuffledArray2(colors);
+		//var colorShuffle3 = util.getShuffledArray3(colors);
+
+		var arrs = [
+			colors, 
+			// colorShuffle1,
+			// util.getShuffledArray(colors),
+			// util.getShuffledArray(colors),
+			// util.getShuffledArray(colors),
+			// util.getShuffledArray(colors),
+			// util.getShuffledArray(colors),
+			// util.getShuffledArray(colors),
+			// util.getShuffledArray(colors),
+			// util.getShuffledArray(colors),
+			// util.getShuffledArray(colors),
+			// util.getShuffledArray(colors),
+			// util.getShuffledArray(colors),
+			//colorShuffle2,
+			//colorShuffle3
+		];
+
+		arrs = [];
+		for (i = 0, l = 1000; i < l; i++) {
+			arrs.push(colors);
+		}
+
+		
+		var startx = 25;
+		var starty = 25;
+		var padding = 0;
+		var width = 25;
+		var height = width;
+
+		util.arrForEach(arrs, function (arr, index) {
+			var top = starty + padding * index + height * index;
+
+			for (var i = 0, l = Math.sqrt(index); i < l; i++) {
+			//for (var i = 0, l = Math.floor(index); i < l; i++) {
+				var temp = arr.shift();
+				arr.push(temp);
+			}
+
+			util.arrForEach(arr, function (color, index) {
+				var left = startx + height * index;
+				var square = new paper.Path.Rectangle({
+					point: [left, top],
+					size: [width, height],
+					fillColor: color
+				});
+			});
+		});
+
+	}
+
+	function runThing () {
+		setTimeout(function () {
+			doThing();
+			runThing();
+		}, 1000);
+	}
+	
+	doThing();
+	//runThing();
+
+	paper.view.draw();
+
+</script>
+</body>
+</html>

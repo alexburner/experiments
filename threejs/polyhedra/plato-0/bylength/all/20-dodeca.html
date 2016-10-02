@@ -1,0 +1,75 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>dodeca</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: black;
+		color: white;
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript" src="../../../../js/three.min.js"></script>
+<script type="text/javascript" src="../../../../js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript" src="../../../../js/examples/controls/TrackballControls.js"></script>
+<script type="text/javascript" src="polyhedra.js"></script>
+<script type="text/javascript" src="setup.js"></script>
+<script type="text/javascript">
+
+
+	// based on https://www.facebook.com/rafaelaraujoart/photos/a.895505900510400.1073742024.695085470552445/895505947177062
+
+	var scale = 48;
+	var one = 1 * scale;
+	var phi = 1.618 * scale;
+	var shorter = one / 2;
+	var longer = (phi + one) / 2;
+	var halfphi = phi / 2;
+
+	var points = [];
+
+	// x rectangle
+	points.push(new THREE.Vector3(longer, shorter, 0));
+	points.push(new THREE.Vector3(longer, -shorter, 0));
+	points.push(new THREE.Vector3(-longer, -shorter, 0));
+	points.push(new THREE.Vector3(-longer, shorter, 0));
+
+	// y rectangle
+	points.push(new THREE.Vector3(0, longer, shorter));
+	points.push(new THREE.Vector3(0, longer, -shorter));
+	points.push(new THREE.Vector3(0, -longer, -shorter));
+	points.push(new THREE.Vector3(0, -longer, shorter));
+
+	// z rectangle
+	points.push(new THREE.Vector3(shorter, 0, longer));
+	points.push(new THREE.Vector3(-shorter, 0, longer));
+	points.push(new THREE.Vector3(-shorter, 0, -longer));
+	points.push(new THREE.Vector3(shorter, 0, -longer));
+
+	// phi cube
+	points.push(new THREE.Vector3(halfphi, halfphi, halfphi));
+	points.push(new THREE.Vector3(-halfphi, halfphi, halfphi));
+	points.push(new THREE.Vector3(halfphi, -halfphi, halfphi));
+	points.push(new THREE.Vector3(halfphi, halfphi, -halfphi));
+	points.push(new THREE.Vector3(-halfphi, -halfphi, halfphi));
+	points.push(new THREE.Vector3(-halfphi, halfphi, -halfphi));
+	points.push(new THREE.Vector3(halfphi, -halfphi, -halfphi));
+	points.push(new THREE.Vector3(-halfphi, -halfphi, -halfphi));
+
+	var dodecahedron = new Polyhedra(points);
+
+
+</script>
+</body>
+</html>

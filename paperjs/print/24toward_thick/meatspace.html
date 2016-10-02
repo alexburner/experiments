@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title></title>
+<style type="text/css" media="screen">
+	html, body {
+		margin: 0;
+		padding: 0;
+		background: #222;
+	}
+	#canvas {
+		width: 3300px; /* 11(300) */
+		height: 2550px; /* 8.5(300) */
+		margin: auto;
+		background: white;
+	}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="text/javascript" src="../../paper.v.0.9.18.js"></script>
+<script type="text/javascript">
+
+
+
+
+/**
+ *
+ *
+ * notes
+ *
+ * - comment functions & tricks
+ *
+ * - put prime numbers on each opposing page? http://www.jasondavies.com/primos/
+ * -- OR have odd/even duals on each page? 1/2,3/4,5/6,7/8,9/10,11/12,13/14,15/16,17/18,19/20,21/22,23/24
+ *
+ * ~ could poster size, show factors of a number for manageable dimensions
+ * >>> 24 :: 1, 2, 3, 4, 6, 8, 12, 24
+ *
+ * node rsvg -> pdf https://github.com/walling/node-rsvg
+ *
+ *
+ *
+ */
+
+
+
+
+
+
+
+
+
+	// initialize paper with canvas element
+	paper.setup(document.getElementById('canvas'));
+
+
+
+	function drawByLength(center, count, length) {
+
+
+
+		// 0 has nothing
+		if (count < 1) {
+			return 0;
+		}
+
+		// 1 only a point
+		if (count < 2) {
+			new paper.Path.Circle({
+				fillColor: 'black',
+				center: center,
+				radius: 4
+			});
+			return 0;
+		}
+
+
+
+		var angle = 360 / count;
+		var angleRad = (2 * Math.PI) / count;
+		var radius = (length / 2) / (Math.sin(angleRad / 2));
+
+		// shift center to top
+		//center[1] += radius;
+
+
+		var circle = new paper.Path.Circle({
+			strokeColor: 'black',
+			strokeWidth: 1,
+			dashArray: [2, 2],
+			center: center,
+			radius: radius + 3 // compensate for stroke width
+		});
+
+		var points = [];
+
+		var vector = new paper.Point(center);
+		vector.length = radius;
+		vector.angle = -90;
+
+		for (var i = 0, l = count; i < l; i++) {
+			var point = new paper.Point(center);
+			point = point.add(vector);
+			points.push(point);
+			vector.angle += angle;
+
+			// new paper.Path.Circle({
+			// 	fillColor: 'black',
+			// 	center: point,
+			// 	radius: 8
+			// });
+
+		}
+
+		var lines = [];
+		var lineExists = {};
+		var linesByLength = {};
+		points.forEach(function (pointA, indexA) {
+			var coordsA = pointA.toString();
+			points.forEach(function (pointB, indexB) {
+				if (indexA === indexB) return;
+				var coordsB = pointB.toString();
+				if (lineExists[coordsA + coordsB]) return;
+				if (lineExists[coordsB + coordsA]) return;
+				lineExists[coordsA + coordsB] = true;
+
+				var length = pointA.subtract(pointB).length;
+				length = length.toFixed(2);
+
+				var line = new paper.Path.Line({
+					from: pointA,
+					to: pointB,
+					strokeCap: 'round',
+					strokeColor: 'black',
+					strokeWidth: 6
+				});
+
+				lines.push(line);
+
+				if (!linesByLength[length]) {
+					linesByLength[length] = [];
+				}
+				linesByLength[length].push(line);
+
+			});
+		});
+
+		return radius;
+	}
+
+
+
+
+
+	var pageWidth = 3300;
+	var pageHeight = 2550;
+	var length = 600;
+
+	var leftCenter = new paper.Point([
+		(2 * pageWidth) / 12,
+		(1 * pageHeight) / 2
+	]);
+	var centerCenter = new paper.Point([
+		(5 * pageWidth) / 12,
+		(1 * pageHeight) / 2
+	]);
+	var rightCenter = new paper.Point([
+		(9 * pageWidth) / 12,
+		(1 * pageHeight) / 2
+	]);
+
+
+	// label
+	// var text = new paper.PointText({
+	// 	content: 24,
+	// 	fillColor: 'black',
+	// 	fontFamily: 'Times',
+	// 	fontWeight: 'bold',
+	// 	fontSize: 120
+	// });
+	// text.position = leftCenter;
+
+	// lines
+	drawByLength(
+		leftCenter,
+		3,
+		length
+	);
+	drawByLength(
+		centerCenter,
+		4,
+		length
+	);
+	drawByLength(
+		rightCenter,
+		5,
+		length
+	);
+
+
+
+
+
+
+	paper.view.draw();
+
+
+
+	/**
+	 * SVG export
+	 * via http://www.mikechambers.com/blog/2014/07/01/saving-svg-content-from-paper.js/
+	 */
+
+	// listen for shift+o
+	tool = new paper.Tool();
+	tool.onKeyUp = function(e) {
+		if (e.character == "O") {
+			openAsSVG();
+		}
+	}
+
+	function openAsSVG() {
+		var svgString = paper.project.exportSVG({asString: true});
+		var url = "data:image/svg+xml;utf8," + encodeURIComponent(svgString);
+		var link = document.createElement('a');
+		link.target = "_blank";
+		link.href = url;
+		link.click();
+	}
+
+</script>
+<!-- <script type="text/javascript" src="rulers.js"></script> -->
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>squares_steps</title>
+	<link rel="icon" type="image/ico" href="img/favicon.ico">
+	<style type="text/css" media="screen">
+		html, body, canvas { margin: 0; padding: 0; }
+		canvas { cursor: pointer; }
+	</style>
+	<script type="text/javascript" src="../paper.v.0.22.js"></script>
+	<script type="text/paperscript" canvas="vessel">
+
+
+
+		// states
+		var isRotating = false;
+		var isSpinning = false;
+
+
+
+		// backdrop
+		var background = new Path.Rectangle( view.bounds );
+		background.fillColor = 'white';
+
+
+
+		// frames
+		var fQueue = [];
+		var fCurrent;
+		function onFrame( event ) {
+			if ( !fCurrent && !fQueue.length ) return;
+			if ( !fCurrent ) fCurrent = fQueue.shift();
+			fCurrent = fCurrent();
+		}
+		function Frame( args ) {
+			var action = args.action;
+			var payload = args.payload;
+			return function () { action( payload ); };
+		}
+		function FrameSeries( args ) {
+			// series parameters
+			var item = args.item;
+			var action = args.action;
+			var threshold = args.threshold;
+			var increment = args.increment;
+			var remaining = threshold;
+			// individual frame execution
+			var fHandler = function () {
+				// calculate this delta (either increment or whatever is left)
+				var delta = remaining - increment < 0 ? remaining : increment;
+				// mark the change
+				remaining -= delta;
+				// pass to action
+				action( item, delta );
+				// return handler again if not done
+				if ( remaining ) return fHandler;
+				else {
+					// cleanup reference
+					fHandler = null;
+					// kill cycle
+					return false;
+				}
+			};
+			// for frame queue
+			return fHandler;
+		}
+
+
+
+		// square nest factory
+		function SquareNest( x, y, size, first ) {
+			
+
+			//
+			// PROPERTIES
+			var props = {
+				position: new Point( x, y ),
+				rotation: 0
+			};
+
+
+			//
+			// ELEMENTS
+			var squares = [];
+			var group;
+
+
+			//
+			// METHODS
+
+			// constructor
+			function construct() {
+
+				// sizings
+				var centering = size / 2;
+				var scaling = Math.sqrt( 1 / 2 );
+
+				// make squares
+				for ( var i = 0, l = 15; i < l; i++ ) {
+					var square;
+					if ( i === 0 ) {
+						// make first square
+						var newPoint = new Point( x - centering, y - centering );
+						var newSize = new Size( size, size );
+						square = new Path.Rectangle( newPoint, newSize );
+						square.strokeColor = '#000';
+					} else {
+						// clone last square
+						square = squares[ i - 1 ].clone();
+						if ( first 	) {
+							// animate scaling/nesting
+							fQueue.push( new Frame( {
+								action: function ( payload ) {
+									payload.square.scale( payload.scale );
+								},
+								payload: {
+									square: square,
+									scale: Math.pow( scaling, i )
+								}
+							} ) );
+						} else {
+							// just do them up
+							square.scale( scaling );
+						}
+						
+					}
+
+					// keep a reference
+					squares.push( square );
+				}
+
+				// group em
+				group = new Group( squares );
+
+			}
+
+			// rotate group with animation
+			function animateRotation( angle ) {
+				props.rotation += angle;
+				fQueue.push( function () { isRotating = true; } );
+				for ( var i = 0, l = squares.length; i < l; i++ ) {
+					fQueue.push( new FrameSeries( {
+						item: squares[ i ],
+						action: function ( square, delta ) {
+							square.rotate( delta, props.position );
+						},
+						threshold: angle,
+						increment: 1
+					} ) );
+				}
+				fQueue.push( function () { isRotating = false; } );
+			}
+
+			// rotate group
+			function setRotation( angle ) {
+				group.rotate( angle );
+				props.rotation += angle;
+			}
+
+			// position group
+			function setPosition( point ) {
+				group.position = point;
+				props.position = point;
+			}
+
+
+			//
+			// EXECUTION
+			construct();
+
+
+			//
+			// INTERFACE
+			return {
+				getRotation: function () { return props.rotation; },
+				animateRotation: animateRotation,
+				setRotation: setRotation,
+				setPosition: setPosition
+			};
+
+
+		}; // end Square
+
+
+
+		// automation
+		var mgmt = ( function () {
+			var shapes = [];
+			var count = 0;
+			var S = 1600;
+			var i = 0;
+			var l = 0;
+			return {
+				getShapes: function () { return shapes; },
+				execute: function () {
+
+					var X = view.center.x;
+					var Y = view.center.y;
+
+					// first time?
+					if ( !count ) {
+						count = 1;
+						shapes.push( new SquareNest( X, Y, S, true ) );
+						return;
+					}
+
+					// tracking!
+					var oldCount = count;
+					count = count + count;
+
+					// creation!
+					for ( i = 0, l = oldCount; i < l; i++ ) {
+						var currSquare = shapes[ i ];
+						var newSquare = new SquareNest( X, Y, S );
+						newSquare.setRotation( currSquare.getRotation() );
+						shapes.push( newSquare );
+					}
+
+					// rotation!
+					var angle = 45 / oldCount;
+					for ( i = oldCount, l = count; i < l; i++ ) {
+						shapes[ i ].animateRotation( angle );
+					}
+
+				}
+			};
+		} )();
+
+
+
+		//
+		// user interaction
+
+		// click
+		function onMouseUp( event ) {
+			if ( isRotating ) return;
+			if ( isSpinning ) return;
+			mgmt.execute();
+		};
+
+		// drag
+		function onMouseDrag( event ) {
+			if ( isSpinning ) return;
+			else isSpinning = true;
+			var endlessSpin = function () {
+				project.activeLayer.rotate( 0.5, view.center );
+				return endlessSpin;
+			};
+			fQueue.push( endlessSpin );
+		}
+
+		// resize
+		function onResize(event) {
+			var shapes = mgmt.getShapes();
+			for ( var i = 0, l = shapes.length; i < l; i++ ) {
+				shapes[ i ].setPosition( view.center );
+			}
+		}
+
+
+
+	</script>
+</head>
+<body>
+	<canvas id="vessel" resize></canvas>
+</body>
+</html>

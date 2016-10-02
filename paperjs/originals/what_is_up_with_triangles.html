@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>what_is_up_with_triangles</title>
+<style type="text/css" media="screen">
+	html, body, canvas { margin: 0; padding: 0; }
+	canvas { cursor: pointer; }
+</style>
+<script type="text/javascript" src="../paper.v.0.22.js"></script>
+<script type="text/paperscript" canvas="vessel">
+
+	var triangle = new Path.RegularPolygon( view.center, 3, 200 );
+		triangle.strokeColor = '#00F';
+
+	var triangle2 = new Path.RegularPolygon( view.center, 3, 200 );
+		triangle2.strokeColor = '#0F0';
+		triangle2.rotate( 180, view.center );
+
+	var circle = new Path.Circle( view.center, 200 );
+		circle.strokeColor = '#F00';
+
+</script>
+</head>
+<body>
+<canvas id="vessel" resize></canvas>
+</body>
+</html>

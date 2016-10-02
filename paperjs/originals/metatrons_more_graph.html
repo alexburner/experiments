@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>metatrons_more_graph</title>
+<style type="text/css" media="screen">
+	html, body, canvas { margin: 0; padding: 0; }
+	canvas { cursor: pointer; }
+</style>
+<script type="text/javascript" src="../paper.v.0.22.js"></script>
+<script type="text/paperscript" canvas="vessel">
+
+
+
+	// backdrop
+	var background = new Path.Rectangle( view.bounds );
+		background.fillColor = 'white';
+
+
+
+	// guidance
+	var hintText = new PointText( view.center );
+		hintText.justification = 'center';
+		hintText.fillColor = '#999';
+		hintText.content = 'Click';
+		hintText.position.y += 3;
+
+
+
+	// frames
+	var fQueue = [];
+	var fCurrent;
+	function onFrame( event ) {
+		if ( !fCurrent && !fQueue.length ) return;
+		if ( !fCurrent ) fCurrent = fQueue.shift();
+		fCurrent = fCurrent();
+	}
+	function Frame( args ) {
+		var action = args.action;
+		var payload = args.payload;
+		return function () { action( payload ); };
+	}
+	function FrameSeries( args ) {
+		// series parameters
+		var action = args.action;
+		var payload = args.payload;
+		var threshold = args.threshold;
+		var increment = args.increment;
+		var remaining = threshold;
+		// individual frame execution
+		var fHandler = function () {
+			// calculate this delta (either increment or whatever is left)
+			var delta = remaining - increment < 0 ? remaining : increment;
+			// mark the change
+			remaining -= delta;
+			// pass to action
+			action( payload, delta );
+			// return handler again if not done
+			if ( remaining ) return fHandler;
+			else {
+				// cleanup reference
+				fHandler = null;
+				// kill cycle
+				return false;
+			}
+		};
+		// for frame queue
+		return fHandler;
+	}
+
+
+
+	// factory
+	function Metatron( origin, radius, secret ) {
+		function construct() {
+
+
+			// tracking
+			var i, l;
+
+
+			// all circles
+			var circles = [];
+
+
+			// center circle
+			var original = new Path.Circle( origin, radius );
+				original.strokeColor = '#3CF';
+				original.strokeWidth = 2;
+				original.opacity = 0;
+				original.name = 'original';
+			circles.push( original );
+			fQueue.push( new FrameSeries( {
+				payload: { circle: original },
+				action: function( payload, delta ) {
+					payload.circle.opacity += delta;
+				},
+				threshold: 1,
+				increment: 0.05
+			} ) );
+
+
+			// round 1
+			for ( i = 0, l = 6; i < l; i++ ) {
+				// clone circle from original
+				var copy = original.clone();
+					copy.opacity = 0;
+					copy.name = 'round1:' + i;
+
+				if ( i === 0 ) {
+
+					// lower circle from original
+					fQueue.push( new FrameSeries( {
+						payload: { copy: copy },
+						action: function( payload, delta ) {
+							if ( !payload.isVisible ) {
+								payload.copy.opacity = 1;
+								payload.isVisible = true;
+							}
+							payload.copy.position.y += delta;
+						},
+						threshold: radius * 2,
+						increment: 1
+					} ) );
+
+				} else {
+
+					// rotate circle from previous
+					copy.position.y += radius * 2;
+					copy.rotate( 60 * i - 60, origin );
+					fQueue.push( new FrameSeries( {
+						payload: { copy: copy },
+						action: function( payload, delta ) {
+							if ( !payload.isVisible ) {
+								payload.copy.opacity = 1;
+								payload.isVisible = true;
+							}
+							payload.copy.rotate( delta, origin );
+						},
+						threshold: 60,
+						increment: 1
+					} ) );
+				}
+
+				// save for later
+				circles.push( copy );
+
+			}
+
+
+			// round 2
+			for ( i = 0, l = 12; i < l; i++ ) {
+				// clone circle from original
+				var copy = original.clone();
+					copy.opacity = 0;
+					copy.name = 'round2:' + i;
+					copy.position.y += radius * 2;
+
+				if ( i === 0 ) {
+
+					// lower circle from round 1
+					fQueue.push( new FrameSeries( {
+						payload: { copy: copy },
+						action: function( payload, delta ) {
+							if ( !payload.isVisible ) {
+								payload.copy.opacity = 1;
+								payload.isVisible = true;
+							}
+							payload.copy.position.y += delta;
+						},
+						threshold: radius * 2,
+						increment: 1
+					} ) );
+
+				} else {
+
+					// rotate circle from previous
+					if ( i % 2 ) {
+						copy.position.y += radius * 1.5;
+					} else {
+						copy.position.y += radius * 2;
+					}
+					copy.rotate( 30 * i - 30, origin );
+					fQueue.push( new FrameSeries( {
+						payload: { copy: copy },
+						action: function( payload, delta ) {
+							if ( !payload.isVisible ) {
+								payload.copy.opacity = 1;
+								payload.isVisible = true;
+							}
+							payload.copy.rotate( delta, origin );
+						},
+						threshold: 30,
+						increment: 1
+					} ) );
+				}
+
+				// save for later
+				circles.push( copy );
+
+			}
+
+
+			/* LOLWUT
+			// round 3
+			for ( i = 0, l = 18; i < l; i++ ) {
+				// clone circle from original
+				var copy = original.clone();
+					copy.opacity = 0;
+					copy.name = 'round3:' + i;
+					copy.position.y += radius * 2 * 2;
+
+				if ( i === 0 ) {
+
+					// lower circle from round 1
+					fQueue.push( new FrameSeries( {
+						payload: { copy: copy },
+						action: function( payload, delta ) {
+							if ( !payload.isVisible ) {
+								payload.copy.opacity = 1;
+								payload.isVisible = true;
+							}
+							payload.copy.position.y += delta;
+						},
+						threshold: radius * 2,
+						increment: 1
+					} ) );
+
+				} else {
+
+					// rotate circle from previous
+					if ( i % 3 === 0 ) {
+						copy.position.y += radius * 2;
+					} else if ( i % 2 === 0 ) {
+						copy.position.y += radius * ( 4 / 3 );
+					} else {
+						copy.position.y += radius * ( 5 / 3 );
+					}
+					copy.rotate( 20 * i - 20, origin );
+					fQueue.push( new FrameSeries( {
+						payload: { copy: copy },
+						action: function( payload, delta ) {
+							if ( !payload.isVisible ) {
+								payload.copy.opacity = 1;
+								payload.isVisible = true;
+							}
+							payload.copy.rotate( delta, origin );
+						},
+						threshold: 20,
+						increment: 1
+					} ) );
+				}
+
+				// save for later
+				circles.push( copy );
+
+			}
+			*/
+
+
+			// paths
+			fQueue.push( function () {
+				var paths = [];
+				var alreadyConnected = {};
+				// connect every circle to every other circle 1 time
+				for ( var i = 0, l = circles.length; i < l; i++ ) {
+					if ( secret && i > 6 ) continue;
+					var thisCircle = circles[ i ];
+					fQueue.push( new Frame( {
+						payload: { circle: thisCircle },
+						action: function ( payload ) {
+							payload.circle.strokeColor = '#000';
+						}
+					} ) );
+					for ( var ii = 0, ll = l; ii < ll; ii++ ) {
+						if ( i === ii ) continue;
+						var thatCircle = circles[ ii ];
+						if ( alreadyConnected[ thatCircle.name + thisCircle.name ] ) continue;
+						else alreadyConnected[ thisCircle.name + thatCircle.name ] = true;
+						var path = new Path( thisCircle.position, thatCircle.position );
+							path.strokeCap = 'round';
+							path.strokeColor = '#000';
+							path.strokeWidth = 2;
+							path.opacity = 0;
+						paths.push( path );
+						fQueue.push( new FrameSeries( {
+							payload: { path: path },
+							action: function( payload, delta ) {
+								payload.path.opacity += delta;
+							},
+							threshold: 0.7,
+							increment: 0.05
+						} ) );
+					}
+					fQueue.push( new Frame( {
+						payload: { circle: thisCircle },
+						action: function ( payload ) {
+							payload.circle.strokeColor = '#3CF';
+						}
+					} ) );
+				}
+			} );
+
+
+
+		};
+		construct();
+		return {};
+	}
+
+
+
+	// click
+	var isBuilt = false;
+	function onMouseUp( event ) {
+		if ( isBuilt ) return;
+		else isBuilt = true;
+		hintText.remove();
+		new Metatron( view.center, 50 );
+	}
+	// spacebar
+	function onKeyDown( event ) {
+		if ( event.key !== 'space' ) return;
+		if ( isBuilt ) return;
+		else isBuilt = true;
+		hintText.remove();
+		new Metatron( view.center, 50, true );
+	}
+
+
+
+
+</script>
+</head>
+<body>
+<canvas id="vessel" resize></canvas>
+</body>
+</html>

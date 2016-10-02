@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>treble</title>
+	<link rel="icon" type="image/ico" href="img/favicon.ico">
+	<style type="text/css" media="screen">
+		#container { width: 800px; margin: auto; }
+		canvas { cursor: pointer; }
+	</style>
+	<script type="text/javascript" src="../paper.v.0.22.js"></script>
+	<script type="text/paperscript" canvas="vessel">
+
+
+
+		// state
+		var isRotating = false;
+
+
+
+		// backdrop
+		var background = new Path.Rectangle( view.bounds );
+		background.fillColor = 'white';
+
+
+
+		// status indicators
+		
+		var statusText = new PointText( new Point( 10, 10 ) );
+		statusText.justification = 'left';
+		statusText.fillColor = '#999';
+		statusText.content = 'Ready';
+
+		var opacityText = new PointText( new Point( 400, 10 ) );
+		opacityText.justification = 'center';
+		opacityText.fillColor = '#999';
+		opacityText.content = '1.0 opacity';
+
+		var trebleText = new PointText( new Point( 790, 10 ) );
+		trebleText.justification = 'right';
+		trebleText.fillColor = '#999';
+		trebleText.content = 'No trebles, no circles';
+
+		var chugText = new PointText( new Point( 400, 400 ) );
+		chugText.justification = 'center';
+		chugText.fillColor = '#999';
+		chugText.content = 'This will murder your processor, be patient';
+
+
+
+		// animation
+		var rotaters = [];
+		function onFrame( event ) {
+			var length = rotaters.length;
+			if ( !length ) {
+				if ( isRotating ) {
+					isRotating = false;
+					statusText.content = 'Ready';
+					statusText.fillColor = '#999';
+				}
+				return;
+			}
+			for ( var i = 0; i < length; i++ ) {
+				var isComplete = rotaters[ i ]();
+				if ( isComplete ) rotaters.splice( i, 1 );
+			}
+
+			console.log( 'frame! rotaters.length = ' + length );
+
+		}
+
+
+		
+		//
+		//
+		// color trinity factory
+		function Treble( x, y, radius ) {
+
+
+			//
+			// PROPERTIES
+			var props = {
+				rotation: 0,
+				opacity: 1.0
+			};
+
+
+			//
+			// ELEMENTS
+			var full;
+			var cyan;
+			var mage;
+			var yell;
+			var group;
+
+
+			//
+			// METHODS
+
+			// constructor
+			function construct() {
+
+				// find lengths
+				var c = radius;
+				var a = radius / 2;
+				var b = Math.sqrt( c * c - a * a );
+				var z = a / b;
+				var d = a * z;
+				var e = c * z;
+
+				// make circles
+				full = new Path.Circle( new Point( x, y ), radius * 2 );
+				cyan = new Path.Circle( new Point( x - a, y - d ), radius );
+				mage = new Path.Circle( new Point( x + a, y - d ), radius );
+				yell = new Path.Circle( new Point( x, y + e ), radius );
+
+				// color circles
+				cyan.fillColor = '#0FF';
+				mage.fillColor = '#F0F';
+				yell.fillColor = '#FF0';
+				full.fillColor = '#FFF';
+
+				// blend circles
+				cyan.blendMode = 'multiply';
+				mage.blendMode = 'multiply';
+				yell.blendMode = 'multiply';
+				full.blendMode = 'multiply';
+
+				// make group
+				group = new Group( [ cyan, mage, yell, full ] );
+
+			}
+
+			// rotate group with animation
+			function animateRotation( angle ) { 
+				var increment = 5;
+				var remaining = angle;
+				var rotater = function () {
+					if ( !remaining ) {
+						// isComplete
+						rotater = null;
+						return true;
+					}
+					var thisAngle = increment;
+					if ( remaining - increment < 0 ) { thisAngle = remaining; }
+					group.rotate( thisAngle );
+					remaining -= thisAngle;
+					// !isComplete
+					return false;
+				};
+				rotaters.push( rotater );
+				props.rotation += angle;
+			}
+
+			// rotate group
+			function setRotation( angle ) {
+				group.rotate( angle );
+				props.rotation += angle;
+			}
+
+			// set circle opacities
+			function setOpacity( opacity ) {
+				cyan.opacity = opacity;
+				mage.opacity = opacity;
+				yell.opacity = opacity;
+				full.opacity = opacity;
+				props.opacity = opacity;
+			}
+
+
+			//
+			// EXECUTION
+			construct();
+
+
+			//
+			// INTERFACE
+			return {
+				getRotation: function () { return props.rotation; },
+				getOpacity: function () { return props.opacity; },
+				animateRotation: animateRotation,
+				setRotation: setRotation,
+				setOpacity: setOpacity
+			};
+
+
+		}; // end Treble
+
+
+
+
+
+
+
+
+		// automation
+		var execute = ( function () {
+			
+			// hardwired :(
+			var opacities = {
+				'1': 0.9,
+				'2': 0.75,
+				'4': 0.582,
+				'8': 0.4317,
+				'16': 0.3142,
+				'32': 0.223,
+				'64': 0.162,
+				'128': 0.115
+			};
+
+			var isBusy = false;
+			var trebles = [];
+			var count = 0;
+			var OP = 0.9;
+			var X = 400;
+			var Y = 400;
+			var R = 200;
+			var i = 0;
+			var l = 0;
+			return function () {
+
+				// first time?
+				if ( !count ) {
+					count = 1;
+					trebles.push( new Treble( X, Y, R ) );
+					// trebles[ 0 ].setOpacity( OP );
+					trebles[ 0 ].setOpacity( opacities[ 1 ] );
+
+					chugText.remove();
+					statusText.content = 'Ready';
+					// opacityText.content = OP + ' opacity';
+					opacityText.content = opacities[ 1 ] + ' opacity';
+					trebleText.content = '1 treble, 3 cirlces';
+
+					return;
+				}
+
+				// don't kill yourself
+				if ( count === 128 ) {
+					statusText.content = 'Limit reached!';
+					return;
+				}
+
+				// tracking!
+				var oldCount = count;
+				count = count + count;
+
+				// opacity!
+				// var opacity = OP - ( Math.log( count ) / Math.log( 16 ) ) / 2;
+				var opacity = opacities[ count ];
+				// var opacity = 0.1 + ( 4 / ( count + 4 ) );
+
+				// creation!
+				for ( i = 0, l = oldCount; i < l; i++ ) {
+					var currTreble = trebles[ i ];
+					var newTreble = new Treble( X, Y, R );
+					newTreble.setRotation( currTreble.getRotation() );
+					newTreble.setOpacity( opacity );
+					currTreble.setOpacity( opacity );
+					trebles.push( newTreble );
+				}
+
+				opacityText.content = opacity + ' opacity';
+				trebleText.content = count + ' trebles, ' + count * 3 + ' cirlces';
+				statusText.content = 'Rotating trebles...';
+
+				// rotation!
+				isRotating = true;
+				var angle = 60 / oldCount;
+				for ( i = oldCount, l = count; i < l; i++ ) {
+					if ( count < 10 ) trebles[ i ].animateRotation( angle );
+					else trebles[ i ].setRotation( angle );
+				}
+
+			};
+		} )();
+
+
+		// user interaction
+		function onMouseUp( event ) {
+			statusText.content = 'Making trebles...';
+			setTimeout( execute, 15 );
+		};
+
+
+		/*
+
+
+		// constants
+		var X = 400;
+		var Y = 400;
+		var R = 200;
+
+
+		// 1
+		var treble1 = new Treble( X, Y, R );
+		treble1.setOpacity( 0.9 );
+
+
+		// 2
+		var treble2 = new Treble( X, Y, R );
+		treble1.setOpacity( 0.7 );
+		treble2.setOpacity( 0.7 );
+		
+		treble2.rotate( 60 );
+
+
+		// 4
+		var treble3 = new Treble( X, Y, R );
+		var treble4 = new Treble( X, Y, R );
+		treble1.setOpacity( 0.6 );
+		treble2.setOpacity( 0.6 );
+		treble3.setOpacity( 0.6 );
+		treble4.setOpacity( 0.6 );
+		
+		treble3.rotate( 30 );
+		// 60
+		treble4.rotate( 90 );
+
+
+		// 8
+		var treble5 = new Treble( X, Y, R );
+		var treble6 = new Treble( X, Y, R );
+		var treble7 = new Treble( X, Y, R );
+		var treble8 = new Treble( X, Y, R );
+		treble1.setOpacity( 0.5 );
+		treble2.setOpacity( 0.5 );
+		treble3.setOpacity( 0.5 );
+		treble4.setOpacity( 0.5 );
+		treble5.setOpacity( 0.5 );
+		treble6.setOpacity( 0.5 );
+		treble7.setOpacity( 0.5 );
+		treble8.setOpacity( 0.5 );
+		
+		treble5.rotate( 15 );
+		// 30
+		treble6.rotate( 45 );
+		// 60
+		treble7.rotate( 75 );
+		// 90
+		treble8.rotate( 105 );
+
+
+		// 16
+		var treble9 = new Treble( X, Y, R );
+		var treble10 = new Treble( X, Y, R );
+		var treble11 = new Treble( X, Y, R );
+		var treble12 = new Treble( X, Y, R );
+		var treble13 = new Treble( X, Y, R );
+		var treble14 = new Treble( X, Y, R );
+		var treble15 = new Treble( X, Y, R );
+		var treble16 = new Treble( X, Y, R );
+		treble1.setOpacity( 0.35 );
+		treble2.setOpacity( 0.35 );
+		treble3.setOpacity( 0.35 );
+		treble4.setOpacity( 0.35 );
+		treble5.setOpacity( 0.35 );
+		treble6.setOpacity( 0.35 );
+		treble7.setOpacity( 0.35 );
+		treble8.setOpacity( 0.35 );
+		treble9.setOpacity( 0.35 );
+		treble10.setOpacity( 0.35 );
+		treble11.setOpacity( 0.35 );
+		treble12.setOpacity( 0.35 );
+		treble13.setOpacity( 0.35 );
+		treble14.setOpacity( 0.35 );
+		treble15.setOpacity( 0.35 );
+		treble16.setOpacity( 0.35 );
+		
+		treble9.rotate( 7.5 );
+		// 15
+		treble10.rotate( 22.5 );
+		// 30
+		treble11.rotate( 37.5 );
+		// 45
+		treble12.rotate( 52.5 );
+		// 60
+		treble13.rotate( 67.5 );
+		// 75
+		treble14.rotate( 82.5 );
+		// 90
+		treble15.rotate( 97.5 );
+		// 105
+		treble16.rotate( 112.5 );
+
+
+		// 32
+		var treble17 = new Treble( X, Y, R );
+		var treble18 = new Treble( X, Y, R );
+		var treble19 = new Treble( X, Y, R );
+		var treble20 = new Treble( X, Y, R );
+		var treble21 = new Treble( X, Y, R );
+		var treble22 = new Treble( X, Y, R );
+		var treble23 = new Treble( X, Y, R );
+		var treble24 = new Treble( X, Y, R );
+		var treble25 = new Treble( X, Y, R );
+		var treble26 = new Treble( X, Y, R );
+		var treble27 = new Treble( X, Y, R );
+		var treble28 = new Treble( X, Y, R );
+		var treble29 = new Treble( X, Y, R );
+		var treble30 = new Treble( X, Y, R );
+		var treble31 = new Treble( X, Y, R );
+		var treble32 = new Treble( X, Y, R );
+		treble1.setOpacity( 0.25 );
+		treble2.setOpacity( 0.25 );
+		treble3.setOpacity( 0.25 );
+		treble4.setOpacity( 0.25 );
+		treble5.setOpacity( 0.25 );
+		treble6.setOpacity( 0.25 );
+		treble7.setOpacity( 0.25 );
+		treble8.setOpacity( 0.25 );
+		treble9.setOpacity( 0.25 );
+		treble10.setOpacity( 0.25 );
+		treble11.setOpacity( 0.25 );
+		treble12.setOpacity( 0.25 );
+		treble13.setOpacity( 0.25 );
+		treble14.setOpacity( 0.25 );
+		treble15.setOpacity( 0.25 );
+		treble16.setOpacity( 0.25 );
+		treble17.setOpacity( 0.25 );
+		treble18.setOpacity( 0.25 );
+		treble19.setOpacity( 0.25 );
+		treble20.setOpacity( 0.25 );
+		treble21.setOpacity( 0.25 );
+		treble22.setOpacity( 0.25 );
+		treble23.setOpacity( 0.25 );
+		treble24.setOpacity( 0.25 );
+		treble25.setOpacity( 0.25 );
+		treble26.setOpacity( 0.25 );
+		treble27.setOpacity( 0.25 );
+		treble28.setOpacity( 0.25 );
+		treble29.setOpacity( 0.25 );
+		treble30.setOpacity( 0.25 );
+		treble31.setOpacity( 0.25 );
+		treble32.setOpacity( 0.25 );
+
+		treble17.rotate( 3.75 );
+		// 7.5
+		treble18.rotate( 11.25 );
+		// 15
+		treble19.rotate( 18.75 );
+		// 22.5
+		treble20.rotate( 26.25 );
+		// 30
+		treble21.rotate( 33.75 );
+		// 37.5
+		treble22.rotate( 41.25 );
+		// 45
+		treble23.rotate( 48.75 );
+		// 52.5
+		treble24.rotate( 56.25 );
+		// 60
+		treble25.rotate( 63.75 );
+		// 67.5
+		treble26.rotate( 71.25 );
+		// 75
+		treble27.rotate( 78.75 );
+		// 82.5
+		treble28.rotate( 86.25 );
+		// 90
+		treble29.rotate( 93.75 );
+		// 97.5
+		treble30.rotate( 101.25 );
+		// 105
+		treble31.rotate( 108.75 );
+		// 112.5
+		treble32.rotate( 116.25 );
+
+		*/
+		
+
+	</script>
+</head>
+<body>
+	<div id="container">
+		<canvas id="vessel" width="800" height="800"></canvas>
+	</div>
+</body>
+</html>

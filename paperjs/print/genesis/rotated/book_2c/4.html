@@ -1,0 +1,274 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>g4</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+        margin: 0;
+        padding: 0;
+        background: #DDD;
+    }
+    canvas {
+        margin: 30px;
+        background: white;
+    }
+</style>
+</head>
+<body>
+<script type="text/javascript" src="../../../../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="../js/util.js"></script>
+<script type="text/javascript" src="../js/shapes.js"></script>
+<script type="text/javascript" src="../js/GenesisPanel.js"></script>
+<script type="text/javascript" src="../js/GenesisPanelCol.js"></script>
+<script type="text/javascript" src="../js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="../js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="../js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="../js/Facet.js"></script>
+<script type="text/javascript" src="../js/RectGrid.js"></script>
+<script type="text/javascript">
+
+
+	function rHex() {
+		var output = '#';
+		for (var i = 0; i < 6; i++) {
+			output += Math.floor(Math.random() * 2) + 8;
+		}
+		return output;
+	};
+
+
+	var pageWidth = 1100; // half page
+	var pageHeight = 850;
+
+
+	// initialize paper with new canvas element
+	var canvas = document.createElement('canvas');
+	canvas.width = pageWidth;
+	canvas.height = pageHeight;
+	document.body.appendChild(canvas);
+	paper.setup(canvas);
+
+	// background color shape
+	// var backdrop = new shapes.Backdrop();
+    var gutterX = 20;
+    var gutterY = 25;
+    var backdrop = new paper.Path.Rectangle(
+        new paper.Point(
+            pageWidth / 2 + gutterX,
+            gutterY
+        ),
+        new paper.Size(
+            pageWidth / 2 - gutterX * 2,
+            pageHeight - gutterY * 2
+        )
+    );
+    backdrop.fillColor = 'black';
+
+
+	var stage = 4;
+	var radius = 24;
+
+
+	var grid = new RectGrid(
+		new paper.Point(pageWidth / 2, 0),
+		new paper.Size(pageWidth / 2, pageHeight),
+		120,
+		6,
+		4
+	);
+
+
+	for (var i = 0; i < grid.matrix.length; i++) {
+		for (var j = 0; j < grid.matrix[i].length; j++) {
+			var rect = grid.matrix[i][j];
+			var genesis = undefined;
+			switch (i) {
+				case 0:
+					// title
+					break;
+				case 1:
+					// circles
+					if (j === 0) {
+						genesis = new GenesisPanel(
+							stage,
+							radius,
+							rect.point,
+							rect.size
+						);
+					}
+					break;
+				case 2:
+					// points
+					if (j === 0) {
+						genesis = new GenesisPanel(
+							stage,
+							radius,
+							rect.point,
+							rect.size
+						);
+						genesis.hideCircles();
+						genesis.markPoints();
+					}
+					break;
+				case 3:
+					// lines
+					genesis = new GenesisPanel(
+						stage,
+						radius,
+						rect.point,
+						rect.size
+					);
+					genesis.hideCircles();
+					genesis.extend(GenesisLines);
+					genesis.drawAllLines('in');
+					genesis.hideAllLines();
+					switch (j) {
+						case 0:
+							genesis.showLinesByLength('radius');
+							genesis.showLinesByLength('vesica');
+							genesis.showLinesByLength('strange');
+							break;
+						case 1:
+							genesis.showLinesByLength('radius');
+							break;
+						case 2:
+							genesis.showLinesByLength('vesica');
+							break;
+						case 3:
+							genesis.showLinesByLength('strange');
+							break;
+					}
+					break;
+				case 4:
+					// seeds
+					genesis = new GenesisPanel(
+						stage,
+						radius,
+						rect.point,
+						rect.size
+					);
+					genesis.hideCircles();
+					genesis.extend(GenesisFacets);
+					genesis.makeFacets();
+					switch (j) {
+						case 0:
+							genesis.drawSeeds(
+								'vesica',
+								'around',
+								'selves'
+							);
+							genesis.drawSeeds(
+								'vesica',
+								'within',
+								'selves'
+							);
+							genesis.drawSeeds(
+								'treble',
+								'around',
+								'selves'
+							);
+							genesis.drawSeeds(
+								'treble',
+								'within',
+								'selves'
+							);
+							genesis.drawSeeds(
+								'petal',
+								'around',
+								'selves'
+							);
+							genesis.drawSeeds(
+								'petal',
+								'within',
+								'selves'
+							);
+							break;
+						case 1:
+							genesis.drawSeeds(
+								'vesica',
+								'around',
+								'selves'
+							);
+							genesis.drawSeeds(
+								'vesica',
+								'within',
+								'selves'
+							);
+							break;
+						case 2:
+							genesis.drawSeeds(
+								'treble',
+								'around',
+								'selves'
+							);
+							genesis.drawSeeds(
+								'treble',
+								'within',
+								'selves'
+							);
+							break;
+						case 3:
+							genesis.drawSeeds(
+								'petal',
+								'around',
+								'selves'
+							);
+							genesis.drawSeeds(
+								'petal',
+								'within',
+								'selves'
+							);
+							break;
+					}
+					break;
+				case 5:
+					// centroid
+					genesis = new GenesisPanel(
+						stage,
+						radius,
+						rect.point,
+						rect.size
+					);
+					genesis.hideCircles();
+					genesis.extend(GenesisLines);
+					genesis.extend(GenesisCentroid);
+					switch (j) {
+						case 0:
+							genesis.markCentroid();
+							genesis.drawAllLines('in');
+							genesis.findCentroidLines();
+							genesis.hideLinesNotCentroid();
+							genesis.findOtherCentroidRadii();
+							genesis.drawOtherCentroidCircles();
+							break;
+						case 1:
+							genesis.markCentroid();
+							break;
+						case 2:
+							genesis.drawAllLines('in');
+							genesis.findCentroidLines();
+							genesis.hideLinesNotCentroid();
+							break;
+						case 3:
+							genesis.findOtherCentroidRadii();
+							genesis.drawOtherCentroidCircles();
+							break;
+					}
+					break;
+			}
+            if (genesis) genesis.doubleCentroid();
+		}
+	}
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+</script>
+<script type="text/javascript" src="../../../svg-export.js"></script>
+</body>
+</html>

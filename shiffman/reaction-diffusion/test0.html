@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>rd0</title>
+</head>
+<body>
+<script src="https://cdn.jsdelivr.net/lodash/4.15.0/lodash.min.js"></script>
+<script>
+
+    //
+    // Bounds
+
+    var width = 200; // window.innerWidth;
+    var height = 200; // window.innerHeight;
+
+    //
+    // Canvas
+
+    var canvasEl = document.createElement('canvas');
+    canvasEl.width = width;
+    canvasEl.height = height;
+    canvasEl.style.position = 'fixed';
+    canvasEl.style.top = '0px';
+    canvasEl.style.left = '0px';
+    document.body.appendChild(canvasEl);
+
+    var ctx = canvasEl.getContext('2d');
+    var image = ctx.getImageData(0, 0, width, height);
+    var pixels = image.data;
+
+    //
+    // Grids
+
+    function walk(grid, action) {
+        return _.times(width, function (x) {
+            return _.times(height, function (y) {
+                if (grid && action) return action(x, y, grid[x][y]);
+                else if (action)    return action(x, y);
+                else                return null;
+            });
+        });
+    }
+
+    var curr = walk(null, function (x, y) {
+        return {
+            a: 1,
+            b: 0,
+        };
+    });
+
+    curr[100][100]. b = 1;
+
+    var next = walk(curr, function (x, y, cell) {
+        return {
+            a: cell.a,
+            b: cell.b
+        };
+    });
+
+    function laplace(grid, x, y, ab) {
+        var sum = 0;
+        sum += grid[x][y][ab] * WEIGHT_CENTER;
+        sum += grid[x+1][y][ab] * WEIGHT_ADJACENT;
+        sum += grid[x-1][y][ab] * WEIGHT_ADJACENT;
+        sum += grid[x][y+1][ab] * WEIGHT_ADJACENT;
+        sum += grid[x][y-1][ab] * WEIGHT_ADJACENT;
+        sum += grid[x+1][y+1][ab] * WEIGHT_DIAGONAL;
+        sum += grid[x+1][y-1][ab] * WEIGHT_DIAGONAL;
+        sum += grid[x-1][y+1][ab] * WEIGHT_DIAGONAL;
+        sum += grid[x-1][y-1][ab] * WEIGHT_DIAGONAL;
+        return sum;
+    }
+
+    //
+    // Rendering
+
+    var DA = 1;
+    var DB = 0.5;
+    var FEED = 0.055;
+    var KILL = 0.062;
+    var WEIGHT_CENTER = -1;
+    var WEIGHT_ADJACENT = 0.2;
+    var WEIGHT_DIAGONAL = 0.05;
+
+    function render() {
+
+        // calculate next grid
+        walk(curr, function (x, y, cell) {
+            if (x === 0) return;
+            if (y === 0) return;
+            if (x === width - 1) return;
+            if (y === height - 1) return;
+            var a = cell.a;
+            var b = cell.b;
+            next[x][y].a = (
+                (a) +
+                (laplace(curr, x, y, 'a') * DA) -
+                (a * b * b) +
+                ((1 - a) * FEED)
+            );
+            next[x][y].b = (
+                (b) +
+                (laplace(curr, x, y, 'b') * DB) -
+                (a * b * b) +
+                (b * (KILL + FEED))
+            );
+        });
+
+        // draw next grid
+        walk(next, function (x, y, cell) {
+            var index = 4 * (x + y * width);
+            pixels[index++] = Math.floor(cell.a * 255);
+            pixels[index++] = 0;
+            pixels[index++] = Math.floor(cell.b * 255);
+            pixels[index++] = 255;
+        });
+
+        // swap curr & next
+        var prev = curr;
+        curr = next;
+        next = prev;
+
+        // update canvas & loop
+        ctx.putImageData(image, 0, 0);
+        window.requestAnimationFrame(render);
+    }
+
+    render();
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>flower_of_life x2</title>
+<style type="text/css" media="screen">
+	html, body, canvas { margin: 0; padding: 0; }
+	canvas { cursor: pointer; }
+</style>
+<script type="text/javascript" src="../paper.v.0.22.js"></script>
+<script type="text/paperscript" canvas="vessel">
+
+
+	
+	//	
+	// state
+	var isBuilt = false;
+	var isMetaed = false;
+
+
+
+	//
+	// backdrop
+	var background = new Path.Rectangle( view.bounds );
+		background.fillColor = 'white';
+
+
+
+	//
+	// user guidance
+	var hintText = new PointText( view.center );
+		hintText.justification = 'center';
+		hintText.fillColor = '#999';
+		hintText.content = 'Space bar';
+		hintText.position.y += 3;
+
+
+
+	//
+	// frames
+	var fQueue = [];
+	var fCurrent;
+	var fPaused = false;
+	function onFrame( event ) {
+		if ( fPaused ) return;
+		if ( !fCurrent && !fQueue.length ) return;
+		if ( !fCurrent ) fCurrent = fQueue.shift();
+		fCurrent = fCurrent();
+	}
+	function Frame( args ) {
+		var action = args.action;
+		var payload = args.payload;
+		return function () { action( payload ); };
+	}
+	function FrameSeries( args ) {
+		// parse out arguments
+		var action = args.action;
+		var payload = args.payload;
+		var threshold = args.threshold;
+		var increment = args.increment;
+		var remaining = threshold;
+		// recursive frame execution
+		var fHandler = function () {
+
+			// calculate this delta (either increment or whatever is left)
+			var delta = remaining - increment < 0 ? remaining : increment;
+			// mark the change
+			remaining -= delta;
+
+			// pass stuff to action
+			action( payload, delta );
+
+			// return handler again if not done
+			if ( remaining ) return fHandler;
+
+			// cleanup reference
+			fHandler = null;
+			// end cycle
+			return false;
+
+		};
+		// for frame queue
+		return fHandler;
+	}
+	function FrameVectorSeries( args ) {
+		// parse out arguments
+		var action = args.action;
+		var payload = args.payload;
+		var threshold = args.threshold;
+		var increment = args.increment;
+		var remaining = threshold;
+		// recursive frame execution
+		var fHandler = function () {
+
+			// calculate this delta (either increment or whatever is left)
+			var delta = remaining.length - increment.length < 0 ? remaining : increment;
+			// mark the change
+			remaining -= delta;
+
+			// pass stuff to action
+			action( payload, delta );
+
+			// return handler again if not done
+			if ( remaining.length ) return fHandler;
+
+			// cleanup reference
+			fHandler = null;
+			// end cycle
+			return false;
+
+		};
+		// for frame queue
+		return fHandler;
+	}
+
+
+
+
+
+	//
+	// the meat & potatoes
+	function Bubbles(radius) {
+
+
+		// note alert rotation hack
+		var group;
+
+
+		// circle properties
+		var origin = view.center;
+		var diameter = radius * 2;
+		var distance = radius;
+		var strokeColor_default = '#333';
+		var strokeColor_current = '#333';
+		var strokeColor_flash = '#333';
+		var strokeColor_leaf = '#333';
+		var strokeWidth = 1;
+		var limit = 1200;
+		var count = 0;
+
+
+		// data structures
+		var bubbles = [];
+		var isAtXY = {};
+		var atXY = {};
+
+
+		// begin the machine
+		function construct() {
+			// draw the first bubble
+			var original = createBubble( origin );
+			fQueue.push( new FrameSeries( {
+				increment: 0.05,
+				threshold: 1,
+				payload: { item: original },
+				action: function ( payload, delta ) {
+					// fade in item
+					payload.item.opacity += delta;
+				}
+			} ) );
+			// begin the hubub
+			drawBubbles( original, origin );
+		};
+
+
+		// make an invisible bubble
+		function createBubble( point ) {
+			count++;
+			var x = point.x;
+			var y = point.y;
+			// draw & style bubble path
+			var bubble = new Path.Circle( point, radius );
+				bubble.name = 'bubble' + count;
+				bubble.opacity = 0;
+				bubble.strokeColor = strokeColor_leaf;
+				bubble.strokeWidth = strokeWidth;
+			// store new bubble location and reference
+			if ( !isAtXY[ x ] ) isAtXY[ x ] = {};
+			isAtXY[ x ][ y ] = true;
+			atXY[ x + ',' + y ] = bubble;
+			bubbles.push( bubble );
+			// return bubble
+			return bubble;
+		}
+
+
+		// draw bubbles around a bubble
+		function drawBubbles( hubBubble, hubPoint ) {
+			if ( count >= limit ) return;
+
+			var freshBubbles = [];
+			var freshPoints = [];
+			var i, l;
+			
+			// mark hub bubble as active
+			fQueue.push( new Frame( {
+				payload: { item: hubBubble },
+				action: function ( payload ) {
+					// change stroke color
+					payload.item.strokeColor = strokeColor_current;
+				}
+			} ) );
+			
+			// try to draw six fresh bubbles
+			var magic = distance / 2;
+			var x, y;
+			var newPoint;
+			var newBubble;
+			var slideVector;
+			var prevPoint;
+			for ( i = 0, l = 6; i < l; i++ ) {
+				// find new position
+				x = hubPoint.x;
+				y = hubPoint.y;
+				// 30 60 90 triangles
+				switch( i ) {
+					case 0:
+						y += distance;
+						break;
+					case 1:
+						x -= magic * Math.sqrt( 3 );
+						y += magic;
+						break;
+					case 2:
+						x -= magic * Math.sqrt( 3 );
+						y -= magic;
+						break;
+					case 3:
+						y -= distance;
+						break;
+					case 4:
+						x += magic * Math.sqrt( 3 );
+						y -= magic;
+						break;
+					case 5:
+						x += magic * Math.sqrt( 3 );
+						y += magic;
+						break;
+					default:
+						// no
+						x = 0;
+						y = 0;
+				}
+
+				// freaking floating point math
+				x = Math.round( x * 100 ) / 100;
+				y = Math.round( y * 100 ) / 100;
+
+				// get that new point!
+				newPoint = new Point( x, y );
+
+				// check for existing bubble
+				if ( isAtXY[ x ] && isAtXY[ x ][ y ] ) {
+					
+					/*
+					// grab conflict bubble
+					var conflictBubble = atXY[ x + ',' + y ];
+					// mark conflict bubble
+					fQueue.push( new FrameSeries( {
+						increment: 1,
+						threshold: 16,
+						payload: { item: conflictBubble },
+						action: function ( payload, delta ) {
+							// change stroke color
+							payload.item.strokeColor = strokeColor_flash;
+						}
+					} ) );
+					// return color to default
+					fQueue.push( new Frame( {
+						payload: { item: conflictBubble },
+						action: function ( payload ) {
+							// change stroke color
+							payload.item.strokeColor = strokeColor_default;
+						}
+					} ) );
+					*/
+
+				} else {
+
+					// make new bubble
+					newBubble = createBubble( newPoint );
+
+					// is first bubble?
+					if ( i === 0 ) {
+
+						// position at original
+						newBubble.position = hubPoint;
+						// reveal & slide into place
+						slideVector = newPoint - hubPoint;
+						fQueue.push( new FrameVectorSeries( {
+							increment: slideVector.normalize( 1 ),
+							threshold: slideVector,
+							payload: { item: newBubble },
+							action: function ( payload, delta ) {
+								// show item on first frame
+								if ( !payload.itemVisible ) {
+									payload.itemVisible = true;
+									payload.item.opacity = 1;
+								}
+								// slide item
+								payload.item.position += delta;
+							}
+						} ) );
+
+					} else {
+
+						// position at previous
+						newBubble.position = prevPoint;
+						// reveal & rotate into place
+						fQueue.push( new FrameSeries( {
+							increment: 1,
+							threshold: 60,
+							payload: { item: newBubble, point: hubPoint },
+							action: function ( payload, delta ) {
+								// show item on first frame
+								if ( !payload.itemVisible ) {
+									payload.itemVisible = true;
+									payload.item.opacity = 1;
+								}
+								// rotate item
+								payload.item.rotate( delta, payload.point );
+							}
+						} ) );
+
+					}
+
+					// store new bubble
+					freshBubbles.push( newBubble );
+					freshPoints.push( newPoint );
+
+				}
+
+				// save for next round
+				prevPoint = newPoint;
+
+			}
+
+			// any fresh bubbles?
+			if ( freshBubbles.length ) {
+
+				// mark hub bubble as interior
+				fQueue.push( new Frame( {
+					payload: { item: hubBubble },
+					action: function ( payload ) {
+						// change stroke color
+						payload.item.strokeColor = strokeColor_default;
+					}
+				} ) );
+				// draw bubbles for fresh bubbles
+				for ( i = 0, l = freshBubbles.length; i < l; i++ ) {
+					// drawBubbles( freshBubbles[ i ], freshPoints[ i ] );
+					// non-blocking recursive call
+					fQueue.push( new Frame( {
+						payload: { item: freshBubbles[ i ], point: freshPoints[ i ] },
+						action: function ( payload ) { drawBubbles( payload.item, payload.point ); }
+					} ) );
+				}
+
+			} else {
+
+				// mark hub bubble as leaf
+				fQueue.push( new Frame( {
+					payload: { item: hubBubble },
+					action: function ( payload ) {
+						// change stroke color
+						payload.item.strokeColor = strokeColor_leaf;
+					}
+				} ) );
+
+			}
+		};
+
+
+		// connect all them circles with lines
+		function metatron() {
+			var circles = bubbles;
+			// [ taken from metatron ]
+			fQueue.push( function () {
+				var alreadyConnected = {};
+				// connect every circle to every other circle 1 time
+				for ( var i = 0, l = circles.length; i < l; i++ ) {
+					var thisCircle = circles[ i ];
+					if ( !thisCircle.opacity ) continue;
+					for ( var ii = 0, ll = l; ii < ll; ii++ ) {
+						if ( i === ii ) continue;
+						var thatCircle = circles[ ii ];
+						if ( !thatCircle.opacity ) continue;
+						if ( alreadyConnected[ thatCircle.name + thisCircle.name ] ) continue;
+						else alreadyConnected[ thisCircle.name + thatCircle.name ] = true;
+						var path = new Path( thisCircle.position, thatCircle.position );
+							path.strokeCap = 'round';
+							path.strokeColor = '#000';
+							path.strokeWidth = 2;
+							path.opacity = 0;
+						fQueue.push( new FrameSeries( {
+							payload: { path: path },
+							action: function( payload, delta ) {
+								payload.path.opacity += delta;
+							},
+							threshold: 1,
+							increment: 0.1
+						} ) );
+					}
+				}
+			} );
+		}
+
+
+		// interface
+		return {
+			start: construct,
+			metatron: metatron,
+			rotate: function (degrees) {
+				if (!group) {
+					group = new Group();
+					group.addChildren(bubbles);
+				}
+				//group.rotate(degrees, view.center);
+				fQueue.push( new FrameSeries( {
+					increment: 0.6,
+					threshold: degrees,
+					payload: { item: group },
+					action: function( payload, delta ) {
+						payload.item.rotate( delta, view.center );
+					}
+				} ) );
+			},
+			changeColor: function (color) {
+				if (!group) {
+					group = new Group();
+					group.addChildren(bubbles);
+				}
+				group.strokeColor = color;
+			}
+		};
+
+
+	};
+
+	var radius = 60;
+	var vesica = Math.sqrt(3) * radius;
+	var bubbles = new Bubbles(radius);
+	var bubbles2 = new Bubbles(radius);
+
+
+
+	function startThings() {
+		if (isBuilt) return;
+		isBuilt = true;
+
+		hintText.remove();
+		
+		bubbles.start();
+		megaSkip();
+
+		bubbles2.start();
+		megaSkip();
+
+		bubbles.changeColor('blue');
+		bubbles2.changeColor('red');
+		
+		bubbles2.rotate(90);
+
+	}
+
+
+
+
+
+
+
+
+
+	//
+	// user events
+
+	// click
+	function onMouseUp( event ) {
+		if ( !isBuilt ) {
+			startThings();
+		}
+	}
+
+	// keyboard
+	function onKeyDown( event ) {
+		switch ( event.key ) {
+			case 'space':
+				if ( !isBuilt ) {
+					startThings();
+				} else {
+					// play/pause
+					fPaused = !fPaused;
+				}
+				break;
+			case 'm':
+				// metatron paths
+				if ( !isBuilt ) return;
+				if ( isMetaed ) return;
+				else isMetaed = true;
+				fQueue = [];
+				bubbles.metatron();
+				break;
+			default:
+				return;
+		}
+	}
+
+
+
+	// tee hee
+	function megaSkip() {
+		// blow the whole queue
+		while ( fQueue.length ) {
+			if ( !fCurrent ) fCurrent = fQueue.shift();
+			fCurrent = fCurrent();
+		}
+
+	}
+
+
+
+
+</script>
+</head>
+<body>
+<canvas id="vessel" resize></canvas>
+</body>
+</html>

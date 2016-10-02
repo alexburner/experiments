@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>0123D t1</title>
+    <style>
+        * {
+            box-sizing: content-box;
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #333;
+        }
+        #contents {
+            position: relative;
+            width: 800px;
+            height: 300px;
+        }
+        .container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 50px;
+            border: 1px solid #444;
+        }
+    </style>
+</head>
+<body>
+<script src="../lib/lodash.min.js"></script>
+<script src="../shared/Maths.js"></script>
+<script src="../shared/Vector.js"></script>
+<script src="../shared/Gravity.js"></script>
+<script src="../shared/Body.js"></script>
+<script>
+
+    function addEl(tagName, className, parentEl) {
+        var el = document.createElement(tagName);
+        el.className = className;
+        parentEl.appendChild(el);
+        return el;
+    }
+
+    function addContext(width, height, parentEl) {
+        var canvasEl = document.createElement('canvas');
+        var context = canvasEl.getContext('2d');
+        canvasEl.width = width;
+        canvasEl.height = height;
+        canvasEl.style.position = 'absolute';
+        canvasEl.style.top = 0;
+        canvasEl.style.left = 0;
+        parentEl.appendChild(canvasEl);
+        return context;
+    }
+
+    //
+    // ZERO DEE
+    //
+    (function () {
+
+        var containerEl = addEl('div', 'container', document.body);
+        var rect = containerEl.getBoundingClientRect();
+        var width = rect.width;
+        var height = rect.height;
+        var context = addContext(width, height, containerEl);
+
+        var gravity = new Gravity();
+
+        var attractors = [
+            new Body({
+                dimensions: 0,
+                mass: 30,
+            })
+        ];
+
+        var bodies = [
+            new Body({
+                dimensions: 0,
+                mass: 10,
+            })
+        ];
+
+        function update() {
+            // apply forces to each body
+            _.each(bodies, function (body) {
+                _.each(attractors, function (attractor) {
+                    var force = gravity.attract(body, attractor);
+                    body.applyForce(force);
+                });
+                body.update();
+            });
+        }
+
+        function render() {
+            context.clearRect(0, 0, width, height);
+            context.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            context.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            _.each(_.concat(bodies, attractors), function (body) {
+                var x = width / 2;
+                var y = height / 2;
+                var r = body.mass / 2;
+                context.beginPath();
+                context.arc(x, y, r, 0, Math.PI * 2);
+                context.fill();
+                context.stroke();
+            });
+        }
+
+        function animate() {
+            update();
+            render();
+            window.requestAnimationFrame(animate);
+        }
+
+        animate();
+
+    })();
+
+    //
+    // ONE DEE
+    //
+    (function () {
+
+        var containerEl = addEl('div', 'container', document.body);
+        var rect = containerEl.getBoundingClientRect();
+        var width = rect.width;
+        var height = rect.height;
+        var context = addContext(width, height, containerEl);
+
+        var gravity = new Gravity({
+            gravitation: 1/2,
+            minDistance: 10,
+            maxDistance: 10
+        });
+
+        var attractors = [
+            new Body({
+                dimensions: 1,
+                mass: 30,
+                location: new Vector([width / 2]),
+            })
+        ];
+
+        var bodies = [
+            new Body({
+                dimensions: 1,
+                mass: 10,
+                location: new Vector([3 * width / 4]),
+                velocity: new Vector([2]),
+            })
+        ];
+
+        function update() {
+            // apply forces to each body
+            _.each(bodies, function (body) {
+                _.each(attractors, function (attractor) {
+                    var force = gravity.attract(body, attractor);
+                    body.applyForce(force);
+                });
+                body.update();
+            });
+        }
+
+        function render() {
+            context.clearRect(0, 0, width, height);
+            context.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            context.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            _.each(_.concat(bodies, attractors), function (body) {
+                var x = body.location.tuple[0];
+                var y = height / 2;
+                var r = body.mass / 2;
+                context.beginPath();
+                context.arc(x, y, r, 0, Math.PI * 2);
+                context.fill();
+                context.stroke();
+            });
+        }
+
+        function animate() {
+            update();
+            render();
+            window.requestAnimationFrame(animate);
+        }
+
+        animate();
+
+    })();
+
+    //
+    // TWO DEE
+    //
+    (function () {
+
+        var containerEl = addEl('div', 'container', document.body);
+        var rect = containerEl.getBoundingClientRect();
+        var width = rect.width;
+        var height = rect.height;
+        var context = addContext(width, height, containerEl);
+
+        var gravity = new Gravity();
+
+        var attractors = [
+            new Body({
+                dimensions: 2,
+                mass: 30,
+                location: new Vector([
+                    width / 2,
+                    height / 2,
+                ]),
+            })
+        ];
+
+        var bodies = [
+            new Body({
+                dimensions: 2,
+                mass: 10,
+                location: new Vector([
+                    3 * width / 4,
+                    height / 2,
+                ]),
+                velocity: new Vector([0, 3/2]),
+            })
+        ];
+
+        function update() {
+            // apply forces to each body
+            _.each(bodies, function (body) {
+                _.each(attractors, function (attractor) {
+                    var force = gravity.attract(body, attractor);
+                    body.applyForce(force);
+                });
+                body.update();
+            });
+        }
+
+        function render() {
+            context.clearRect(0, 0, width, height);
+            context.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            context.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            _.each(_.concat(bodies, attractors), function (body) {
+                var x = body.location.tuple[0];
+                var y = body.location.tuple[1];
+                var r = body.mass / 2;
+                context.beginPath();
+                context.arc(x, y, r, 0, Math.PI * 2);
+                context.fill();
+                context.stroke();
+            });
+        }
+
+        function animate() {
+            update();
+            render();
+            window.requestAnimationFrame(animate);
+        }
+
+        animate();
+
+    })();
+
+    //
+    // THREE DEE
+    //
+    (function () {
+
+        var containerEl = addEl('div', 'container', document.body);
+        var rect = containerEl.getBoundingClientRect();
+        var width = rect.width;
+        var height = rect.height;
+        var context = addContext(width, height, containerEl);
+
+        var gravity = new Gravity();
+
+        var attractors = [
+            new Body({
+                dimensions: 3,
+                mass: 30,
+                location: new Vector([
+                    width / 2,
+                    height / 2,
+                    height / 2,
+                ]),
+            })
+        ];
+
+        var bodies = [
+            new Body({
+                dimensions: 3,
+                mass: 10,
+                location: new Vector([
+                    3 * width / 4,
+                    height / 2,
+                    height / 2,
+                ]),
+                velocity: new Vector([0, 3/2, 0]),
+            })
+        ];
+
+        function update() {
+            // apply forces to each body
+            _.each(bodies, function (body) {
+                _.each(attractors, function (attractor) {
+                    var force = gravity.attract(body, attractor);
+                    body.applyForce(force);
+                });
+                body.update();
+            });
+        }
+
+        function render() {
+            context.clearRect(0, 0, width, height);
+            context.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            context.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            _.each(_.concat(bodies, attractors), function (body) {
+                var x = body.location.tuple[0];
+                var y = body.location.tuple[1];
+                var z = body.location.tuple[2];
+                var r = body.mass / 2;
+                context.beginPath();
+                context.arc(x, y, r, 0, Math.PI * 2);
+                context.fill();
+                context.stroke();
+            });
+        }
+
+        function animate() {
+            update();
+            render();
+            window.requestAnimationFrame(animate);
+        }
+
+        animate();
+
+    })();
+
+</script>
+</body>
+</html>

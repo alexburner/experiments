@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>connect_the_dots_graph</title>
+<style type="text/css" media="screen">
+	html, body, canvas { margin: 0; padding: 0; }
+	canvas { cursor: pointer; }
+</style>
+<script type="text/javascript" src="../paper.v.0.22.js"></script>
+<script type="text/paperscript" canvas="vessel">
+
+
+
+	//
+	// size things up
+	var winWidth = window.innerWidth;
+	var winHeight = window.innerHeight;
+	var canvas = document.getElementsByTagName( 'canvas' )[ 0 ];
+	canvas.width = winWidth;
+	canvas.height = winHeight;
+	view.size.width = winWidth;
+	view.size.height = winHeight;
+
+
+
+	//
+	// backdrop
+	var background = new Path.Rectangle( view.bounds );
+		background.fillColor = '#FFF';
+
+
+
+	//
+	// user guidance
+	var hintText = new PointText( view.center );
+		hintText.justification = 'center';
+		hintText.fillColor = '#999';
+		hintText.content = 'Click or Space';
+		hintText.position.y += 3;
+
+
+
+	//
+	// frames
+	var animations = ( function () {
+		// state
+		var isPaused = false;
+		// animation storage
+		var parallelList = [];
+		var serialQueue = [];
+		var currentSerial;
+		// execute each parallel frame animation
+		function handleParallels( time ) {
+			for ( var i = 0, l = parallelList.length; i < l; i++ ) {
+				// parallel handlers return bool flag to terminate
+				var isComplete = parallelList[ i ]( time );
+				if ( isComplete ) parallelList.slice( i, 1 );
+			}
+		}
+		// execute current serial frame animation
+		function handleSerials( time ) {
+			if ( !currentSerial && !serialQueue.length ) return;
+			if ( !currentSerial ) currentSerial = serialQueue.shift();
+			// serial handlers return themselves to continue
+			currentSerial = currentSerial( time );
+		}
+		// fires on each animation frame
+		function handleFrame( time ) {
+			if ( isPaused ) return;
+			handleParallels( time );
+			handleSerials( time );
+			/*
+			// pass handler to browser for next frame
+			requestAnimationFrame( handleFrame );
+			*/
+		}
+		// interface
+		return {
+			/* start: function () { handleFrame( new Date().getTime() ); }, */
+			addSerial: function ( animation ) { serialQueue.push( animation ); },
+			addParallel: function ( animation ) { parallelList.push( animation ); },
+			togglePause: function () { isPaused = !isPaused; },
+			// firing delegated to paperjs
+			handleFrame: handleFrame
+		};
+	} )();
+	function onFrame( event ) {
+		animations.handleFrame( event.time );
+	}
+	function Frame( args ) {
+		var action = args.action;
+		var payload = args.payload;
+		return function () { action( payload ); };
+	}
+	function FrameSeries( args ) {
+		// parse out arguments
+		var action = args.action;
+		var payload = args.payload;
+		var threshold = args.threshold;
+		var increment = args.increment;
+		var remaining = threshold;
+		// recursive frame execution
+		var frameHandler = function () {
+
+			// calculate this delta (either increment or whatever is left)
+			var delta = remaining - increment < 0 ? remaining : increment;
+			// mark the change
+			remaining -= delta;
+
+			// pass stuff to action
+			action( payload, delta );
+
+			// return handler again if not done
+			if ( remaining ) return frameHandler;
+
+			// cleanup reference
+			frameHandler = null;
+			// end cycle
+			return false;
+
+		};
+		// for frame queue
+		return frameHandler;
+	}
+	function FrameVectorSeries( args ) {
+		// parse out arguments
+		var action = args.action;
+		var payload = args.payload;
+		var threshold = args.threshold;
+		var increment = args.increment;
+		var remaining = threshold;
+		// recursive frame execution
+		var frameHandler = function () {
+
+			// calculate this delta (either increment or whatever is left)
+			var delta = remaining.length - increment.length < 0 ? remaining : increment;
+			// mark the change
+			remaining -= delta;
+
+			// pass stuff to action
+			action( payload, delta );
+
+			// return handler again if not done
+			if ( remaining.length ) return frameHandler;
+
+			// cleanup reference
+			frameHandler = null;
+			// end cycle
+			return false;
+
+		};
+		// for frame queue
+		return frameHandler;
+	}
+
+
+
+
+	//
+	// the meat & potatoes
+	var bubbles = ( function () {
+
+
+		// state
+		var isBuilding = false;
+		var isComplete = false;
+
+
+		// circle properties
+		var radius = 40;
+		var diameter = radius * 2;
+		var xDelta = radius * Math.sqrt( 3 );
+		var yDelta = diameter;
+		var slideStep = 24;
+		var strokeWidth = 1;
+		var strokeColor_default = '#3CF';
+		var strokeColor_active = '#F3C';
+		var fillColor_default = '#FFF';
+		var fillColor_active = '#EEE';
+		var pathOpacity = 1;
+		var pathColor = '#000'
+		var pathWidth = 4;
+		var count = 0;
+
+
+		// data structures
+		var bubbles = [];
+		var clickedBubbles = [];
+		var bubblePaths = {};
+
+
+		// begin the machine
+		function construct( speedy ) {
+
+			// mark things started
+			isBuilding = true;
+			
+			// get view width & height
+			var width = view.size.width;
+			var height = view.size.height;
+
+			// calculate row and column counts
+			var totalCols = Math.ceil( width / xDelta ) + 1;
+			var totalRows = Math.ceil( height / yDelta ) + 1;
+
+			// for columns build columns (row count)
+			for ( var i = 0, l = totalCols; i < l; i++ ) {
+				if ( i % 2 ) drawColumnUp( totalRows, totalCols, i, speedy );
+				else drawColumnDown( totalRows, totalCols, i, speedy );
+			}
+
+			// mark things complete
+			animations.addSerial( function () { isComplete = true; } );
+
+		};
+
+
+		// make an invisible bubble
+		function createBubble( point ) {
+			count++;
+			// draw & style bubble path
+			var bubble = new Path.Circle( point, radius );
+				bubble.name = 'bubble' + count;
+				bubble.opacity = 0;
+				bubble.strokeColor = strokeColor_default;
+				bubble.strokeWidth = strokeWidth;
+				bubble.fillColor = fillColor_default;
+			// store new bubble reference
+			bubbles.push( bubble );
+			// return bubble
+			return bubble;
+		}
+
+		// draw descending bubble column
+		function drawColumnDown( totalRows, totalCols, currCol, speedy ) {
+			// find starting point
+			var originX = currCol * xDelta;
+			var originY = radius;
+			// draw bubbles
+			for ( var i = 0, l = totalRows; i < l; i++ ) {
+				// find new position
+				var newX = originX;
+				var newY = originY + ( i * yDelta );
+				var newPoint = new Point( newX, newY );
+				// find old position
+				var oldX = newX;
+				var oldY = newY - yDelta;
+				var oldPoint = new Point( oldX, oldY );
+				// make new bubble
+				var newBubble = createBubble( newPoint, radius );
+				// in a hurry?
+				if ( speedy ) {
+					// just show bubble
+					newBubble.opacity = 1;
+				} else {
+					// slide bubble into place
+					newBubble.position = oldPoint;
+					animations.addSerial( new FrameSeries( {
+						increment: slideStep,
+						threshold: newY - oldY,
+						payload: { item: newBubble },
+						action: function ( payload, delta ) {
+							// show item on first frame
+							if ( !payload.itemVisible ) {
+								payload.itemVisible = true;
+								payload.item.opacity = 1;
+							}
+							// slide item down
+							payload.item.position.y += delta;
+						}
+					} ) );
+				}
+			}
+		} 
+
+		// draw ascending bubble column
+		function drawColumnUp( totalRows, totalCols, currCol, speedy ) {
+			// find starting point
+			var originX = currCol * xDelta;
+			var originY = ( totalRows - 1 ) * yDelta;
+			// draw bubbles
+			for ( var i = 0, l = totalRows; i < l; i++ ) {
+				// find new position
+				var newX = originX;
+				var newY = originY - ( i * yDelta );
+				var newPoint = new Point( newX, newY );
+				// find old position
+				var oldX = newX;
+				var oldY = newY + yDelta;
+				var oldPoint = new Point( oldX, oldY );
+				// make new bubble
+				var newBubble = createBubble( newPoint, radius );
+				// in a hurry?
+				if ( speedy ) {
+					// just show bubble
+					newBubble.opacity = 1;
+				} else {
+					// slide bubble into place
+					newBubble.position = oldPoint;
+					animations.addSerial( new FrameSeries( {
+						increment: slideStep,
+						threshold: oldY - newY,
+						payload: { item: newBubble },
+						action: function ( payload, delta ) {
+							// show item on first frame
+							if ( !payload.itemVisible ) {
+								payload.itemVisible = true;
+								payload.item.opacity = 1;
+							}
+							// slide item up
+							payload.item.position.y -= delta;
+						}
+					} ) );
+				}
+			}
+		}
+
+		// deal with active bubbles
+		function handleBubblePair( b1, b2 ) {
+			// are bubbles already connected?
+			if ( bubblePaths[ b1.name + b2.name ] ) {
+				// 1 -> 2 connected, remove
+				disconnectBubbles( b1, b2 );
+			} else if ( bubblePaths[ b2.name + b1.name ] ) {
+				// 2 -> 1 connected, remove
+				disconnectBubbles( b2, b1 );
+			} else {
+				// no connection, create
+				connectBubbles( b1, b2 );
+			}
+		}
+
+		// connect 2 bubbles
+		function connectBubbles( b1, b2 ) {
+			// make & style path
+			var path = new Path( b1.position, b2.position );
+				path.strokeCap = 'round';
+				path.opacity = pathOpacity;
+				path.strokeColor = pathColor;
+				path.strokeWidth = pathWidth;
+			// store a reference
+			bubblePaths[ b1.name + b2.name ] = path;
+		}
+
+		// disconnect 2 bubbles
+		function disconnectBubbles( b1, b2 ) {
+			// remove element & reference
+			bubblePaths[ b1.name + b2.name ].remove();
+			bubblePaths[ b1.name + b2.name ] = null;
+		}
+
+		// make bubble clicked
+		function clickBubble( bubble ) {
+			// style & flag
+			bubble.strokeColor = strokeColor_active;
+			bubble.isClicked = true;
+			// add to global array
+			clickedBubbles.push( bubble );
+			// 2 in global array?
+			if ( clickedBubbles.length === 2 ) {
+				// grab bubbles
+				var b1 = clickedBubbles[ 0 ];
+				var b2 = clickedBubbles[ 1 ];
+				// let's do this
+				handleBubblePair( b1, b2 );
+				// deselect bubbles
+				unclickBubble( b1 );
+				unclickBubble( b2 );
+				// reset container
+				clickedBubbles = [];
+			}
+		}
+
+		// make bubble unclicked
+		function unclickBubble( bubble ) {
+			// unstyle & unflag
+			bubble.strokeColor = strokeColor_default;
+			bubble.isClicked = false;
+			// walk through all clicked bubbles
+			for ( var i = 0, l = clickedBubbles.length; i < l; i++ ) {
+				var clickedBubble = clickedBubbles[ i ];
+				// find this bubble by name
+				if ( bubble.name === clickedBubble.name ) {
+					// remove from global array
+					clickedBubbles.splice( i, 1 );
+					return;
+				}
+			}
+		}
+
+		// handle mouse hover
+		function handleHover( point ) {
+			var lastBubble = handleHover.lastBubble;
+			// find bubble by point
+			var thisBubble = getBubbleHit( point );
+			// no bubble found? SKIP
+			if ( !thisBubble ) return;
+			// already got this? SKIP
+			if ( lastBubble && lastBubble.name === thisBubble.name ) return;
+			// wax on new bubble
+			thisBubble.fillColor = fillColor_active;
+			// wax off old bubble?
+			if ( lastBubble ) lastBubble.fillColor = fillColor_default;
+			// update reference
+			handleHover.lastBubble = thisBubble;
+		}
+
+		// handle mouse clicks
+		function handleClick( point ) {
+			// find bubble by point
+			var thisBubble = getBubbleHit( point );
+			// no bubble found? SKIP
+			if ( !thisBubble ) return;
+			// click or unclick
+			if ( !thisBubble.isClicked ) clickBubble( thisBubble );
+			else unclickBubble( thisBubble );
+		}
+
+		// handle mouse drag bubble queue
+		function handleDrag( point ) {
+			// find bubble by point
+			var thisBubble = getBubbleHit( point );
+			// no bubble found? SKIP
+			if ( !thisBubble ) return;
+			// is it the first bubble?
+			if ( !handleDrag.lastBubble ) {
+				// first bubble! save reference and SKIP
+				thisBubble.fillColor = fillColor_active;
+				handleDrag.lastBubble = thisBubble;
+				return;
+			}
+			// grab last bubble reference
+			var lastBubble = handleDrag.lastBubble;
+			// did we just do this bubble? SKIP
+			if ( thisBubble.name === lastBubble.name ) return;
+			// update bubble fills
+			thisBubble.fillColor = fillColor_active;
+			lastBubble.fillColor = fillColor_default;
+			// connect this bubble to last & overwrite reference
+			handleBubblePair( lastBubble, thisBubble );
+			handleDrag.lastBubble = thisBubble;
+		}
+
+		// find bubble by project hit test
+		function getBubbleHit( point ) {
+			var hitResult = project.hitTest( point, { fill: true } );
+			if ( !hitResult ) return false;
+			if ( !hitResult.item ) return false;
+			if ( !hitResult.item.name ) return false;
+			if ( !hitResult.item.name.match( /^bubble/ ) ) return false;
+			if ( !hitResult.item.opacity ) return false;
+			return hitResult.item;
+		}
+
+
+
+		// interface
+		return {
+			start: construct,
+			hover: handleHover,
+			click: handleClick,
+			drag: handleDrag,
+			areBuilding: function () { return isBuilding; },
+			areComplete: function () { return isComplete; },
+			finishDrag: function () {
+				var lastBubble = handleDrag.lastBubble;
+				if ( !lastBubble ) return;
+				lastBubble.fillColor = fillColor_default;
+				handleDrag.lastBubble = null;
+			},
+			finishHover: function () {
+				var lastBubble = handleHover.lastBubble;
+				if ( !lastBubble ) return;
+				lastBubble.fillColor = fillColor_default;
+				handleHover.lastBubble = null;
+			}
+		};
+
+
+	} )();
+
+
+
+	//
+	// user events
+
+	// states
+	var isDragging = false;
+
+	// click
+	function onMouseUp( event ) {
+		if ( isDragging ) {
+			// reset last dragathon
+			isDragging = false;
+			bubbles.finishDrag();
+		} else if ( !bubbles.areBuilding() ) {
+			// start thing
+			hintText.remove();
+			bubbles.start();
+		} else {
+			bubbles.click( event.point );
+		}
+	}
+
+	// move
+	function onMouseMove( event ) {
+		if ( isDragging ) return;
+		bubbles.hover( event.point );
+	}
+
+	// drag
+	function onMouseDrag( event ) {
+		if ( !isDragging ) {
+			isDragging = true;
+			bubbles.finishHover();
+		}
+		bubbles.drag( event.point );
+	}
+
+	// keyboard
+	function onKeyDown( event ) {
+		switch ( event.key ) {
+			case 'space':
+				if ( !bubbles.areBuilding() ) {
+					// alt start
+					isBuilt = true;
+					hintText.remove();
+					bubbles.start( true );
+				} else {
+					// play/pause
+					animations.togglePause();
+				}
+				break;
+			default:
+				return;
+		}
+	}
+
+
+
+
+</script>
+</head>
+<body>
+<canvas id="vessel"></canvas>
+</body>
+</html>

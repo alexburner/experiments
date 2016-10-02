@@ -1,0 +1,253 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>polygon numbers</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		height: 100%;
+		background: black;
+	}
+	#container, #workspace{
+		width: 3300px; /* 11(300) */
+		height: 2550px; /* 8.5(300) */
+		width: 3000px;
+		height: 2000px;
+		background: white;
+	}
+</style>
+</head>
+<body>
+<div id="container">
+	<canvas id="workspace"></canvas>
+</div>
+<script type="text/javascript" src="../../paper.v.0.9.18.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	var fill = new paper.Path.Rectangle(paper.view.bounds);
+	fill.fillColor = 'white';
+
+
+	function drawByLength(center, count, length) {
+
+
+		/**
+		 * Label
+		 */
+
+		// text label
+		var text = new paper.PointText({
+			point: [center[0], 48],
+			content: count,
+			justify: 'center',
+			fillColor: 'black',
+			fontWeight: 'bold',
+			fontSize: 24
+		});
+
+		// center text
+		text.position.x -= text.bounds.width / 2;
+
+
+
+
+
+
+		var angle = 360 / count;
+		// var angleRad = (2 * Math.PI) / count;
+		// var radius = (length / 2) / (Math.sin(angleRad / 2));
+		var radius = 42;
+
+
+		var top = new Array(center);
+		center[1] += radius;
+
+
+		var circle = new paper.Path.Circle({
+
+			strokeColor: 'black',
+			strokeWidth: 1.8,
+
+			center: center,
+			radius: radius
+		});
+
+
+
+
+		/**
+		 * No more for 0
+		 */
+		 if (count < 1) {
+		 	return radius;
+		 }
+
+
+		/**
+		 * Special dot for 1
+		 */
+		if (count < 2) {
+			var mark = new paper.Path.Circle({
+				center: top,
+				radius: 1.8,
+				fillColor: 'black',
+			});
+			return radius;
+		};
+
+
+
+
+		var points = [];
+		var vector = new paper.Point(center);
+		vector.length = radius;
+		vector.angle = -90;
+		for (var i = 0, l = count; i < l; i++) {
+			var point = new paper.Point(center);
+			point = point.add(vector);
+			points.push(point);
+			vector.angle += angle;
+
+
+			var mark = new paper.Path.Circle({
+				center: point,
+				radius: 4.2,
+				fillColor: 'black'
+			});
+
+		}
+		var lines = [];
+		var lineExists = {};
+		var linesByLength = {};
+		points.forEach(function (pointA, indexA) {
+			var coordsA = pointA.toString();
+			points.forEach(function (pointB, indexB) {
+				if (indexA === indexB) return;
+				var coordsB = pointB.toString();
+				if (lineExists[coordsA + coordsB]) return;
+				if (lineExists[coordsB + coordsA]) return;
+				lineExists[coordsA + coordsB] = true;
+
+				var distance = pointA.subtract(pointB).length;
+				distance = distance.toFixed(2);
+
+				var line = new paper.Path.Line({
+					from: pointA,
+					to: pointB,
+					strokeCap: 'round',
+					strokeColor: 'black',
+					strokeWidth: 1.8,
+					opacity: 1,
+				});
+
+				lines.push(line);
+
+				if (!linesByLength[distance]) {
+					linesByLength[distance] = [];
+				}
+				linesByLength[distance].push(line);
+
+			});
+		});
+
+		var y = center[1] + 50;
+		var dy = radius * 2 + 24;
+
+		var groups = [];
+
+		var lengths = Object.keys(linesByLength);
+
+		// draw big pile shape
+		lengths.reverse().forEach(function (length) {
+			var lines = linesByLength[length];
+			var group = new paper.Group(lines);
+			groups.push(group);
+		});
+
+		// draw exploded copies
+		groups.reverse().forEach(function (group) {
+			var copy = group.clone();
+			y += dy;
+			copy.position.y = y;
+		});
+
+
+
+
+		return radius;
+	}
+
+
+
+	var length = 1;
+	var x = 50;
+	var y = 64;
+	var dx = 30;
+	var dy = 0;
+
+	x += dx;
+
+	var lastRadius = 0;
+	for (var i = 0, l = 25; i < l; i++) {
+		// radius of containing circle is not known
+		// until calculated by drawing function
+
+		// this algorithm constrains initial distance between points
+		// while overall radius of circle grows freely
+		//
+		// or flip it: constrain overall radius
+		// while initial distance between points shrinks
+		//
+		// 		points crowd together
+		// 		on a finite circle
+		// 		like humans spreading
+		// 		across the earth's surface
+		// 		filling the distances
+
+		lastRadius = drawByLength([x, y], i, length);
+		x += dx + lastRadius * 2;
+		y += dy;
+	}
+
+
+
+
+	/**
+	 * Render paper onto canvas
+	 */
+	paper.view.draw();
+
+
+
+
+
+	/**
+	 * SVG export
+	 * via http://www.mikechambers.com/blog/2014/07/01/saving-svg-content-from-paper.js/
+	 */
+
+	// listen for shift+o
+	tool = new paper.Tool();
+	tool.onKeyUp = function(e) {
+		if (e.character == "O") {
+			openAsSVG();
+		}
+	}
+
+	function openAsSVG() {
+		var svgString = paper.project.exportSVG({asString: true});
+		var url = "data:image/svg+xml;utf8," + encodeURIComponent(svgString);
+		var link = document.createElement('a');
+		link.target = "_blank";
+		link.href = url;
+		link.click();
+	}
+
+</script>
+</body>
+</html>

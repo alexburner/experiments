@@ -1,0 +1,63 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>dymaxion</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: #111;
+		color: white;
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript" src="../js/three.min.js"></script>
+<script type="text/javascript" src="../js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript" src="../js/examples/controls/TrackballControls.js"></script>
+<script type="text/javascript" src="polyhedra.js"></script>
+<script type="text/javascript" src="setup.js"></script>
+<script type="text/javascript">
+
+
+    // Cuboctahedron
+    // via https://stemkoski.github.io/Three.js/Polyhedra.html
+    var vertices = [[0,0,1.154701],[1,0,0.5773503],[0.3333333,0.942809,0.5773503],[-1,0,0.5773503],[-0.3333333,-0.942809,0.5773503],[1,0,-0.5773503],[0.6666667,-0.942809,0],[-0.6666667,0.942809,0],[0.3333333,0.942809,-0.5773503],[-1,0,-0.5773503],[-0.3333333,-0.942809,-0.5773503],[0,0,-1.154701]];
+
+	var points = [];
+    vertices.forEach(function (vertex) {
+        var point = new THREE.Vector3(
+            vertex[0],
+            vertex[1],
+            vertex[2]
+        );
+        point.multiplyScalar(42);
+        points.push(point);
+    });
+
+    var thing = new Polyhedra(points, true);
+
+    // hide edges not outer
+    thing.lengths.forEach(
+        function (length, index) {
+            if (index === 0) return;
+            thing.linesByLength[length].forEach(
+                function (line) {
+                    line.visible = false;
+                }
+            );
+        }
+    );
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>euclid - version zero</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#pane {
+		width: 2000px;
+		height: 2000px;
+		cursor: none;
+	}
+</style>
+</head>
+<body>
+
+
+<!--
+TODO
+
+menu
+html
+normal mouse
+hover states
+clicked states
+keyboard shortcuts
+
+-->
+<div class="menu">
+	<div class="item">
+		<div class="icon"></div>
+		<div class="label"></div>
+	</div>
+</div>
+
+<canvas id="pane"></canvas>
+<script type="text/javascript" src="../../paper.v.0.9.18.js"></script>
+<script type="text/javascript" src="js/Settings.js"></script>
+<script type="text/javascript" src="js/Util.js"></script>
+<script type="text/javascript" src="js/Pane.js"></script>
+<script type="text/javascript" src="js/Menu.js"></script>
+<script type="text/javascript" src="js/Sizes.js"></script>
+<script type="text/javascript" src="js/Points.js"></script>
+<script type="text/javascript" src="js/Shapes.js"></script>
+<script type="text/javascript" src="js/Cursor.js"></script>
+<script type="text/javascript" src="js/UserEvents.js"></script>
+<script type="text/javascript" src="js/UserShape.js"></script>
+<script type="text/javascript">
+
+
+	/**
+	 * Euclidean Tools
+	 * 
+	 * The straightedge and the compass. 
+	 * 
+	 * The name is due to the fact that connecting points 
+	 * with segments, prolonging segments and drawing circles 
+	 * with a given center and a given radius are the basic 
+	 * geometric constructions described in the first three 
+	 * Euclidean postulates.
+	 *
+	 * http://mathworld.wolfram.com/EuclideanTools.html
+	 */
+
+
+	/**
+	 * initialize paper with pane canvas element
+	 */
+	paper.setup(document.getElementById('pane'));
+
+
+	/**
+	 * create app namespace & modules
+	 */
+	var app = {};
+	app.settings = new Settings();
+
+	app.settings.pointHiding = true;
+
+	app.util = new Util();
+	app.pane = new Pane();
+	app.menu = new Menu();
+	app.points = new Points();
+	app.shapes = new Shapes();
+	app.cursor = new Cursor();
+	app.userEvents = new UserEvents();
+	app.userShape = new UserShape();
+
+
+
+/*
+	var values = ['0', '6', 'C'];
+	var colors = [];
+	var origin = new paper.Point(50, 50);
+	var size = new paper.Size(50, 50);
+	values.forEach(function (value1, index1) {
+		values.forEach(function (value2, index2) {
+			//if (index1 === index2) return;
+			values.forEach(function (value3, index3) {
+				//if (index1 === index3) return;
+				//if (index2 === index3) return;
+				colors.push('#' + value1 + value2 + value3);
+			});
+		});
+	});
+	colors.forEach(function (color) {
+		var swatch = new paper.Path.Rectangle(origin, size);
+		swatch.fillColor = color;
+		var label = new paper.PointText(origin);
+		label.fillColor = 'white';
+		label.content = color;
+		origin.x += 50;
+	});
+*/
+
+
+
+
+
+
+	/**
+	 * first draw
+	 */
+	paper.view.draw();
+
+
+</script>
+</body>
+</html>

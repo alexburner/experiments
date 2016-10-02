@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>diffusion zero shell near</title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            width: 100%;
+            height: 100%;
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="js/lodash.min.js"></script>
+<script type="text/javascript" src="js/Maths.js"></script>
+<script type="text/javascript" src="js/Flock.js"></script>
+<script type="text/javascript">
+
+    var hash = window.location.hash.length ? Number(window.location.hash.slice(1)) : NaN;
+    var population = isNaN(hash) ? 24 : hash;
+    var dimensions = 2;
+    var speed = 0.001;
+    var radius = 200;
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    var centerX = width / 2;
+    var centerY = height / 2;
+    var canvasEl = document.createElement('canvas');
+    var context = canvasEl.getContext('2d');
+    canvasEl.width = width;
+    canvasEl.height = height;
+    canvasEl.style.position = 'absolute';
+    canvasEl.style.top = 0;
+    canvasEl.style.left = 0;
+    document.body.appendChild(canvasEl);
+
+    var flock = new Flock({
+        population: population,
+        dimensions: dimensions,
+        speed: speed
+    });
+
+    function animateFrame() {
+        var birds = flock.tick(true);
+        context.clearRect(0, 0, width, height);
+        context.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        _.each(birds, function (bird1, index1) {
+            var x1 = bird1.position[0] * radius + centerX;
+            var y1 = bird1.position[1] * radius + centerY;
+
+            var neighbors = [];
+
+            _.each(birds, function (bird2) {
+                if (bird1 === bird2) return;
+                var difference = Maths.subtractVectors(bird1.position, bird2.position);
+                var distance = Maths.vectorLengthSq(difference);
+                neighbors.push({
+                    bird: bird2,
+                    distance: distance
+                });
+            });
+
+            neighbors = neighbors.sort(function (a, b) {
+                return a.distance - b.distance;
+            });
+
+            if (!neighbors.length) return;
+
+            x2 = neighbors[0].bird.position[0] * radius + centerX;
+            y2 = neighbors[0].bird.position[1] * radius + centerY;
+            context.beginPath();
+            context.moveTo(x1, y1);
+            context.lineTo(x2, y2);
+            context.stroke();
+        });
+        window.requestAnimationFrame(animateFrame);
+    }
+
+    animateFrame();
+
+    window.addEventListener('resize', function () {
+        canvasEl.style.top = (window.innerHeight / 2 - height / 2) + 'px';
+        canvasEl.style.left = (window.innerWidth / 2 - width / 2) + 'px';
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>tetra</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: rgb(244, 242, 243);
+		color: rgb(20, 20, 20);
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript" src="../../../../js/three.min.js"></script>
+<script type="text/javascript" src="../../../../js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript" src="../../../../js/examples/controls/TrackballControls.js"></script>
+<script type="text/javascript" src="polyhedra.js"></script>
+<script type="text/javascript" src="platonics.js"></script>
+<script type="text/javascript" src="setup.js"></script>
+<script type="text/javascript">
+
+
+	var settings = {
+		length: 6,
+		faces: true,
+		edges: false, // false, true, specific length index
+		colorEdgeLengths: false
+	};
+
+	var axis = new THREE.Vector3(0, 1, 0);
+
+	var first = new Tetra(settings);
+
+	settings.center = new THREE.Vector3(first.radius, first.radius, first.radius);
+	var second = new Tetra(settings);
+	second.group.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+
+	settings.center = new THREE.Vector3(0, -first.radius, -first.radius);
+	var third = new Tetra(settings);
+	third.group.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI / 2);
+
+
+
+</script>
+</body>
+</html>

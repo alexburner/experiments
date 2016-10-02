@@ -1,0 +1,230 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - facets</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 1480px;
+		height: 2000px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_print.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelCol.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+var backdrop = new shapes.Backdrop();
+
+
+
+	// genesis set command sequences
+	var argsLists = [
+		[],
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']]
+		],
+		[
+			['hideCircles'],
+			['markPoints']
+		],
+		[
+			['hideCircles'],
+			['markPoints'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['markFacets', ['vesica']],
+			['markFacets', ['treble']],
+			['markFacets', ['petal']]
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['markFacets', ['vesica']],
+			['markFacets', ['treble']],
+			['markFacets', ['petal']]
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['edgeFacets', ['vesica']],
+			['edgeFacets', ['treble']],
+			['edgeFacets', ['petal']]
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['extend', [GenesisFacets]],
+			['makeFacets'],
+			['edgeFacets', ['vesica']],
+			['edgeFacets', ['treble']],
+			['edgeFacets', ['petal']]
+		]
+	];
+
+
+	
+	function rotateGenesis(genesis, fulcrum) {
+		switch (fulcrum) {
+			case 'origin':
+				var origin = genesis.center;
+				_rotateOrigin(genesis, origin);
+				break;
+			case 'centroid':
+				var centroid = util.getCentroid(genesis.points);
+				_rotateCentroid(genesis, centroid);
+				break;
+		}
+	}
+
+	function _rotateOrigin(genesis, point) {
+		// rotate paper group
+		switch (genesis.stage) {
+			case 2:
+				genesis.group.rotate(180, point);
+				break;
+			case 3:
+				genesis.group.rotate(180, point);
+				break;
+			case 4:
+				genesis.group.rotate(180, point);
+				break;
+			case 5:
+				genesis.group.rotate(180, point);
+				break;
+			case 6:
+				genesis.group.rotate(180, point);
+				break;
+			case 7:
+				genesis.group.rotate(180, point);
+				break;
+			case 8:
+				genesis.group.rotate(180, point);
+				break;
+		}
+		// remake points
+		genesis.points = [];
+		genesis.makePoints();
+	}
+
+	function _rotateCentroid(genesis, point) {
+		// rotate paper group
+		switch (genesis.stage) {
+			case 2:
+				genesis.group.rotate(90, point);
+				break;
+			case 3:
+				genesis.group.rotate(60, point);
+				break;
+			case 4:
+				genesis.group.rotate(90, point);
+				break;
+			case 5:
+				genesis.group.rotate(180, point);
+				break;
+			case 6:
+				genesis.group.rotate(180, point);
+				break;
+			case 7:
+				genesis.group.rotate(30, point);
+				break;
+			case 8:
+				genesis.group.rotate(30, point);
+				break;
+		}
+		// remake points
+		genesis.points = [];
+		genesis.makePoints();
+	}
+
+
+
+
+	(function () {
+		
+		var config = {
+			width: 220,
+			height: 1500,
+			radius: 48,
+			padding: 20,
+			originX: 40,
+			originY: 40
+		};
+		
+		argsLists.forEach(function (argsList, index) {
+			var settings = Object.create(config);
+			settings.originX += index * (settings.width + settings.padding);
+			var col = new GenesisPanelCol(settings);
+			argsList.forEach(function (args) {
+				col.applyForEach.apply(col, args);
+			});
+			col.geneses.forEach(function (genesis) {
+				genesis.panel.visible = false;
+			});
+
+			var col2 = new GenesisPanelCol(settings);
+			col2.geneses.forEach(function (genesis) {
+				rotateGenesis(genesis, 'origin');
+			});
+			argsList.forEach(function (args) {
+				col2.applyForEach.apply(col2, args);
+			});
+			var buildIndex = index;
+			col2.geneses.forEach(function (genesis, index) {
+				// same group, same relative layering
+				genesis.group.addChildren(col.geneses[index].group.children);
+				// send col1 circles back
+				col.geneses[index].circles.forEach(function (circle) {
+					circle.sendToBack();
+				});
+				// send col2 circles back
+				genesis.circles.forEach(function (circle) {
+					circle.sendToBack();
+				});
+				// hide panel
+				genesis.panel.visible = false;
+			});
+		});
+
+	})();
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

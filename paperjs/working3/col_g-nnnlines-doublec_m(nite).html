@@ -1,0 +1,245 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - lines</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 2000px;
+		height: 1200px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_nite.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelCol.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+	var backdrop = new shapes.Backdrop();
+
+
+
+	// genesis set command sequences
+	// var argsLists = [
+	// 	[],
+
+	// 	[
+	// 		['hideCircles'],
+	// 		['markPoints']
+	// 	],
+
+	// 	[
+	// 		['hideCircles'],
+	// 		['extend', [GenesisLines]],
+	// 		['drawAllLines', ['in']]
+	// 	],
+
+	// 	[
+	// 		['hideCircles'],
+	// 		['extend', [GenesisLines]],
+	// 		['drawAllLines', ['in']],
+	// 		['hideAllLines'],
+	// 		['showLinesByLength', ['radius']]
+	// 	],
+	// 	[
+	// 		['hideCircles'],
+	// 		['extend', [GenesisLines]],
+	// 		['drawAllLines', ['in']],
+	// 		['hideAllLines'],
+	// 		['showLinesByLength', ['vesica']]
+	// 	],
+	// 	[
+	// 		['hideCircles'],
+	// 		['extend', [GenesisLines]],
+	// 		['drawAllLines', ['in']],
+	// 		['hideAllLines'],
+	// 		['showLinesByLength', ['strange']]
+	// 	],
+
+
+
+
+
+	// ];
+	//
+	var argsLists = [
+		[
+			['hideCircles']
+		],
+
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['showLinesByLength', ['strange']]
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['showLinesByLength', ['vesica']]
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['showLinesByLength', ['radius']]
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['showLinesByLength', ['radius']],
+			['showLinesByLength', ['vesica']],
+			['showLinesByLength', ['strange']],
+		],
+
+		[
+			['hideCircles'],
+			['markPoints']
+		],
+
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']]
+		],
+
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['showLinesByLength', ['radius']]
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['showLinesByLength', ['vesica']]
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['showLinesByLength', ['radius2']]
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['showLinesByLength', ['strange']]
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['showLinesByLength', ['radius3']]
+		],
+		[
+			['hideCircles'],
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['showLinesByLength', ['vesica2']]
+		],
+
+
+
+
+
+	];
+
+
+	(function () {
+
+		var config = {
+			isSquare: true,
+			width: 120,
+			//height: 500,
+			//height: 777,
+			radius: 24,
+			padding: 10,
+			originX: 20,
+			originY: 40
+		};
+
+		argsLists.forEach(function (argsList, index) {
+			var settings = Object.create(config);
+			settings.originX += index * (settings.width + settings.padding);
+			var col = new GenesisPanelCol(settings);
+			argsList.forEach(function (args) {
+				col.applyForEach.apply(col, args);
+			});
+			col.geneses.forEach(function (genesis) {
+				genesis.panel.visible = false;
+			});
+
+			var col2 = new GenesisPanelCol(settings);
+			col2.geneses.forEach(function (genesis) {
+				genesis.rotateCentroid();
+			});
+			argsList.forEach(function (args) {
+				col2.applyForEach.apply(col2, args);
+			});
+			var buildIndex = index;
+			col2.geneses.forEach(function (genesis, index) {
+				// same group, same relative layering
+				genesis.group.addChildren(col.geneses[index].group.children);
+				// send col1 circles back
+				col.geneses[index].circles.forEach(function (circle) {
+					circle.sendToBack();
+				});
+				// send col2 circles back
+				genesis.circles.forEach(function (circle) {
+					circle.sendToBack();
+				});
+				// hide panel
+				genesis.panel.visible = false;
+			});
+		});
+
+	})();
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - runes</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 2080px;
+		height: 4000px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_graph.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelRow.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+var backdrop = new shapes.Backdrop();
+
+
+
+	var buildList = [
+		function (genesis) {},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('petal', 'around', 'selves');
+		},
+
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('petal', 'around', 'centers');
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('petal', 'around', 'selves');
+			genesis.drawSeeds('petal', 'around', 'centers');
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			unusedPoints.forEach(function (point) {
+				new shapes.Mark(point);
+			});
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			unusedPoints.forEach(function (point) {
+				new shapes.Mark(point);
+			});
+			unusedPoints.forEach(function (pointA, indexA) {
+				unusedPoints.forEach(function (pointB, indexB) {
+					if (indexA === indexB) return;
+					new shapes.Line(pointA, pointB);
+				});
+			});
+			circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('petal', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+			});
+		},
+		function (genesis) {},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('treble', 'around', 'selves');
+		},
+
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('treble', 'around', 'centers');
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			genesis.drawSeeds('treble', 'around', 'selves');
+			genesis.drawSeeds('treble', 'around', 'centers');
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			unusedPoints.forEach(function (point) {
+				new shapes.Mark(point);
+			});
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			unusedPoints.forEach(function (point) {
+				new shapes.Mark(point);
+			});
+			unusedPoints.forEach(function (pointA, indexA) {
+				unusedPoints.forEach(function (pointB, indexB) {
+					if (indexA === indexB) return;
+					new shapes.Line(pointA, pointB);
+				});
+			});
+			circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		},
+		function (genesis) {
+			genesis.extend(GenesisFacets);
+			genesis.makeFacets();
+			var circles = [];
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'selves'));
+			circles = circles.concat(genesis.drawSeeds('treble', 'around', 'centers'));
+			var points = util.getCirclePoints(circles);
+			var unusedPoints = [];
+			points.forEach(function (point) {
+				var used = false;
+				circles.some(function (circle) {
+					if (point.toString() === circle.position.toString()) {
+						used = true;
+						return true;
+					}
+				});
+				if (!used) {
+					unusedPoints.push(point);
+				}
+			});
+			unusedPoints.forEach(function (point) {
+				var circle = circles[0].clone();
+				circle.position = point;
+			});
+		},
+	];
+
+
+	(function () {
+		
+		var config = {
+			width: 1000,
+			height: 170,
+			radius: 24,
+			padding: 10,
+			originX: 20,
+			originY: 20
+		};
+		
+		buildList.forEach(function (build, index) {
+			var settings = Object.create(config);
+			settings.originY += index * (settings.height + settings.padding);
+			var row = new GenesisPanelRow(settings);
+			row.geneses.forEach(function (genesis) {
+				build(genesis);
+			});
+		});
+
+	})();
+
+	(function () {
+
+		var config = {
+			width: 1000,
+			height: 170,
+			radius: 24,
+			padding: 10,
+			originX: 1060,
+			originY: 20
+		};
+
+		buildList.forEach(function (build, index) {
+			var settings = Object.create(config);
+			settings.originY += index * (settings.height + settings.padding);
+			var row = new GenesisPanelRow(settings);
+			row.geneses.forEach(function (genesis) {
+				build(genesis);
+				genesis.circles.forEach(function (circle) {
+					circle.visible = false;
+				});
+			});
+		});
+
+	})();
+
+
+
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

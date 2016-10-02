@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Flocking</title>
+	<style type="text/css">
+		
+		html, body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			background: #FFF;
+		}
+
+		#container {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			overflow: hidden;
+		}
+
+		.bird {
+			width: 0;
+			height: 0;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			z-index: 1;
+			border-radius: 100px;
+			border-width: 5px;
+			border-style: solid;
+			border-color: #000;
+		}
+
+		.neutral {
+			width: 10px;
+			height: 10px;
+			position: absolute;
+			z-index: 1000;
+			top: -1000px;
+			left: -1000px;
+			margin-top: -10px;
+			margin-left: -10px;
+			border-radius: 50px;
+			background: #CCC;
+		}
+		.threat {
+			width: 10px;
+			height: 10px;
+			position: absolute;
+			z-index: 1000;
+			top: -1000px;
+			left: -1000px;
+			margin-top: -10px;
+			margin-left: -10px;
+			border-radius: 50px;
+			background: #F00;
+		}
+		.food {
+			width: 10px;
+			height: 10px;
+			position: absolute;
+			z-index: 1000;
+			top: -1000px;
+			left: -1000px;
+			margin-top: -10px;
+			margin-left: -10px;
+			border-radius: 50px;
+			background: #0F0;
+		}
+
+	</style>
+</head>
+<body>
+<script type="text/javascript" src="js/addEvent.js"></script>
+<script type="text/javascript" src="js/frameHandler.js"></script>
+<script type="text/javascript" src="js/flock_3d.js"></script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - centroid</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 2080px;
+		height: 4000px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_nite.js"></script>
+<!--
+<script type="text/javascript" src="js/Genesis.js"></script>
+<script type="text/javascript" src="js/GenesisPanelSet.js"></script>
+-->
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelRow.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+var backdrop = new shapes.Backdrop();
+
+
+
+	// genesis set command sequences
+	var argsLists = [
+		[],
+		[
+			['markPoints']
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']]
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['on']]
+		],
+		[],
+		[
+			['markPoints'],
+			['extend', [GenesisCentroid]],
+			['markCentroid']
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['extend', [GenesisCentroid]],
+			['markCentroid']
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['extend', [GenesisCentroid]],
+			['findCentroidLines'],
+			['showCentroidLines']
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['extend', [GenesisCentroid]],
+			['findCentroidLines'],
+			['showCentroidLines'],
+			['drawCentroidCircles']
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['extend', [GenesisCentroid]],
+			['findCentroidLines'],
+			['drawCentroidCircles']
+		],
+		
+		[],
+		[
+			['markPoints'],
+			['extend', [GenesisCentroid]],
+			['markCentroid']
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['on']],
+			['extend', [GenesisCentroid]],
+			['markCentroid']
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['on']],
+			['hideAllLines'],
+			['extend', [GenesisCentroid]],
+			['findCentroidLines'],
+			['showCentroidLines']
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['on']],
+			['hideAllLines'],
+			['extend', [GenesisCentroid]],
+			['findCentroidLines'],
+			['showCentroidLines'],
+			['drawCentroidCircles']
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['on']],
+			['hideAllLines'],
+			['extend', [GenesisCentroid]],
+			['findCentroidLines'],
+			['drawCentroidCircles']
+		],
+		[],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['extend', [GenesisCentroid]],
+			['findCentroidLines'],
+			['drawCentroidCircles']
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['on']],
+			['extend', [GenesisCentroid]],
+			['findCentroidLines'],
+			['drawCentroidCircles']
+		],
+		[],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['in']],
+			['hideAllLines'],
+			['showLinesByLength', ['radius']],
+			['showLinesByLength', ['vesica']],
+			['showLinesByLength', ['strange']],
+			['extend', [GenesisCentroid]],
+			['findCentroidLines'],
+			['drawCentroidCircles']
+		],
+		[
+			['extend', [GenesisLines]],
+			['drawAllLines', ['on']],
+			['hideAllLines'],
+			['showLinesByLength', ['radius']],
+			['showLinesByLength', ['vesica']],
+			['showLinesByLength', ['strange']],
+			['extend', [GenesisCentroid]],
+			['findCentroidLines'],
+			['drawCentroidCircles']
+		]
+	];
+
+
+
+	/**
+	 * Configuration
+	 */
+	
+	/*var config = (function () {
+		var set = {
+			direction: 'right',
+			originX: 20,
+			originY: 20,
+			width: 1200,
+			height: 170,
+			padding: 10
+		};
+		var panel = {
+			radius: 14,
+			width: util.roundish((set.width - (set.padding * 6)) / 7),
+			height: set.height
+		};
+		return {
+			set: set,
+			panel: panel
+		};
+	})();*/
+
+
+	/**
+	 * Construction
+	 */
+
+	/*function makeRows(config, argsLists, setCallback) {
+		argsLists.forEach(function (argsList, index) {
+			config = Object.create(config);
+			config.originY += index * (config.height + config.padding);
+			var set = new GenesisPanelSet(config);
+			argsList.forEach(function (args) {
+				set.applyForEach.apply(set, args);
+			});
+			if (setCallback) rowCallback(set);
+		});
+	}*/
+
+
+
+	/**
+	 * Execution
+	 */
+	
+	/*makeRows(config, argsLists);
+	
+	config.originX += config.set.padding;
+	config.originX += config.set.width;
+	config.originX += config.set.padding * 2;
+	
+	makeSets(config, argsLists, function (set) {
+		set.geneses.forEach(function (genesis) {
+			genesis.circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+			genesis.lines.byLength.other.forEach(function (line) {
+				line.visible = true;
+			});
+		});
+	});*/
+
+
+
+	
+	(function () {
+		
+		var config = {
+			width: 1000,
+			height: 170,
+			radius: 24,
+			padding: 10,
+			originX: 20,
+			originY: 20
+		};
+		
+		argsLists.forEach(function (argsList, index) {
+			var settings = Object.create(config);
+			settings.originY += index * (settings.height + settings.padding);
+			var row = new GenesisPanelRow(settings);
+			argsList.forEach(function (args) {
+				row.applyForEach.apply(row, args);
+			});
+		});
+
+	})();
+
+	(function () {
+
+		var config = {
+			width: 1000,
+			height: 170,
+			radius: 24,
+			padding: 10,
+			originX: 1060,
+			originY: 20
+		};
+
+		argsLists.forEach(function (argsList, index) {
+			var settings = Object.create(config);
+			settings.originY += index * (settings.height + settings.padding);
+			var row = new GenesisPanelRow(settings);
+			argsList.forEach(function (args) {
+				row.applyForEach.apply(row, args);
+			});
+			row.geneses.forEach(function (genesis) {
+				genesis.circles.forEach(function (circle) {
+					circle.visible = false;
+				});
+			});
+		});
+
+	})();
+
+
+
+	/**
+	 * Paper draw
+	 */
+
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>threejs play</title>
+<style type="text/css" media="screen">
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+<script type="text/javascript" src="js/three.min.js"></script>
+<script type="text/javascript" src="js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript" src="js/examples/controls/OrbitControls.js"></script>
+<script type="text/javascript">
+
+	var win = {
+		w: window.innerWidth,
+		h: window.innerHeight
+	};
+
+	var scene = new THREE.Scene();
+	var camera = new THREE.PerspectiveCamera(75, win.w / win.h, 0.1, 1000);
+
+	var renderer = new THREE.WebGLRenderer();
+	renderer.setSize(win.w, win.h);
+	document.body.appendChild(renderer.domElement);
+
+
+	function Torus (radius, tube) {
+		tube = tube || radius;
+		var geometry = new THREE.TorusGeometry(
+			radius,
+			tube,
+			16,
+			100
+		);
+		var material = new THREE.MeshNormalMaterial({
+			shading: THREE.FlatShading,
+			wireframe: true
+		});
+		return new THREE.Mesh(geometry, material);
+	}
+
+	var torii = [];
+	for (var i = 0, l = 6; i < l; i++) {
+		var torus = new Torus((i + 1) * 3);
+		torii.push(torus);
+		scene.add(torus);
+	}
+
+	camera.position.z = 50;
+	function render() {
+		requestAnimationFrame(render);
+		renderer.render(scene, camera);
+	}
+	render();
+
+	// var oldx = null;
+	// var oldy = null;
+	// window.addEventListener('mousemove', function (e) {
+	// 	var x = e.pageX;
+	// 	var y = e.pageY;
+	// 	if (oldx === null && oldy === null) {
+	// 		oldx = x;
+	// 		oldy = y;
+	// 		return;
+	// 	}
+	// 	var dx = x - oldx;
+	// 	var dy = y - oldy;
+	// 	torii.forEach(function (torus) {
+	// 		torus.rotation.x += dx / 10000;
+	// 		torus.rotation.y += dy / 10000;
+	// 	});
+	// });
+
+	var controls = new THREE.OrbitControls(camera);
+	controls.addEventListener('change', render);
+
+</script>
+</body>
+</html>

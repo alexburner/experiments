@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>metatrons_cube_lasers</title>
+<style type="text/css" media="screen">
+	html, body, canvas { margin: 0; padding: 0; }
+	canvas { cursor: pointer; }
+</style>
+<script type="text/javascript" src="../paper.v.0.22.js"></script>
+<script type="text/paperscript" canvas="vessel">
+
+
+
+	// backdrop
+	var background = new Path.Rectangle( view.bounds );
+		background.fillColor = 'white';
+
+
+
+	// guidance
+	var hintText = new PointText( view.center );
+		hintText.justification = 'center';
+		hintText.fillColor = '#999';
+		hintText.content = 'Click';
+		hintText.position.y += 3;
+
+
+
+	/*
+	// testing keyboard
+	var keyText = new PointText( view.center );
+		keyText.characterStyle.fontSize = 64;
+		keyText.justification = 'center';
+		keyText.fillColor = '#999';
+	function onKeyDown( event ) {
+
+		console.log( 'onKeyDown' );
+		console.log( event );
+
+		keyText.content = event.key;
+	}
+	*/
+
+
+
+	// animations
+	var aQueue = [];
+	var aCurrent;
+	function onFrame( event ) {
+		if ( !aCurrent && !aQueue.length ) return;
+		if ( !aCurrent ) aCurrent = aQueue.shift();
+		aCurrent = aCurrent();
+	};
+	function Animation( action ) {
+		var animater = function () {
+			// just run the action
+			action();
+			// cleanup reference
+			animater = null;
+			// kill cycle
+			return false;
+		};
+		return animater;
+	}
+	function AnimationR( action, threshold, increment ) {
+		var remaining = threshold || false;
+		var animater = function () {
+			// calculate this delta (either increment or whatevers left)
+			var delta = remaining - increment < 0 ? remaining : increment;
+			remaining -= delta;
+			// fire action with move
+			action( delta );
+			// return animater again if not done
+			if ( remaining ) return animater;
+			else {
+				// cleanup reference
+				animater = null;
+				// kill cycle
+				return false;
+			}
+		};
+		return animater;
+	}
+
+
+
+	// animaters
+	function AnimateOpacity( shape, opacity ) {
+		var remaining = opacity;
+		var increment = 0.05;
+		var animater = function () {
+			// calculate this move (either increment or whatevers left)
+			var thisMove = remaining - increment < 0 ? remaining : increment;
+			remaining -= thisMove;
+
+			// do the thing
+			shape.opacity += thisMove;
+
+			// return function if not done
+			if ( remaining ) return animater;
+			else {
+				// cleanup reference
+				animater = null;
+				// kill cycle
+				return false;
+			}
+		};
+
+		return animater;
+	}
+	function AnimatePositionY( shape, distance ) {
+		var remaining = distance;
+		var increment = 1;
+		var shapeShown = false;
+		var animater = function () {
+			// first time? reveal
+			if ( !shapeShown ) {
+				shape.opacity = 1;
+				shapeShown = true;
+			}
+			// calculate this move (either increment or whatevers left)
+			var thisMove = remaining - increment < 0 ? remaining : increment;
+			remaining -= thisMove;
+
+			// do the thing
+			shape.position.y += thisMove;
+
+			// return function if not done
+			if ( remaining ) return animater;
+			else {
+				// cleanup reference
+				animater = null;
+				// kill cycle
+				return false;
+			}
+		};
+
+		return animater;
+	}
+	function AnimateRotation( shape, angle, point ) {
+		point = point || shape.position;
+		var remaining = angle;
+		var increment = 1;
+		var shapeShown = false;
+		var animater = function () {
+			// first time? reveal
+			if ( !shapeShown ) {
+				shape.opacity = 1;
+				shapeShown = true;
+			}
+			// calculate this move (either increment or whatevers left)
+			var thisMove = remaining - increment < 0 ? remaining : increment;
+			remaining -= thisMove;
+
+			// do the thing
+			shape.rotate( thisMove, point );
+
+			// return function if not done
+			if ( remaining ) return animater;
+			else {
+				// cleanup reference
+				animater = null;
+				// kill cycle
+				return false;
+			}
+		};
+
+		return animater;
+	}
+	function AnimateStrokeColor( shape, color ) {
+		var animater = function () {
+
+			// do the thing
+			shape.strokeColor = color;
+
+			// cleanup reference
+			animater = null;
+			// kill cycle
+			return false;
+		};
+
+		return animater;
+	}
+
+
+	
+	// factory
+	function Metatron( origin, radius ) {
+		function construct() {
+
+
+			// all circles
+			var circles = [];
+
+
+			// center circle
+			var original = new Path.Circle( origin, radius );
+				original.strokeColor = '#333';
+				original.strokeWidth = 10;
+				original.opacity = 0;
+				original.name = 'original';
+			circles.push( original );
+			aQueue.push( new AnimateOpacity( original, 1 ) );
+
+
+			// branches
+			for ( var i = 0, l = 6; i < l; i++ ) {
+				if ( i === 0 ) {
+
+					// lower circles from original
+
+					var copy1 = original.clone();
+						copy1.opacity = 0;
+						copy1.name = 'copy1:' + i;
+					circles.push( copy1 );
+					aQueue.push( new AnimatePositionY( copy1, radius * 2 ) );
+					
+					var copy2 = original.clone();
+						copy2.position.y += radius * 2;
+						copy2.opacity = 0;
+						copy2.name = 'copy2:' + i;
+					circles.push( copy2 );
+					aQueue.push( new AnimatePositionY( copy2, radius * 2 ) );
+
+				} else {
+
+					// rotate branch from previous
+
+					var copy1 = original.clone();
+						copy1.opacity = 1;
+						copy1.name = 'copy1:' + i;
+						copy1.position.y += radius * 2;
+					circles.push( copy1 );
+					
+					var copy2 = original.clone();
+						copy2.opacity = 1;
+						copy2.name = 'copy2:' + i;
+						copy2.position.y += radius * 2 * 2;
+					circles.push( copy2 );
+					 
+					var branch = new Group( [ copy1, copy2 ] );
+						branch.opacity = 0;
+						branch.rotate( 60 * i - 60, origin );
+					aQueue.push( new AnimateRotation( branch, 60, origin ) );
+
+				}
+			}
+
+
+			// paths
+			aQueue.push( function () {
+				var paths = [];
+				var alreadyConnected = {};
+				// connect every circle to every other circle 1 time
+				for ( var i = 0, l = circles.length; i < l; i++ ) {
+					var thisCircle = circles[ i ];
+					aQueue.push( new AnimateStrokeColor( thisCircle, '#00F' ) );
+					for ( var ii = 0, ll = l; ii < ll; ii++ ) {
+						if ( i === ii ) continue;
+						var thatCircle = circles[ ii ];
+						if ( alreadyConnected[ thatCircle.name + thisCircle.name ] ) continue;
+						else alreadyConnected[ thisCircle.name + thatCircle.name ] = true;
+						var path = new Path( thisCircle.position, thatCircle.position );
+							path.strokeCap = 'round';
+							path.strokeColor = '#F00';
+							path.strokeWidth = 8;
+							path.opacity = 0;
+						paths.push( path );
+						aQueue.push( new AnimateOpacity( path, 0.6 ) );
+					}
+					aQueue.push( new AnimateStrokeColor( thisCircle, '#333' ) );
+				}
+			} );
+
+
+
+		};
+		construct();
+		return {};
+	}
+
+
+
+	// click
+	var isBuilt = false;
+	function onMouseUp( event ) {
+		if ( isBuilt ) return;
+		else isBuilt = true;
+		hintText.remove();
+		new Metatron( view.center, 60 );
+	}
+
+
+
+
+</script>
+</head>
+<body>
+<canvas id="vessel" resize></canvas>
+</body>
+</html>

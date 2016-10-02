@@ -1,0 +1,309 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>tetrahedron</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: black;
+		color: white;
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+<div id="container"></div>
+
+<!-- https://stemkoski.github.io/Three.js/Shader-Glow.html -->
+<script id="vertexShader" type="x-shader/x-vertex">
+	uniform vec3 viewVector;
+	uniform float c;
+	uniform float p;
+	varying float intensity;
+	void main()
+	{
+	    vec3 vNormal = normalize( normalMatrix * normal );
+		vec3 vNormel = normalize( normalMatrix * viewVector );
+		intensity = pow( c - dot(vNormal, vNormel), p );
+
+	    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+	}
+</script>
+<script id="fragmentShader" type="x-shader/x-vertex">
+	uniform vec3 glowColor;
+	varying float intensity;
+	void main()
+	{
+		vec3 glow = glowColor * intensity;
+	    gl_FragColor = vec4( glow, 1.0 );
+	}
+</script>
+
+<script type="text/javascript" src="../../js/three.min.js"></script>
+<script type="text/javascript" src="../../js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript" src="../../js/examples/controls/TrackballControls.js"></script>
+<script type="text/javascript">
+
+
+
+// set the scene size
+var WIDTH = window.innerWidth,
+	HEIGHT = window.innerHeight;
+
+// set some camera attributes
+var VIEW_ANGLE = 45,
+	ASPECT = WIDTH / HEIGHT,
+	NEAR = 0.1,
+	FAR = 10000;
+
+// get the DOM element to attach to
+// - assume we've got jQuery to hand
+//var $container = $('#container');
+var containerEl = document.getElementById('container');
+
+// create a WebGL renderer, camera
+// and a scene
+var renderer = new THREE.WebGLRenderer({ antialias: true });
+var camera =
+	new THREE.PerspectiveCamera(
+		VIEW_ANGLE,
+		ASPECT,
+		NEAR,
+		FAR);
+
+var scene = new THREE.Scene();
+
+// add the camera to the scene
+scene.add(camera);
+
+// the camera starts at 0,0,0
+// so pull it back
+camera.position.z = 300;
+
+// start the renderer
+renderer.setSize(WIDTH, HEIGHT);
+
+// attach the render-supplied DOM element
+//$container.append(renderer.domElement);
+containerEl.appendChild(renderer.domElement);
+
+
+
+// create a point light
+var pointLight =
+	new THREE.PointLight(0xFFFFFF);
+
+// set its position
+pointLight.position.x = 10;
+pointLight.position.y = 50;
+pointLight.position.z = 130;
+
+// add to the scene
+scene.add(pointLight);
+
+
+
+
+
+
+
+function Sphere(position, radius) {
+
+	position = position || new THREE.Vector3(0, 0, 0);
+	radius = radius || 1;
+
+	this.geometry =
+		new THREE.SphereGeometry(
+			radius, // radius
+			32, // segments
+			32 // rings
+		);
+
+	this.material =
+		/*new THREE.MeshLambertMaterial({
+			transparent: true,
+			opacity: 0.67
+		});*/
+		new THREE.ShaderMaterial({
+			uniforms: {
+				c: {
+					type: "f",
+					value: 1.0
+				},
+				p: {
+					type: "f",
+					value: 1.4
+				},
+				glowColor: {
+					type: "c",
+					value: new THREE.Color(0xffffff)
+				},
+				viewVector: {
+					type: "v3",
+					value: camera.position
+				}
+			},
+			vertexShader: document.getElementById('vertexShader').textContent,
+			fragmentShader: document.getElementById('fragmentShader').textContent,
+			side: THREE.FrontSide,
+			blending: THREE.AdditiveBlending,
+			transparent: true
+		});
+
+	this.mesh =
+		new THREE.Mesh(
+			this.geometry,
+			this.material
+		);
+
+	this.mesh.position = position;
+
+	scene.add(this.mesh);
+
+}
+
+var radius = 24;
+var center = new THREE.Vector3(0, 0, 0);
+
+//var sphere = new Sphere(center, radius);
+
+
+function drawLine(from, to, color) {
+
+	color = color || 0xFFFFFF;
+
+	var geometry = new THREE.Geometry();
+	geometry.vertices.push(from);
+	geometry.vertices.push(to);
+
+	var material = new THREE.LineBasicMaterial({
+		linecap: 'round',
+		linejoin: 'round',
+		linewidth: 3,
+		color: color
+	});
+
+	var line = new THREE.Line(geometry, material);
+
+	scene.add(line);
+
+	return line;
+
+}
+
+/*
+var d = 10;
+
+var points = [];
+points.push(new THREE.Vector3(d, d, d));
+points.push(new THREE.Vector3(-d, d, d));
+points.push(new THREE.Vector3(d, -d, d));
+points.push(new THREE.Vector3(d, d, -d));
+points.push(new THREE.Vector3(-d, -d, d));
+points.push(new THREE.Vector3(d, -d, -d));
+points.push(new THREE.Vector3(-d, d, -d));
+points.push(new THREE.Vector3(-d, -d, -d));
+
+points.forEach(function (pointA, indexA) {
+	points.forEach(function (pointB, indexB) {
+		if (indexA === indexB) return;
+		drawLine(pointA, pointB);
+	});
+});
+*/
+
+
+function PointSpread(args) {
+	this.count = args.count || 4;
+	this.radius = args.radius || radius;
+	this.center = args.center || center;
+	this.origin = new THREE.Vector3(
+		this.center.x,
+		this.center.y + radius,
+		this.center.z
+	);
+	this.points = [];
+	this.lines = [];
+}
+
+PointSpread.prototype.animateFrame = function () {
+	// move points away from each other
+	// constrain points to sphere (w/in radius of center)
+};
+
+PointSpread.prototype.makePoints = function () {
+	var count = this.count;
+	while(count--) {
+		this.points.push(this.origin.clone());
+	}
+};
+
+PointSpread.prototype.clearLines = function () {
+	this.lines.forEach(function (line) {
+		scene.remove(line);
+	});
+};
+
+PointSpread.prototype.drawLines = function () {
+	this.points.forEach(function (pointA, indexA) {
+		this.points.forEach(function (pointB, indexB) {
+			if (indexA === indexB) return;
+			this.lines.push(drawLine(pointA, pointB));
+		}, this);
+	}, this);
+};
+
+
+var d = radius;
+var points = [];
+points.push(new THREE.Vector3(d, d, d));
+points.push(new THREE.Vector3(-d, d, -d));
+points.push(new THREE.Vector3(-d, -d, d));
+points.push(new THREE.Vector3(d, -d, -d));
+points.forEach(function (pointA, indexA) {
+	points.forEach(function (pointB, indexB) {
+		if (indexA === indexB) return;
+		drawLine(pointA, pointB);
+	});
+});
+
+
+
+
+// draw!
+
+var controls = new THREE.TrackballControls(camera);
+controls.addEventListener( 'change', render );
+
+var render = function () {
+	requestAnimationFrame(render);
+	renderer.render(scene, camera);
+	controls.update();
+};
+
+render();
+
+
+
+
+// Create an event listener that resizes the renderer with the browser window.
+// via http://blog.teamtreehouse.com/the-beginners-guide-to-three-js
+window.addEventListener('resize', function() {
+	var WIDTH = window.innerWidth;
+	var HEIGHT = window.innerHeight;
+	renderer.setSize(WIDTH, HEIGHT);
+	camera.aspect = WIDTH / HEIGHT;
+	camera.updateProjectionMatrix();
+});
+
+
+</script>
+</body>
+</html>

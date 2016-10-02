@@ -1,0 +1,1087 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - lines</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 2400px;
+		height: 4800px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript">
+
+
+	// self shim to support old draft
+	GenesisPanel.prototype.hideAllBut = function (type) {
+		this.lines.forEach(function (line) {
+			line.visible = false;
+		});
+		this.linesByLength[type].forEach(function (line) {
+			line.visible = true;
+			line.opacity = 0.4;
+		});
+	};
+
+
+
+
+
+
+
+
+
+
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+
+
+	/**
+	 * Playtime
+	 */
+	
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 200;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].markPoints();
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 400;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 600;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+		}
+	})();
+
+
+
+
+
+
+
+
+
+
+
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 200;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].markPoints();
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 400;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 600;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 1000;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 1200;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].hideAllBut('radius');
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 1400;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].hideAllBut('radius2');
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 1600;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].hideAllBut('radius3');
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 1800;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].hideAllBut('vesica');
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 2000;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].hideAllBut('vesica2');
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 2200;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].hideAllBut('strange');
+		}
+	})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 1000;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 1200;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].hideAllBut('radius');
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 1400;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].hideAllBut('radius2');
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 1600;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].hideAllBut('radius3');
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 1800;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].hideAllBut('vesica');
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 2000;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].hideAllBut('vesica2');
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 2200;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesIn();
+			geneses[i].hideAllBut('strange');
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 2600;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 2800;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].hideAllBut('radius');
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 3000;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].hideAllBut('radius2');
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 3200;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].hideAllBut('radius3');
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 3400;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].hideAllBut('vesica');
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 3600;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].hideAllBut('vesica2');
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 20;
+			var y = 20 + padding + 3800;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].hideAllBut('strange');
+		}
+	})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 2600;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 2800;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].hideAllBut('radius');
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 3000;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].hideAllBut('radius2');
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 3200;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].hideAllBut('radius3');
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 3400;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].hideAllBut('vesica');
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 3600;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].hideAllBut('vesica2');
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+	(function () {
+		var geneses = [];
+		for (var i = 0, l = 7; i < l; i++) {
+			var count = i + 1;
+			var radius = 24;
+			var padding = 10;
+			var w = 140;
+			var h = 170;
+			var x = (i * w) + (count * padding) + 1120;
+			var y = 20 + padding + 3800;
+			geneses.push(
+				new GenesisPanel(
+					count,
+					radius,
+					new paper.Point(x, y),
+					new paper.Size(w, h)
+				)
+			);
+			geneses[i].drawLinesOn();
+			geneses[i].hideAllBut('strange');
+			geneses[i].circles.forEach(function (circle) {
+				circle.visible = false;
+			});
+		}
+	})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

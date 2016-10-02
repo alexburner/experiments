@@ -1,0 +1,54 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>08 - hexa</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: #EEE;
+		color: black;
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript" src="../../../js/three.min.js"></script>
+<script type="text/javascript" src="../../../js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript" src="../../../js/examples/controls/TrackballControls.js"></script>
+<script type="text/javascript" src="setup.js"></script>
+<script type="text/javascript">
+
+	(function () {
+
+		var radius = 41.569219381653056;
+		radius *= 1.4;
+
+		var length = 2 * Math.sqrt((radius * radius) / 3);
+
+		var material = new THREE.MeshBasicMaterial({
+			color: 0xffffff,
+			transparent: true,
+			opacity: 0.7
+		});
+		var geometry = new THREE.BoxGeometry(length, length, length);
+		var object = new THREE.Mesh(geometry, material);
+		var edges = new THREE.EdgesHelper(object, 0x000000);
+
+		edges.material.linewidth = 2;
+
+		scene.add(object);
+		scene.add(edges);
+
+	})();
+
+</script>
+</body>
+</html>

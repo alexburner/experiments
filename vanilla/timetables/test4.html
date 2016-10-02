@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>timetables 4</title>
+<link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<script type="text/javascript" src="js/lodash.min.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/moment.min.js"></script>
+<script type="text/javascript">
+
+function getMonthColor(month) {
+    month = 12 - month;
+    var h = 360 * (month / 12);
+    var s = '65%';
+    var l = '75%';
+
+    h = (h + 60 + 180 - 30) % 360;
+
+    var hsl = ([h, s, l]).join(',');
+    return 'hsl(' + hsl + ')';
+}
+
+function Yeartable(args) {
+    this.$table = $('<table>');
+    this.$table.addClass('yeartable');
+
+    var date = moment().set({
+        year: args.year,
+        month: 'January',
+        date: 1
+    });
+
+    var year = date.year();
+
+    //
+    // Make date array
+
+    var dates = [];
+
+    // fill out blanks before
+    // note: .day() returns [0-6]
+    _.times(date.day(), function () {
+        dates.push(null);
+    });
+
+    // fill out 365 days
+    _.times(365, function (day) {
+        dates.push(moment(year + ' ' + (day + 1), 'YYYY DDD'));
+    });
+
+    // leap year? 1 more day
+    if (date.isLeapYear()) {
+        dates.push(moment(year + ' 366', 'YYYY DDD'));
+    }
+
+    // fill out blanks after
+    _.times(7 - (dates.length % 7), function () {
+        dates.push(null);
+    });
+
+    //
+    // Fill out table elements
+
+    // make 7 week rows
+    var rowEls = [];
+    _.times(7, function () {
+        var rowEl = document.createElement('tr');
+        rowEls.push(rowEl);
+    });
+    var $rows = $(rowEls);
+
+    // make all the date cells
+    _.each(dates, function (day, i) {
+        var row = i % 7;
+        var $cell = $('<td>');
+        if (day) {
+            $cell.text(day.date());
+            $cell.css({backgroundColor: getMonthColor(day.month())});
+        } else {
+            $cell.css({backgroundColor: 'hsl(0, 0%, 30%)'});
+        }
+        $rows.eq(row).append($cell);
+    });
+
+    $rows.each(function (i) {
+        var day = '&nbsp;';
+        switch (i) {
+            case 0: day = 'Su'; break;
+            case 1: day = 'Mo'; break;
+            case 2: day = 'Tu'; break;
+            case 3: day = 'We'; break;
+            case 4: day = 'Th'; break;
+            case 5: day = 'Fr'; break;
+            case 6: day = 'Sa'; break;
+        }
+        day += '&nbsp';
+        var $cell = $('<td>' + day + '</td>');
+        $cell.css({color: 'white'});
+        $rows.eq(i).prepend($cell);
+    });
+
+    this.$table.append($rows);
+}
+
+var yeartable = new Yeartable({ year: 2017 });
+$(document.body).append(yeartable.$table);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>test</title>
+<style type="text/css" media="screen">
+html, body, canvas {
+	margin: 0;
+	padding: 0;
+}
+#workspace {
+	width: 5300px;
+	height: 5000px;
+}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_navy.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelRow.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+var backdrop = new shapes.Backdrop();
+
+
+
+
+	// NUTS NOTE local override
+	util.roundish = function (number, precision) {
+		precision = precision || 12;
+		return Math.round(number * precision) / precision;
+	};
+
+
+
+
+	var set;
+
+
+	set = new GenesisPanelRow({
+		width: 5121,
+		height: 893,
+		radius: 112,
+		padding: 40,
+		originX: 40,
+		originY: 40
+	});
+	set.applyForEach('extend', [GenesisLines]);
+	set.applyForEach('drawAllLines', ['on']);
+	set.applyForEach('hideAllLines');
+	set.applyForEach('extend', [GenesisCentroid]);
+	set.applyForEach('findCentroidLines');
+	set.applyForEach('showCentroidLines');
+	set.applyForEach('drawCentroidCircles');
+	set.applyForEach('markCentroid');
+	set.geneses.forEach(function (genesis) {
+		//genesis.panel.strokeWidth = 0;
+	});
+
+
+	set = new GenesisPanelRow({
+		width: 5121,
+		height: 893,
+		radius: 112,
+		padding: 40,
+		originX: 40,
+		originY: 40 + 40 + 893
+	});
+	set.applyForEach('extend', [GenesisLines]);
+	set.applyForEach('drawAllLines', ['on']);
+	set.applyForEach('extend', [GenesisCentroid]);
+	set.applyForEach('findCentroidLines');
+	set.applyForEach('drawCentroidCircles');
+	set.applyForEach('markCentroid');
+	set.geneses.forEach(function (genesis) {
+		//genesis.panel.strokeWidth = 0;
+	});
+
+
+	set = new GenesisPanelRow({
+		width: 5121,
+		height: 893,
+		radius: 112,
+		padding: 40,
+		originX: 40,
+		originY: 40 + (40 + 893) * 2
+	});
+	set.applyForEach('extend', [GenesisLines]);
+	set.applyForEach('drawAllLines', ['on']);
+	set.applyForEach('extend', [GenesisCentroid]);
+	set.applyForEach('findCentroidLines');
+	set.applyForEach('showCentroidLines');
+	set.applyForEach('drawCentroidCircles');
+	set.applyForEach('extend', [GenesisFacets]);
+	set.applyForEach('makeFacets');
+	set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+	set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+	set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+	set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+	set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+	set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+	set.applyForEach('markCentroid');
+	set.geneses.forEach(function (genesis) {
+		//genesis.panel.strokeWidth = 0;
+	});
+
+
+	set = new GenesisPanelRow({
+		width: 5121,
+		height: 893,
+		radius: 112,
+		padding: 40,
+		originX: 40,
+		originY: 40 + (40 + 893) * 3
+	});
+	set.applyForEach('extend', [GenesisLines]);
+	set.applyForEach('drawAllLines', ['on']);
+	set.applyForEach('hideAllLines');
+	set.applyForEach('extend', [GenesisCentroid]);
+	set.applyForEach('findCentroidLines');
+	set.applyForEach('showCentroidLines');
+	set.applyForEach('drawCentroidCircles');
+	set.applyForEach('extend', [GenesisFacets]);
+	set.applyForEach('makeFacets');
+	set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+	set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+	set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+	set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+	set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+	set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+	set.applyForEach('markCentroid');
+	set.geneses.forEach(function (genesis) {
+		//genesis.panel.strokeWidth = 0;
+	});
+
+
+	set = new GenesisPanelRow({
+		width: 5121,
+		height: 893,
+		radius: 112,
+		padding: 40,
+		originX: 40,
+		originY: 40 + (40 + 893) * 4
+	});
+	set.applyForEach('extend', [GenesisLines]);
+	set.applyForEach('drawAllLines', ['on']);
+	set.applyForEach('hideAllLines');
+	set.applyForEach('extend', [GenesisCentroid]);
+	set.applyForEach('findCentroidLines');
+	set.applyForEach('showCentroidLines');
+	set.applyForEach('drawCentroidCircles');
+	set.applyForEach('extend', [GenesisFacets]);
+	set.applyForEach('makeFacets');
+	set.applyForEach('drawSeeds', ['vesica', 'around', 'selves']);
+	set.applyForEach('drawSeeds', ['vesica', 'within', 'selves']);
+	set.applyForEach('drawSeeds', ['treble', 'around', 'selves']);
+	set.applyForEach('drawSeeds', ['treble', 'within', 'selves']);
+	set.applyForEach('drawSeeds', ['petal', 'around', 'selves']);
+	set.applyForEach('drawSeeds', ['petal', 'within', 'selves']);
+	set.applyForEach('drawSeeds', ['vesica', 'around', 'centers']);
+	set.applyForEach('drawSeeds', ['vesica', 'within', 'centers']);
+	set.applyForEach('drawSeeds', ['treble', 'around', 'centers']);
+	set.applyForEach('drawSeeds', ['treble', 'within', 'centers']);
+	set.applyForEach('drawSeeds', ['petal', 'around', 'centers']);
+	set.applyForEach('drawSeeds', ['petal', 'within', 'centers']);
+	set.applyForEach('markCentroid');
+	set.geneses.forEach(function (genesis) {
+		//genesis.panel.strokeWidth = 0;
+	});
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+</script>
+</body>
+</html>

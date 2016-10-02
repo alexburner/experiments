@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>parallax 2</title>
+</head>
+<style>
+
+    html, body {
+        background: #333;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .particle {
+        background: rgba(255, 255, 255, 0.2);
+        /*border: 1px solid #EEE;*/
+        border-radius: 10000px;
+        cursor: pointer;
+        position: absolute;
+    }
+
+</style>
+<body>
+<script>
+
+
+function Particle(args) {
+    this.isAlive = true;
+
+    this.x = args.x;
+    this.y = args.y;
+    this.r = args.r;
+
+    this.dx = getRandom(-this.r, this.r) / 500;
+    this.dy = getRandom(-this.r, this.r) / 500;
+
+    this.el = document.createElement('div');
+    this.el.className = 'particle';
+    this.el.style.zIndex = Math.round(this.r);
+    document.body.appendChild(this.el);
+
+    this.setRadius(this.r);
+    this.setPosition(this.x, this.y);
+    this.animate();
+
+    this.el.addEventListener('click', this.kill.bind(this));
+}
+
+Particle.prototype.kill = function () {
+    this.pop(10);
+};
+
+Particle.prototype.pop = function (remaining) {
+    if (remaining > 0) {
+        remaining--;
+        this.setRadius(this.r * 1.2);
+        window.requestAnimationFrame(function () {
+            this.pop(remaining);
+        }.bind(this));
+    } else {
+        this.isAlive = false;
+        this.el.parentNode.removeChild(this.el);
+    }
+};
+
+Particle.prototype.setRadius = function (r) {
+    if (!this.isAlive) return;
+    this.r = r;
+    this.el.style.width = (this.r * 2) + 'px';
+    this.el.style.height = (this.r * 2) + 'px';
+    this.setPosition(this.x, this.y);
+};
+
+Particle.prototype.setPosition = function (x, y) {
+    if (!this.isAlive) return;
+    this.x = x;
+    this.y = y;
+    this.el.style.top = (this.y - this.r) + 'px';
+    this.el.style.left = (this.x - this.r) + 'px';
+};
+
+Particle.prototype.animate = function () {
+    if (!this.isAlive) return;
+    window.requestAnimationFrame(this.animate.bind(this));
+    this.setPosition(
+        this.x + this.dx,
+        this.y + this.dy
+    );
+};
+
+
+function getRandom(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+
+var winWidth = window.innerWidth;
+var winHeight = window.innerHeight;
+var width = winWidth * 2;
+var height = winHeight * 2;
+var extraX = (width - winWidth) / 2;
+var extraY = (height - winHeight) / 2;
+var minX = -extraX;
+var minY = -extraY;
+var maxX = winWidth + extraX;
+var maxY = winHeight + extraY;
+
+var particles = [];
+
+for (var i = 0; i < 300; i ++) {
+    particles.push(new Particle({
+        x: getRandom(minX, maxX),
+        y: getRandom(minY, maxY),
+        r: getRandom(5, 100)
+    }));
+}
+
+var prevX;
+var prevY;
+window.addEventListener('mousemove', function (e) {
+    var x = e.pageX;
+    var y = e.pageY;
+    if (prevX === undefined && prevY === undefined) {
+        prevX = x;
+        prevY = y;
+        return;
+    }
+    var deltaX = x - prevX;
+    var deltaY = y - prevY;
+    prevX = x;
+    prevY = y;
+    particles.forEach(function (particle, i) {
+        var driftX = (deltaX * particle.r * particle.r * particle.r) / 1000000;
+        var driftY = (deltaY * particle.r * particle.r * particle.r) / 1000000;
+        particle.setPosition(
+            particle.x + driftX,
+            particle.y + driftY
+        );
+    });
+});
+
+
+</script>
+</body>
+</html>

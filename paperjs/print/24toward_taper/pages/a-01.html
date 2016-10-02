@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title></title>
+<style type="text/css" media="screen">
+	html, body {
+		margin: 0;
+		padding: 0;
+		background: #222;
+	}
+	#canvas {
+		width: 3300px; /* 11(300) */
+		height: 2550px; /* 8.5(300) */
+		margin: auto;
+		background: white;
+	}
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script type="text/javascript" src="../../../paper.v.0.9.18.js"></script>
+<script type="text/javascript" src="svgExport.js"></script>
+<script type="text/javascript" src="drawByLength.js"></script>
+<script type="text/javascript">
+
+
+	// initialize paper with canvas element
+	paper.setup(document.getElementById('canvas'));
+
+
+
+
+
+
+	var pageWidth = 3300;
+	var pageHeight = 2550;
+	var length = 180;
+	var number = 3;
+
+	var leftCenter = new paper.Point([
+		(1 * pageWidth) / 4,
+		(1 * pageHeight) / 2
+	]);
+	var rightCenter = new paper.Point([
+		(3 * pageWidth) / 4,
+		(1 * pageHeight) / 2
+	]);
+
+
+	/**
+	 * Front page (title)
+	 */
+
+	// 24
+	var twentyfour = new paper.PointText({
+		content: 24,
+		fillColor: 'black',
+		fontFamily: 'Times',
+		fontWeight: 'bold',
+		fontSize: 420,
+		justification: 'center'
+	});
+	twentyfour.position = rightCenter;
+	//twentyfour.position.y = 0;
+	//twentyfour.position.y += pageHeight / 4;
+
+	// toward
+	var toward = new paper.PointText({
+		content: 'toward',
+		fillColor: 'black',
+		fontFamily: 'Times',
+		fontWeight: 'bold',
+		fontSize: 120,
+		justification: 'center'
+	});
+	toward.position = rightCenter;
+	//toward.position.y = 0;
+	//toward.position.y += pageHeight / 4;
+	toward.position.y += 224;
+
+	// infinity
+	infinity = new paper.PointText({
+		content: 'in' + '\uFB01' + 'nity',
+		fillColor: 'black',
+		fontFamily: 'Times',
+		fontWeight: 'bold',
+		fontSize: 120,
+		justification: 'center'
+	});
+	infinity.position = rightCenter;
+	//infinity.position.y = 0;
+	//infinity.position.y += pageHeight / 4;
+	infinity.position.y += 336;
+
+	var group = new paper.Group();
+	group.addChild(twentyfour);
+	group.addChild(toward);
+	group.addChild(infinity);
+	group.position = rightCenter;
+	group.position.y -= 32;
+
+	// var rect = new paper.Path.Rectangle(group.bounds);
+	// rect.strokeWidth = 1;
+	// rect.strokeColor = 'red';
+
+
+	// circle
+	// var circle = new paper.Path.Circle({
+	// 	strokeColor: 'black',
+	// 	strokeWidth: 18,
+	// 	// dashArray: [2, 2],
+	// 	center: rightCenter,
+	// 	radius: group.bounds.width / 2
+	// });
+	// circle.position.y = 0;
+	// circle.position.y += pageHeight / 4;
+	// circle.position.y += 600;
+	// circle.position.y -= 400;
+
+	// square
+	var square = new paper.Path.Rectangle({
+		strokeColor: 'black',
+		strokeWidth: 18,
+		position: rightCenter,
+		width: group.bounds.height + 30,
+		height: group.bounds.height + 180
+	});
+
+
+
+	/**
+	 * Back page (website)
+	 */
+
+	// label
+	text = new paper.PointText({
+		content: 'http://patterns.website/24',
+		fillColor: 'black',
+		fontFamily: 'Times',
+		//fontWeight: 'bold',
+		fontSize: 42,
+		justification: 'center'
+	});
+	text.position = leftCenter;
+
+
+
+
+
+
+	/**
+	 * Render paper onto canvas
+	 */
+
+	paper.view.draw();
+
+
+
+
+</script>
+<!--<script type="text/javascript" src="../rulers.js"></script>-->
+</body>
+</html>

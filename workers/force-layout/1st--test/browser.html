@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>browser</title>
+    <style>
+        .node {
+            width: 10px;
+            height: 10px;
+            position: absolute;
+            background-color: red;
+            border-radius: 200%;
+        }
+    </style>
+</head>
+<body>
+    <script src="..//lib/lodash.min.js"></script>
+    <script src="..//lib/d3/collection.min.js"></script>
+    <script src="..//lib/d3/dispatch.min.js"></script>
+    <script src="..//lib/d3/quadtree.min.js"></script>
+    <script src="..//lib/d3/timer.min.js"></script>
+    <script src="..//lib/d3/force.min.js"></script>
+    <script>
+
+        var n = 2000;
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+        var halfWidth = width / 2;
+        var halfHeight = height / 2;
+
+        var canvasEl = document.createElement('canvas');
+        var context = canvasEl.getContext('2d');
+        canvasEl.width = width;
+        canvasEl.height = height;
+        canvasEl.style.position = 'absolute';
+        canvasEl.style.top = 0;
+        canvasEl.style.left = 0;
+        document.body.appendChild(canvasEl);
+
+        var nodes = _.times(n, function () {
+            return {
+                x: Math.random() * 100 + halfWidth,
+                y: Math.random() * 100 + halfHeight
+            };
+        });
+
+        var center = d3.forceCenter();
+        var charge = d3.forceManyBody();
+        charge.strength(function (node, i) {
+            return -1/2;
+        });
+
+        var simulation = d3.forceSimulation(nodes);
+        simulation.stop();
+        simulation.force('charge', charge);
+        simulation.force('center', center);
+
+        function animate() {
+            window.requestAnimationFrame(animate);
+            simulation.tick();
+            context.clearRect(0, 0, width, height);
+            context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            _.each(simulation.nodes(), function (node, i) {
+                context.beginPath();
+                context.arc(
+                    node.x + halfWidth,
+                    node.y + halfHeight,
+                    8,
+                    0,
+                    Math.PI * 2
+                );
+                context.fill();
+            });
+        }
+
+        animate();
+
+
+
+
+
+        (function () {
+            var rotation = 0;
+            function rotate(el, deg) {
+                el.style.webkitTransform = 'rotate(' + deg + 'deg)';
+                el.style.mozTransform = 'rotate(' + deg + 'deg)';
+                el.style.msTransform = 'rotate(' + deg + 'deg)';
+                el.style.oTransform = 'rotate(' + deg + 'deg)';
+                el.style.transform = 'rotate(' + deg + 'deg)';
+            }
+            function animate() {
+                window.requestAnimationFrame(animate);
+                rotate(canvasEl, rotation++);
+            }
+            animate();
+        })();
+
+        (function () {
+            var hsl = {
+                h: 0,
+                s: 80,
+                l: 60,
+                increment: function () {
+                    this.h = (this.h + 1/2) % 360;
+                },
+                toString: function () {
+                    return 'hsl(' +
+                        this.h + ', ' +
+                        this.s + '%, ' +
+                        this.l + '%' +
+                    ')';
+                }
+            };
+            function animate() {
+                window.requestAnimationFrame(animate);
+                hsl.increment();
+                document.body.style.backgroundColor = hsl.toString();
+            }
+            animate();
+        })();
+
+    </script>
+</body>
+</html>

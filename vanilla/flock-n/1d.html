@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>flock (1D)</title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            width: 100%;
+            height: 100%;
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="js/lodash.min.js"></script>
+<script type="text/javascript" src="js/Maths.js"></script>
+<script type="text/javascript" src="js/Flock.js"></script>
+<script type="text/javascript">
+
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    var canvasEl = document.createElement('canvas');
+    var context = canvasEl.getContext('2d');
+    canvasEl.width = width;
+    canvasEl.height = height;
+    document.body.appendChild(canvasEl);
+
+    var flock = new Flock({
+        count: 80,
+        aversion: 10,
+        awareness: 300,
+        minSpeed: 0,
+        maxSpeed: 3,
+        magic: 50,
+        dimensions: [width]
+    });
+
+    var y = 0;
+    function animateFrame() {
+        if (y > height) return;
+        var boids = flock.tick();
+        // context.clearRect(0, 0, width, height);
+        context.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        _.each(boids, function (boid) {
+            context.fillRect(boid.position[0], y, 1, 1);
+        });
+        window.requestAnimationFrame(animateFrame);
+        y++;
+    }
+    animateFrame();
+
+</script>
+</body>
+</html>

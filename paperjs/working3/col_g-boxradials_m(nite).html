@@ -1,0 +1,161 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - box radials</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 300px;
+		height: 1560px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_micron.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelCol.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+var backdrop = new shapes.Backdrop();
+
+
+
+	// genesis set command sequences
+	var argsLists = [
+		[],
+		
+		
+	];
+
+
+	// draw radials in boxes
+	// // draw a number of radials on a box
+		function drawBoxRadials(box, count) {
+			var angle = 360 / count;
+			var radials = [];
+			var width = box.bounds.width;
+			var height = box.bounds.height;
+			var length = Math.max(width, height);
+			var origin = box.position;
+			var vector = new paper.Point(origin);
+			vector.length = length;
+			vector.angle = 0;
+			for (var i = 0, l = count; i < l; i++) {
+				vector.angle = angle * i;
+				vector.angle -= 90;
+				//vector.angle %= 360;
+				var point = util.getConfinedPoint(
+					origin, 
+					origin.add(vector), 
+					box
+				);
+				radials.push(
+					new shapes.Line(origin, point)
+				);
+			}
+			return radials;
+		}
+
+
+
+	(function () {
+		
+		var config = {
+			isSquare: true,
+			width: 180,
+			//height: 500,
+			//height: 777,
+			radius: 24,
+			padding: 30,
+			originX: 60,
+			originY: 60
+		};
+
+		var boxes = []; // for radials
+		
+		argsLists.forEach(function (argsList, index) {
+			var settings = Object.create(config);
+			settings.originX += index * (settings.width + settings.padding);
+			var col = new GenesisPanelCol(settings);
+			argsList.forEach(function (args) {
+				col.applyForEach.apply(col, args);
+			});
+
+			col.geneses.forEach(function (genesis) {
+				genesis.panel.visible = false;
+				var newgroup = genesis.group.clone();
+
+				console.log(newgroup.children);
+
+				for (var i = 0, l = newgroup.children.length; i < l; i++) {
+					child = newgroup.children[i];
+
+					console.log(child);
+
+					child.strokeWidth = 10;
+					child.strokeColor = backdrop.fillColor;
+					child.fillColor = backdrop.fillColor;
+					child.opacity = 1;
+				}
+				boxes.push(genesis.panel);
+				newgroup.sendToBack();
+				newgroup.moveAbove(backdrop);
+			});
+		});
+
+		// user click to draw
+		var tool = new paper.Tool();
+		var n = 0;
+		var g = null;
+		tool.onMouseDown = function (e) {
+			if (g) g.remove();
+			g = new paper.Group();
+			// draw radials on boxes
+			for (var i = 0, l = boxes.length; i < l; i++) {
+				var box = boxes[i];
+				var count = 3 * Math.pow(2, n);
+				//if (g) g.remove();
+				g.addChildren(
+					drawBoxRadials(box, count)
+				);
+			}
+			g.sendToBack();
+			g.moveAbove(backdrop);
+			n++;
+		};
+
+	})();
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

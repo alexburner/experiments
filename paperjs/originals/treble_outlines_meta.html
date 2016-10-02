@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>treble_outlines_meta</title>
+	<link rel="icon" type="image/ico" href="img/favicon.ico">
+	<style type="text/css" media="screen">
+		#container { width: 800px; margin: auto; }
+		canvas { cursor: pointer; }
+	</style>
+	<script type="text/javascript" src="../paper.v.0.22.js"></script>
+	<script type="text/paperscript" canvas="vessel">
+
+
+
+		// state
+		var isRotating = false;
+		var isSpinning = false;
+
+
+
+		// backdrop
+		var background = new Path.Rectangle( view.bounds );
+		background.fillColor = 'white';
+
+
+
+		// animation
+		var rotaters = [];
+		function onFrame( event ) {
+			var length = rotaters.length;
+			if ( !length ) {
+				if ( isRotating ) isRotating = false;
+				return;
+			}
+			for ( var i = 0; i < length; i++ ) {
+				var isComplete = rotaters[ i ]();
+				if ( isComplete ) rotaters.splice( i, 1 );
+			}
+		}
+
+
+		
+		//
+		//
+		// color trinity factory
+		function Treble( x, y, radius ) {
+
+
+			//
+			// PROPERTIES
+			var props = {
+				rotation: 0
+			};
+
+
+			//
+			// ELEMENTS
+			var group;
+
+
+			//
+			// METHODS
+
+			// constructor
+			function construct() {
+
+				// find lengths
+				var c = radius;
+				var a = radius / 2;
+				var b = Math.sqrt( c * c - a * a );
+				var z = a / b;
+				var d = a * z;
+				var e = c * z;
+
+				// make circles
+				var full = new Path.Circle( new Point( x, y ), radius * 2 );
+				var primary1 = new Path.Circle( new Point( x - a, y - d ), radius );
+				var primary2 = new Path.Circle( new Point( x + a, y - d ), radius );
+				var primary3 = new Path.Circle( new Point( x, y + e ), radius );
+				var secondary0 = new Path.Circle( new Point( x, y ), e );
+				var secondary1 = new Path.Circle( new Point( x - a, y - d ), e );
+				var secondary2 = new Path.Circle( new Point( x + a, y - d ), e );
+				var secondary3 = new Path.Circle( new Point( x, y + e ), e );
+
+				// color circles
+				primary1.strokeColor = '#000';
+				primary2.strokeColor = '#000';
+				primary3.strokeColor = '#000';
+				secondary0.strokeColor = '#000';
+				secondary1.strokeColor = '#000';
+				secondary2.strokeColor = '#000';
+				secondary3.strokeColor = '#000';
+
+				// make group
+				group = new Group( [ full, primary1, primary2, primary3, secondary0, secondary1, secondary2, secondary3 ] );
+
+			}
+
+			// rotate group with animation
+			function animateRotation( angle ) { 
+				var increment = 1;
+				var remaining = angle;
+				var rotater = function () {
+					if ( !remaining ) {
+						// isComplete
+						rotater = null;
+						return true;
+					}
+					var thisAngle = increment;
+					if ( remaining - increment < 0 ) { thisAngle = remaining; }
+					group.rotate( thisAngle );
+					remaining -= thisAngle;
+					// !isComplete
+					return false;
+				};
+				rotaters.push( rotater );
+				props.rotation += angle;
+			}
+
+			// rotate group
+			function setRotation( angle ) {
+				group.rotate( angle );
+				props.rotation += angle;
+			}
+
+
+			//
+			// EXECUTION
+			construct();
+
+
+			//
+			// INTERFACE
+			return {
+				getRotation: function () { return props.rotation; },
+				animateRotation: animateRotation,
+				setRotation: setRotation
+			};
+
+
+		}; // end Treble
+
+
+
+
+
+
+
+
+		// automation
+		var execute = ( function () {
+			var isBusy = false;
+			var trebles = [];
+			var count = 0;
+			var X = 400;
+			var Y = 400;
+			var R = 200;
+			var i = 0;
+			var l = 0;
+			return function () {
+
+				// first time?
+				if ( !count ) {
+					count = 1;
+					trebles.push( new Treble( X, Y, R ) );
+					return;
+				}
+
+				// don't kill yourself
+				if ( count === 256 ) return;
+
+				// tracking!
+				var oldCount = count;
+				count = count + count;
+
+				// creation!
+				for ( i = 0, l = oldCount; i < l; i++ ) {
+					var currTreble = trebles[ i ];
+					var newTreble = new Treble( X, Y, R );
+					newTreble.setRotation( currTreble.getRotation() );
+					trebles.push( newTreble );
+				}
+
+				// rotation!
+				isRotating = true;
+				var angle = 60 / oldCount;
+				for ( i = oldCount, l = count; i < l; i++ ) {
+					trebles[ i ].animateRotation( angle );
+				}
+
+			};
+		} )();
+
+
+
+		// user interaction
+
+		// click
+		function onMouseUp( event ) {
+			if ( isSpinning ) return;
+			execute();
+		};
+
+		// drag
+		function onMouseDrag( event ) {
+			if ( isSpinning ) return;
+			else isSpinning = true;
+			rotaters.push( function () {
+				project.activeLayer.rotate( 1 );
+				return false;
+			} );
+		}
+
+
+	
+
+	</script>
+</head>
+<body>
+	<div id="container">
+		<canvas id="vessel" width="800" height="800"></canvas>
+	</div>
+</body>
+</html>

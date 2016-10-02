@@ -1,0 +1,70 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis - fractal</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 1600px;
+		height: 1600px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes_navy.js"></script>
+<script type="text/javascript" src="js/Genesis.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	// background color shape
+	new shapes.Backdrop();
+
+
+	var genesisExists = {};
+
+	function makeGenesis(center, radius, level, limit) {
+		if (level > limit) return;
+		var genesis = new Genesis(center, radius, 7);
+		genesis.circles.forEach(function (circle) {
+			var point = circle.position;
+			point.x = util.roundish(point.x, 10);
+			point.y = util.roundish(point.y, 10);
+			var coords = point.toString();
+			if (genesisExists[coords]) return;
+			else genesisExists[coords] = true;
+			console.log(genesisExists);
+			setTimeout(function () {
+				makeGenesis(point, radius / 2, level + 1, limit);
+				paper.view.draw();
+			}, 300 * level);
+		});
+	}
+
+	makeGenesis(paper.view.center, 300, 1, 4);
+
+
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

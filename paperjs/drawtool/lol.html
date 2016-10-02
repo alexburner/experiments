@@ -1,0 +1,218 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>lololol</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+	}
+	#workspace {
+		width: 2000px;
+		height: 2000px;
+		border: 1px solid #DDD;
+		cursor: none;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.18.js"></script>
+<script type="text/javascript">
+
+
+	/**
+	 * Euclidean Tools
+	 * 
+	 * The straightedge and the compass. 
+	 * 
+	 * The name is due to the fact that connecting points 
+	 * with segments, prolonging segments and drawing circles 
+	 * with a given center and a given radius are the basic 
+	 * geometric constructions described in the first three 
+	 * Euclidean postulates.
+	 *
+	 * http://mathworld.wolfram.com/EuclideanTools.html
+	 */
+
+
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+
+	var items = (function () {
+		var doneItems = [];
+		var undoneItems = [];
+		var group = new paper.Group();
+		return {
+			add: function (item) {
+				doneItems.push(item);
+				group.addChild(item);
+			},
+			undo: function () {
+				if (!doneItems.length) return;
+				var item = doneItems.pop();
+				undoneItems.push(item);
+				item.remove();
+			},
+			redo: function () {
+				if (!undoneItems.length) return;
+				var item = undoneItems.pop();
+				doneItems.push(item);
+				paper.project.activeLayer.addChild(item);
+				group.addChild(item);
+			},
+			count: function () {
+				return doneItems.length;
+			}
+		};
+	})();
+
+
+	var cursors = (function () {
+		
+		// config
+		var radius = 6;
+		var color = 'black';
+		var thickness = 1.2;
+		var opacity = 0.8;
+		
+		// cursor for circles
+		function CircleCursor(point) {
+			point = point || new paper.Point(-radius, -radius);
+			var circle = new paper.Path.Circle({
+				center: new paper.Point(0, 0),
+				radius: radius,
+				strokeColor: color,
+				strokeWidth: thickness,
+				opacity: opacity
+			});
+			var dot = new paper.Path.Circle({
+				center: new paper.Point(0, 0),
+				radius: 1,
+				fillColor: color,
+				opacity: opacity
+			});
+			var group = new paper.Group();
+			group.addChildren([circle, dot]);
+			group.data.type = 'circle';
+			group.position = point;
+			return group;
+		}
+		
+		// cursor for lines
+		function LineCursor(point) {
+			point = point || new paper.Point(-radius, -radius);
+			var x = Math.sqrt(Math.pow(2 * radius, 2) / 2);
+			var halfx = x / 2;
+			var line1 = new paper.Path.Line({
+				from: new paper.Point(-halfx, -halfx),
+				to: new paper.Point(halfx, halfx),
+				strokeCap: 'round',
+				strokeColor: color,
+				strokeWidth: thickness,
+				opacity: opacity
+			});
+			var line2 = new paper.Path.Line({
+				from: new paper.Point(-halfx, halfx),
+				to: new paper.Point(halfx, -halfx),
+				strokeCap: 'round',
+				strokeColor: color,
+				strokeWidth: thickness,
+				opacity: opacity
+			});
+			var group = new paper.Group();
+			group.addChildren([line1, line2]);
+			group.data.type = 'line';
+			group.position = point;
+			return group;
+		}
+
+		// interface
+		return {
+			C: CircleCursor,
+			L: LineCursor
+		};
+
+	})();
+
+
+	var cursor = (function () {
+		var cCursor = new cursors.C();
+		var lCursor = new cursors.L();
+		return {
+			current: cCursor,
+			set: function (type, point) {
+				if (type === current.data.type) return;
+				switch (type) {
+					case 'circle':
+						cCursor.position = point;
+						cursor.current = cCursor;
+						lCursor.visible = false;
+						cCursor.visible = true;
+						break;
+					case 'line':
+						lCursor.position = point;
+						cursor.current = lCursor;
+						cCursor.visible = false;
+						lCursor.visible = true;
+						break;
+				}
+			}
+		};
+	})();
+
+
+	
+
+
+	var activeItem;
+	var color = 'black';
+	var thickness = 1.2;
+	var opacity = 0.8;
+
+
+	// user interactions
+	var tool = new paper.Tool();
+
+	tool.onMouseMove = function (e) {
+		cursor.current.position = e.point;
+		paper.view.draw();
+		if (activeItem) {
+			activeItem = new paper.Path.Circle({
+				center: activeItem.position,
+				radius: activeItem.position.subtract(e.point).length,
+				strokeWidth: thickness,
+				strokeColor: color,
+				opacity: opacity
+			});
+		}
+	};
+	
+	tool.onMouseDown = function (e) {
+		if (!activeItem) {
+			activeItem = new paper.Path.Circle({
+				center: e.point,
+				radius: 1,
+				strokeWidth: thickness,
+				strokeColor: color,
+				opacity: opacity
+			});
+		} else {
+			activeItem = null;
+		}
+	};
+
+
+
+
+	/**
+	 * first draw
+	 */
+	paper.view.draw();
+
+
+</script>
+</body>
+</html>

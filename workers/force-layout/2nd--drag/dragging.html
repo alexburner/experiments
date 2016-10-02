@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>interaction : dragging</title>
+    <style>canvas { cursor: pointer; }</style>
+</head>
+<body>
+    <script src="..//lib/lodash.min.js"></script>
+    <script src="..//lib/d3/dispatch.min.js"></script>
+    <script src="..//lib/d3/selection.min.js"></script>
+    <script src="..//lib/d3/drag.min.js"></script>
+    <script src="../shared/WorkerLink.js"></script>
+    <script>
+
+        // Web Worker version of Force-Directed Tree (Mike Bostock)
+        // http://bl.ocks.org/mbostock/95aa92e2f4e8345aaa55a4a94d41ce37
+
+        var n = 2000;
+        var width = window.innerWidth;
+        var height = window.innerHeight;
+
+        var worker = new WorkerLink('ForceWorker.js');
+
+        var canvasEl = document.createElement('canvas');
+        var context = canvasEl.getContext('2d');
+        canvasEl.width = width;
+        canvasEl.height = height;
+        canvasEl.style.position = 'absolute';
+        canvasEl.style.top = 0;
+        canvasEl.style.left = 0;
+        document.body.appendChild(canvasEl);
+
+        function drawNode(node) {
+            context.moveTo(node.x + 4, node.y);
+            context.arc(node.x, node.y, 4, 0, 2 * Math.PI);
+        }
+
+        function drawLink(link) {
+            context.moveTo(link.source.x, link.source.y);
+            context.lineTo(link.target.x, link.target.y);
+        }
+
+        function render(nodes, links) {
+            context.clearRect(0, 0, width, height);
+            context.save();
+            context.translate(width / 2, height / 2);
+
+            context.beginPath();
+            links.forEach(drawLink);
+            _.each(links, drawLink);
+            context.strokeStyle = "#FFF";
+            context.stroke();
+
+            context.beginPath();
+            nodes.forEach(drawNode);
+            context.fill();
+
+            context.restore();
+        }
+
+        function init(width, height, nodes, links) {
+            worker.send({
+                methodName: 'init',
+                argsArr: [{
+                    width: width,
+                    height: height,
+                    nodes: nodes,
+                    links: links
+                }]
+            }, tick);
+        }
+
+        function tick() {
+            worker.send(
+                {methodName: 'tick'},
+                function (response) {
+                    var nodes = response.nodes;
+                    var links = response.links;
+                    window.requestAnimationFrame(function () {
+                        tick();
+                        render(nodes, links);
+                    });
+                }
+            );
+        }
+
+        function dragstart(x, y, active) {
+            worker.send({
+                methodName: 'dragstart',
+                argsArr: [x, y, active]
+            });
+        }
+
+        function dragging(x, y) {
+            worker.send({
+                methodName: 'dragging',
+                argsArr: [x, y]
+            });
+        }
+
+        function dragend(active) {
+            worker.send({
+                methodName: 'dragend',
+                argsArr: [active]
+            });
+        }
+
+        function resize(width, height) {
+            worker.send({
+                methodName: 'resize',
+                argsArr: [{
+                    width: width,
+                    height: height
+                }]
+            });
+        }
+
+        d3.select(canvasEl).call(
+            d3.drag()
+                .container(canvasEl)
+                .on('start', function () {
+                    dragstart(
+                        d3.event.x,
+                        d3.event.y,
+                        d3.event.active
+                    );
+                })
+                .on('drag', function () {
+                    dragging(
+                        d3.event.x,
+                        d3.event.y
+                    );
+                })
+                .on('end', function () {
+                    dragend(
+                        d3.event.active
+                    );
+                })
+        );
+
+        window.addEventListener('resize', function () {
+            var image = context.getImageData(0, 0, width, height);
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvasEl.width = width;
+            canvasEl.height = height;
+            context.putImageData(image, 0, 0);
+            resize(width, height);
+        });
+
+
+
+        //
+        // Execute
+        //
+
+        init(
+            width,
+            height,
+            _.times(n, function (i) {
+                return {
+                    index: i,
+                    x: Math.random() * 200,
+                    y: Math.random() * 200
+                };
+            }),
+            _.times(n - 1, function (i) {
+                return {
+                    source: Math.floor(Math.sqrt(i)),
+                    target: i + 1
+                };
+            })
+        );
+
+
+
+
+        //
+        // colors!!!!
+        (function () {
+            var hsl = {
+                h: 0,
+                s: 80,
+                l: 60,
+                increment: function () {
+                    this.h = (this.h + 1/2) % 360;
+                },
+                toString: function () {
+                    return 'hsl(' +
+                        this.h + ', ' +
+                        this.s + '%, ' +
+                        this.l + '%' +
+                    ')';
+                }
+            };
+            function animate() {
+                window.requestAnimationFrame(animate);
+                hsl.increment();
+                document.body.style.backgroundColor = hsl.toString();
+            }
+            animate();
+        })();
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>flower</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: #002;
+	}
+	#workspace {
+		width: 4000px;
+		height: 4000px;
+	}
+</style>
+</head>
+<body>
+<canvas id="workspace"></canvas>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/Flower.js"></script>
+<script type="text/javascript" src="js/FrameHandler.js"></script>
+<script type="text/javascript" src="js/addListener.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+
+	// config
+	var radius = 48;
+	var vradius = (util.getVesicaLength(radius) / 3) * 2;
+	var rings = 40;
+	var center = paper.view.center;
+
+
+	// hacks
+	var scale = radius / vradius;
+	radius *= scale;
+	vradius *= scale;
+
+	// circle factory
+	function Circle(center, radius) {
+		return new paper.Path.Circle({
+			center: center,
+			radius: radius,
+			strokeCap: 'round',
+			strokeColor: 'white',
+			strokeWidth: 1.8,
+			opacity: 0.67
+		});
+	}
+
+
+
+	// make flower patterns
+	var flower1 = new Flower(
+		center,
+		new Circle(center, radius),
+		radius,
+		rings
+	);
+	var flower2 = new Flower(
+		center,
+		new Circle(center, vradius),
+		vradius,
+		rings
+	);
+
+
+	// mark center
+	var mark = new Circle(center, 2);
+	mark.strokeColor = 'red';
+
+
+	// rotation animation
+	function rotateFlower () {
+		flower2.group.rotate(1, center);
+		paper.view.draw();
+		// return self to continue
+		return rotateFlower;
+	}
+
+	// zoom animation
+	var zoomScale = 1;
+	function zoomFlower () {
+		zoomScale += 0.1;
+		paper.view.zoom  = zoomScale;
+		paper.view.draw();
+		// return self to continue
+		return zoomFlower;
+	}
+	
+	var frameHandler = new FrameHandler();
+	frameHandler.addCallback(rotateFlower);
+	frameHandler.addCallback(zoomFlower);
+	
+
+	// keyboard controls
+	addListener(window, 'keydown', function (e) {
+		var key = e.keyCode || e.which;
+		switch (key) {
+			case 32:
+				// spacebar
+				e.preventDefault();
+				frameHandler.toggle();
+				break;
+			case 37:
+				// left arrow
+				e.preventDefault();
+				flower2.group.rotate(-1, center);
+				paper.view.draw();
+				break;
+			case 39:
+				// right arrow
+				e.preventDefault();
+				flower2.group.rotate(1, center);
+				paper.view.draw();
+				break;
+		}
+	});
+
+
+
+	// initial rotation
+	flower2.group.rotate(30, center);
+
+
+
+
+	/**
+	 * First render
+	 */
+	paper.view.draw();
+
+
+</script>
+</body>
+</html>

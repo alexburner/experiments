@@ -1,0 +1,42 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>octa</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: rgb(244, 242, 243);
+		color: rgb(20, 20, 20);
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+</style>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript" src="../../../../js/three.min.js"></script>
+<script type="text/javascript" src="../../../../js/examples/Detector.js"></script>
+<script type="text/javascript">
+	if (!Detector.webgl) Detector.addGetWebGLMessage();
+</script>
+<script type="text/javascript" src="../../../../js/examples/controls/TrackballControls.js"></script>
+<script type="text/javascript" src="polyhedra.js"></script>
+<script type="text/javascript" src="platonics.js"></script>
+<script type="text/javascript" src="setup.js"></script>
+<script type="text/javascript">
+
+
+	new Octa({
+		length: 6,
+		faces: true,
+		edges: false, // false, true, specific length index
+		colorEdgeLengths: false
+	});
+
+
+</script>
+</body>
+</html>
