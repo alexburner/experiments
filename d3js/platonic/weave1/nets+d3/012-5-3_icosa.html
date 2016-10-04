@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>12-5-3 icosa</title>
+<script type="text/javascript" src="../js/d3.v2.min.js"></script>
+<style type="text/css">
+
+html, body, svg {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	cursor: pointer;
+	background: white;
+}
+
+.node {
+	cursor: move;
+	cursor: drag;
+}
+
+.link {
+	stroke-linecap: round;
+	stroke: black;
+}
+
+</style>
+</head>
+<body>
+<script type="text/javascript">
+
+var w = 800,
+	h = 800,
+	fill = d3.scale.category20(),
+	nodes = [],
+	links = [];
+
+var vis = d3.select("body").append("svg:svg")
+		.attr("viewBox", "0 0 " + w + " " + h )
+		.attr("preserveAspectRatio", "xMidYMid meet");
+
+var force = d3.layout.force()
+		.nodes(nodes)
+		.links(links)
+		.size([w, h]);
+
+force.on("tick", function() {
+	vis.selectAll("line.link")
+			.attr("x1", function(d) { return d.source.x; })
+			.attr("y1", function(d) { return d.source.y; })
+			.attr("x2", function(d) { return d.target.x; })
+			.attr("y2", function(d) { return d.target.y; });
+
+	vis.selectAll("circle.node")
+			.attr("cx", function(d) { return d.x; })
+			.attr("cy", function(d) { return d.y; });
+});
+
+function addNode(x, y, isReal) {
+	var node = {
+		x: x, 
+		y: y, 
+		isReal: isReal
+	};
+	nodes.push(node);
+	return node;
+}
+
+function linkNodes(node, target) {
+	var link = {source: node, target: target};
+	links.push(link);
+	return link;
+}
+
+restart();
+
+function restart() {
+
+	vis.selectAll("line.link")
+			.data(links)
+		.enter().insert("svg:line", "circle.node")
+			.attr("class", "link")
+			.attr("x1", function(d) { return d.source.x; })
+			.attr("y1", function(d) { return d.source.y; })
+			.attr("x2", function(d) { return d.target.x; })
+			.attr("y2", function(d) { return d.target.y; })
+			.style("stroke", "black");
+
+	vis.selectAll("circle.node")
+			.data(nodes)
+		.enter().insert("svg:circle")
+			.attr("class", "node")
+			.attr("cx", function(d) { return d.x; })
+			.attr("cy", function(d) { return d.y; })
+			.attr("r", function(d) {
+
+				// temp / debuggery
+				if (d.hasUnclosableCircuit) return 5.4;
+
+				return d.isReal ? 6 : 5.4;
+			})
+			.style("fill", function(d) {
+
+				// temp / debuggery
+				if (d.hasUnclosableCircuit) return 'red';
+
+				return d.isReal ? 'black' : 'transparent';
+			})
+			.style("stroke", function(d) {
+
+				// temp / debuggery
+				if (d.hasUnclosableCircuit) return 'black';
+
+				return d.isReal ? 'transparent' : 'black';
+			})
+			.style("stroke-width", function(d) {
+
+				// temp / debuggery
+				if (d.hasUnclosableCircuit) return 1.2;
+
+				return d.isReal ? 0 : 1.2;
+			})
+			.call(force.drag);
+
+	force.start();
+}
+
+</script>
+<script type="text/javascript">
+
+
+
+	function MapThing() {
+		// kinda like ES6 Map proposal, but not
+		this.keys = [];
+		this.values = [];
+		this.size = 0;
+		this._map = {};
+	}
+
+	MapThing.prototype.has = function (key) {
+		return !!this._map[key];
+	};
+
+	MapThing.prototype.get = function (key) {
+		return this._map[key];
+	};
+
+	MapThing.prototype.set = function (key, value) {
+		this._map[key] = value;
+		this._update();
+	};
+
+	MapThing.prototype.delete = function (key) {
+		delete this._map[key];
+		this._update();
+	};
+
+	MapThing.prototype._update = function () {
+		// update keys
+		this.keys = Object.keys(this._map);
+		// update values
+		this.values = [];
+		this.keys.forEach(function (key) {
+			this.values.push(this._map[key]);
+		}, this);
+		// update size
+		this.size = this.keys.length;
+	};
+
+
+
+	function Face(points) {
+		// elements
+		this.edges = new MapThing();
+		// construction
+		if (points) {
+			this.set(points);
+		}
+	}
+
+	Face.prototype.hasEdge = function (pointA, pointB) {
+		return this.edges.has(pointA.id + ',' + pointB.id);
+	};
+	
+	Face.prototype.getEdge = function (pointA, pointB) {
+		return this.edges.get(pointA.id + ',' + pointB.id);
+	};
+
+	Face.prototype.setEdge = function (pointA, pointB) {
+		this.edges.set(pointA.id + ',' + pointB.id, [pointA, pointB]);
+		this.edges.set(pointB.id + ',' + pointA.id, [pointB, pointA]);
+	};
+
+	Face.prototype.set = function (points) {
+		for (var i = 0, l = points.length; i < l; i++) {
+			var pointA = points[i];
+			var pointB = points[(i + 1) % l];
+			this.setEdge(pointA, pointB);
+		}
+	};
+
+	Face.prototype.sharedEdgeCount = function (face) {
+		var count = 0;
+		this.edges.keys.forEach(function (key) {
+			if (face.edges.has(key)) {
+				count++;
+			}
+		}, this);
+		return count / 2;
+	};
+
+
+
+	function Point(args) {
+		// properties
+		this.id = Point.generateID();
+		this.isReal = args.isReal;
+		this.limits = {};
+		this.limits.neighbor = args.neighborLimit;
+		this.limits.faceEdge = args.faceEdgeLimit;
+		// elements
+		this.neighbors = {};
+		this.neighbors.potential = new MapThing();
+		this.neighbors.actual = new MapThing();
+		// construction
+		if (this.isReal) {
+			this.addPotentialNeighbors();
+		}
+	}
+
+	Point.generateID = (function () {
+		// closure thunk
+		var id = 0;
+		return function () {
+			return id++;
+		};
+	})();
+
+	Point.prototype.addPotentialNeighbors = function () {
+		var count = this.limits.neighbor;
+		while (count--) {
+			var point = new Point({isReal: false});
+			this.neighbors.potential.set(point.id, point);
+		}
+	};
+
+	Point.prototype.merge = function (point) {
+		// only continue if we have some potential
+		if (!this.neighbors.potential.size) return;
+		// remove a potential neighbor
+		this.neighbors.potential.delete(
+			this.neighbors.potential.keys[0]
+		);
+		// add the new point
+		this.neighbors.actual.set(point.id, point);
+	};
+
+
+
+	function Net(args) {
+		// properties
+		this.isComplete = false;
+		this.limits = {};
+		this.limits.point = args.pointLimit;
+		this.limits.neighbor = args.neighborLimit;
+		this.limits.faceEdge = args.faceEdgeLimit;
+		// elements
+		this.points = {};
+		this.points.all = new MapThing();
+		this.points.added = [];
+		this.points.unadded = [];
+		this.points.justAdded = null;
+		this.faces = [];
+		// construction
+		this.makePoints();
+	}
+
+	Net.prototype.makePoints = function () {
+		var count = this.limits.point;
+		while (count--) {
+			var point = new Point({
+				isReal: true,
+				neighborLimit: this.limits.neighbor,
+				faceEdgeLimit: this.limits.faceEdge
+			});
+			this.points.unadded.push(point);
+			this.points.all.set(point.id, point);
+		}
+	};
+
+	Net.prototype.iterate = function () {
+
+		
+		// rest if complete
+		if (this.isComplete) return;
+
+
+		// track if drawing needs update
+		var dodraw = false;
+
+
+		/**
+		 * is there a freshly added point?
+		 * -> attempt to close a face circuit with it
+		 * -> remove it from freshness
+		 */
+		if (this.points.justAdded) {
+			
+
+			console.log('-> this.points.justAdded');
+
+
+			// attempt to close a face circuit with it
+			var circuitClosed = this.attemptFaceCircuit(this.points.justAdded);
+
+			// whether it worked or not, we won't try again
+			this.points.justAdded = null;
+
+			// did we do anything
+			if (!circuitClosed) {
+				// boring, try again
+				this.iterate();
+				return;
+			}
+
+
+		/**
+		 * are there unadded points remaining?
+		 * -> find an added node with the most potential neighbors
+		 * -> add an unadded node to it
+		 */
+		} else if (this.points.unadded.length) {
+			
+
+			console.log('-> this.points.unadded');
+
+
+			// grab a point to add
+			var newPoint = this.points.unadded.pop();
+			
+			// have any points already been added?
+			if (this.points.added.length) {
+				// find the one with the most potential neighbors
+				var maxPotentialCount = 0;
+				var maxPotentialPoint = null;
+				this.points.added.forEach(function (point) {
+					var potentialNeighborCount = point.neighbors.potential.size;
+					if (potentialNeighborCount > maxPotentialCount) {
+						maxPotentialCount = potentialNeighborCount;
+						maxPotentialPoint = point;
+					}
+				});
+				// must have at least 1 potential neighbor
+				if (maxPotentialPoint) {
+					// merge max potential point with new point
+					maxPotentialPoint.merge(newPoint);
+					newPoint.merge(maxPotentialPoint);
+				}
+			}
+
+			// add new point to things
+			this.points.added.push(newPoint);
+			this.points.justAdded = newPoint;
+
+
+		/**
+		 * otherwise
+		 * -> check for any points with potential neighbors
+		 * -> choose one and attempt to close a face circuit
+		 * -! stop iterations if a point with potential can't close a face
+		 */
+		} else {
+			
+
+			console.log('-> this.points.added');
+
+
+			// attempt to close 1 of any remaining face circuits
+			// stop iterating if not
+			var faceCircuitFailed = false;
+			var morePotential = false;
+			this.points.added.forEach(function (point) {
+				if (point.neighbors.potential.size > 0) {
+					// still got some potential left
+					noMorePotential = true;
+					// try to close a face circuit
+					var didClose = this.attemptFaceCircuit(point);
+					if (!didClose) {
+						// couldn't close any face circuit
+						faceCircuitFailed = true
+
+
+						// temp / debuggery
+						point.hasUnclosableCircuit = true;
+
+
+					}
+				}
+			}, this);
+
+
+			if (faceCircuitFailed || noMorePotential) {
+				this.isComplete = true;
+			}
+		}
+
+
+		// ok, now draw it
+		this.draw();
+
+		// share
+		return this.isComplete;
+	};
+
+	Net.prototype.draw = function () {
+		
+		// only do if something to do
+		if (this.points.added.length < 1) return;
+		
+		// reset all d3 node references
+		this.points.added.forEach(function (point) { point.d3node = null; });
+		
+		// track linked points
+		var linkExists = {}; // "id,id" => boolean
+		
+		// recursively draw
+		function draw(focalPoint) {
+
+			function r(n, k) { 
+				n = n || 1;
+				k = k || 0;
+				return n * (k + Math.random());
+			}
+			
+			// this point been hit already?
+			if (focalPoint.d3node) return;
+			
+			// this point
+			focalPoint.d3node = addNode(r(1), r(1), true);
+
+			// temp / debuggery
+			if (focalPoint.hasUnclosableCircuit) {
+				focalPoint.d3node.hasUnclosableCircuit = true;
+			}
+			
+			// potential neighbors
+			focalPoint.neighbors.potential.values.forEach(function (point) {
+				var node = addNode(r(1, 5), r(1, 5), false);
+				linkNodes(node, focalPoint.d3node);
+			});
+			
+			// actual neighbors
+			focalPoint.neighbors.actual.values.forEach(function (point) {
+				draw(point);
+				if (!(linkExists[point.id + ',' + focalPoint.id] || 
+						linkExists[focalPoint.id + ',' + point.id])) {
+					linkExists[focalPoint.id + ',' + point.id] = true;
+					linkNodes(focalPoint.d3node, point.d3node);
+				}
+			});
+
+		}
+		
+		// start with first added point
+		draw(this.points.added[0]);
+		
+		// let d3 know
+		restart();
+	};
+
+	Net.prototype.attemptFaceCircuit = function (focalPoint) {
+
+
+		console.log('attempting face circuit, id=' + focalPoint.id);
+
+
+		var netFaces = this.faces;
+		var netPoints = this.points.all;
+		var faceEdgeLimit = this.limits.faceEdge;
+		var endpoints = [];
+		var endpointFaces = [];
+		function walk(point, walkedIDs) {
+
+
+			console.log(walkedIDs);
+
+
+			// did we make it?
+			if (walkedIDs.length === faceEdgeLimit - 1) {
+				// make sure they're not already neighbors
+				if (!focalPoint.neighbors.actual.has(point.id)) {
+					// make sure this face doesn't share too many edges with current faces
+					walkedIDs.push(point.id);
+					walkedPoints = walkedIDs.map(function (id) { return netPoints.get(id); });
+					var walkedFace = new Face(walkedPoints);
+					var overShare = netFaces.some(function (face) {
+						var sharedEdgeCount = face.sharedEdgeCount(walkedFace);
+						if (sharedEdgeCount > 1) {
+							return true;
+						}
+					});
+					if (!overShare) {
+						// hooray!
+						endpoints.push(point);
+						endpointFaces.push(walkedFace);
+					}
+				}
+			} else {
+				// keep walking
+				walkedIDs.push(point.id);
+				point.neighbors.actual.keys.forEach(function (id) {
+					// no loops
+					if (walkedIDs.indexOf(Number(id)) !== -1) return;
+					// walk to neighbor
+					walk(
+						point.neighbors.actual.get(id), 
+						walkedIDs.slice(0) // copy
+					);
+				});
+			}
+		}
+		// try to walk a full face path
+		walk(focalPoint, []);
+		// did we find any?
+		if (endpoints.length > 0) {
+
+
+			console.log(endpoints);
+
+
+			// find endpoint with maximum potential
+			var maxPotentialCount = 0;
+			var maxPotentialPoint = null;
+			var maxPotentialFace = null;
+			endpoints.forEach(function (point, index) {
+				var potentialNeighborCount = point.neighbors.potential.size;
+				if (potentialNeighborCount > maxPotentialCount) {
+					maxPotentialCount = potentialNeighborCount;
+					maxPotentialPoint = point;
+					maxPotentialFace = endpointFaces[index];
+				}
+			});
+
+
+			console.log(maxPotentialPoint);
+			console.log(maxPotentialFace);
+
+
+			// must have at least 1 potential neighbor
+			if (maxPotentialPoint) {
+				// merge max potential point with new point
+				maxPotentialPoint.merge(focalPoint);
+				focalPoint.merge(maxPotentialPoint);
+				// capture the new face
+				this.faces.push(maxPotentialFace);
+
+				// yes, new face
+				return true;
+			}
+		}
+
+
+		// no, no new face
+		return false;
+	};
+
+
+	var net = new Net({
+		pointLimit: 12,
+		neighborLimit: 5,
+		faceEdgeLimit: 3
+	});
+
+
+	window.addEventListener('click', function listener(e) {
+		var isComplete = net.iterate();
+		if (isComplete) {
+			window.document.body.style.cursor = "default";
+			window.removeEventListener('click', listener);
+		}
+	});
+
+
+</script>
+</body>
+</html>
