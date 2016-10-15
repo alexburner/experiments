@@ -47,7 +47,7 @@ function TwoCell(props) {
             var stop = radius * closestLength;
             var curr = stop;
             var step = 2;
-            while (curr > 1) {
+            while (curr > 0) {
                 context.beginPath();
                 context.arc(x, y, curr, 0, Math.PI * 2);
                 context.stroke();
