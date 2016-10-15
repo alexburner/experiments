@@ -60,7 +60,7 @@ var Diffuse = (function () {
         });
     }
 
-    function scale(points) {
+    function scaleLength(points) {
 
         // only works with more than 1 point
         if (points.length < 2) return points;
@@ -81,6 +81,36 @@ var Diffuse = (function () {
 
         // scale down all points
         var factor = 4 / length;
+        return _.map(points, function (point) {
+            return Maths.scaleVector(point, factor);
+        });
+    }
+
+    function scaleRadius(points) {
+
+        // only works with more than 1 point
+        if (points.length < 2) return points;
+
+        // find geometric center of points (by averaging them)
+        var centroid = _.reduce(points, function (memo, point) {
+            return _.map(point, function (n, i) {
+                return memo[i] + n / points.length;
+            });
+        }, _.times(points[0].length, _.constant(0)));
+
+        // find longest radius between point & center
+        var radius = -Infinity;
+        _.each(points, function (point) {
+            radius = Math.max(radius, Maths.vectorLengthSq(
+                Maths.subtractVectors(point, centroid)
+            ));
+        });
+
+        // abort if already within limits
+        if (radius < 1) return points;
+
+        // scale down all points
+        var factor = 1 / radius;
         return _.map(points, function (point) {
             return Maths.scaleVector(point, factor);
         });
@@ -110,7 +140,7 @@ var Diffuse = (function () {
             points = diffuse(points, options.speed);
             if (options.bounding) points = bound(points);
             if (options.centering) points = center(points);
-            if (options.scaling) points = scale(points);
+            if (options.scaling) points = scaleRadius(points);
             return points;
         },
 
