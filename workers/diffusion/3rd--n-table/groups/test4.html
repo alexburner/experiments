@@ -44,21 +44,11 @@
     var pool = new WorkerPool('../../shared/StatelessWorker.js', 2);
     var queue = new AnimationQueue();
 
-    var props = {
-        width: 160,
-        height: 160,
-        radius: 60,
-        options: {
-            speed: 0.008,
-            bounding: false,
-            centering: true,
-            scaling: true,
-        },
-        pool: pool,
-        queue: queue,
-    };
+    var textHeight = 16;
+    var paddingV = 20;
+    var paddingH = 0;
 
-    var props2 = {
+    var props = {
         width: 160,
         height: 160,
         radius: 60,
@@ -73,7 +63,7 @@
     };
 
     var containerEl = document.createElement('div');
-    containerEl.style.width = props.width * limit + 'px';
+    containerEl.style.width = (props.width * limit) + (paddingH * (limit - 1)) + 'px';
     containerEl.style.height = props.height * 2 + 'px';
     containerEl.style.position = 'relative';
     containerEl.style.margin = '80px auto';
@@ -105,10 +95,8 @@
 
     _.times(limit, function (i) {
         var n = i + 1;
-
         var top = 0;
-        var textHeight = 20;
-        var padding = 40;
+        var left = i * props.width + i * paddingH;
 
         // 2d cell
         new TwoCell(
@@ -116,7 +104,7 @@
                 count: {value: n},
                 el: {value: makeCellEl(
                     top,
-                    i * props.width,
+                    left,
                     props.width,
                     props.height
                     // props.radius
@@ -124,7 +112,7 @@
             })
         ).start();
 
-        top += props.height + padding;
+        top += props.height + paddingV;
 
         // number
         var numEl = document.createElement('div');
@@ -133,24 +121,30 @@
         numEl.style.height = textHeight + 'px';
         numEl.style.position = 'absolute';
         numEl.style.top = top + 'px';
-        numEl.style.left = i * props.width + 'px';
+        numEl.style.left = left + 'px';
         numEl.style.textAlign = 'center';
         numEl.style.fontSize = '14px';
         containerEl.appendChild(numEl);
 
-        top += textHeight + padding;
+        top += textHeight + paddingV;
 
         // 2d cell
         new TwoCell(
-            Object.create(props2, {
+            Object.create(props, {
                 count: {value: n},
                 el: {value: makeCellEl(
                     top,
-                    i * props.width,
+                    left,
                     props.width,
                     props.height
                     // props.radius
-                )}
+                )},
+                options: {value: {
+                    speed: 0.008,
+                    bounding: false,
+                    centering: true,
+                    scaling: true,
+                }}
             })
         ).start();
 

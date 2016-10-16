@@ -49,7 +49,7 @@ function TwoCell(props) {
             if (!isFinite(closestLength)) closestLength = width;
             var stop = radius * closestLength;
             var curr = stop;
-            var step = 2;
+            var step = 4;
             while (curr > 0) {
                 context.beginPath();
                 context.arc(x, y, curr, 0, Math.PI * 2);
