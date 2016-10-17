@@ -35,7 +35,7 @@
     var winWidth = window.innerWidth;
     var workHeight = winHeight;
     var workWidth;
-    var cellHeight = workHeight / 7;
+    var cellHeight = workHeight / count;
     var cellWidth = cellHeight;
     workWidth = cellWidth * 4;
 
@@ -44,7 +44,7 @@
     canvasEl.height = workHeight;
     canvasEl.style.display = 'block';
     canvasEl.style.margin = 'auto';
-    el.appendChild(canvasEl);
+    document.body.appendChild(canvasEl);
     var context = canvasEl.getContext('2d');
 
     // each row
@@ -87,15 +87,15 @@
         },
         {
             dots: true,
+            lines: true,
+        },
+        {
+            dots: true,
+            lines: true,
+        },
+        {
+            dots: true,
             circles: true,
-        },
-        {
-            dots: true,
-            lines: true,
-        },
-        {
-            dots: true,
-            lines: true,
         },
     ];
 
@@ -108,9 +108,11 @@
                 count: n,
                 width: cellWidth,
                 height: cellHeight,
+                top: top,
+                left: left,
                 centerX: left + cellWidth / 2,
                 centerY: top + cellHeight / 2,
-                radius: 60,
+                radius: 20,
                 options: optionss[i],
                 draw: draws[i],
                 pool: pool,
