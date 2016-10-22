@@ -16,9 +16,8 @@ function TwoCell(props) {
     var context = props.context;
 
     function render(points) {
-        context.clearRect(left, top, width, height);
-        context.strokeStyle = 'rgba(0, 0, 0, 0.3)';
-        context.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        context.strokeStyle = 'rgba(255, 255, 245, 0.3)';
+        context.fillStyle = 'rgba(255, 255, 245, 0.8)';
         _.each(points, function (pointA) {
             var x1 = centerX + radius * pointA[0];
             var y1 = centerY + radius * pointA[1];
@@ -60,29 +59,31 @@ function TwoCell(props) {
         });
     }
 
-    function requestInit() {
-        pool.send({
-            moduleName: 'Diffuse',
-            methodName: 'init',
-            argArr: [count, space],
-        }, function (points) {
-            requestTick(points);
-        });
-    }
-
-    function requestTick(points) {
-        pool.send({
-            moduleName: 'Diffuse',
-            methodName: 'tick',
-            argArr: [points, options],
-        }, function (points) {
-            queue.add(function () {
-                requestTick(points);
-                render(points);
+    return {
+        init: function () {
+            return new Promise(function (resolve, reject) {
+                pool.send({
+                    moduleName: 'Diffuse',
+                    methodName: 'init',
+                    argArr: [count, space],
+                }, function (points) {
+                    resolve(points);
+                });
             });
-        });
-    }
+        },
 
-    return { start: requestInit };
+        tick: function (points) {
+            return new Promise(function (resolve, reject) {
+                pool.send({
+                    moduleName: 'Diffuse',
+                    methodName: 'tick',
+                    argArr: [points, options],
+                }, function (points) {
+                    resolve(points);
+                });
+            });
+        },
 
+        render: render,
+    };
 }
