@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>(hues) Flow Field</title>
+    <title>(lines) Flow Field</title>
     <style>
         html, body {
-            background-color: hsl(0, 0%, 10%);
+            background-color: rgb(20,20,20);
             padding: 0;
             margin: 0;
             width: 100%;
@@ -18,25 +18,24 @@
     </style>
 </head>
 <body>
-<script src="../lodash.min.js"></script>
-<script src="../p5.js"></script>
+<script src="../../lodash.min.js"></script>
+<script src="../../p5.js"></script>
 <script>
 
     var GRID_SIZE = 20;
     var OFFSET = GRID_SIZE / 2;
     var NOISE_SCALE = 0.04;
-    var TIME_SCALE = 0.025;
+    var TIME_SCALE = 0.015;
 
     var tick = 0;
 
     function setup() {
         createCanvas(1000, 700);
-        colorMode(HSB);
     }
 
     function draw() {
 
-        background(255 * 0.1);
+        background(20);
 
         for (var col = 0; col < (width / GRID_SIZE); col++) {
             for (var row = 0; row < (height / GRID_SIZE); row++) {
@@ -45,19 +44,6 @@
                 var noiseY = row * NOISE_SCALE;
                 var noiseZ = tick * TIME_SCALE;
                 var noiseVal = noise(noiseX, noiseY, noiseZ);
-
-                fill(
-                    noiseVal * 255 + 100,
-                    80,
-                    40
-                );
-                noStroke();
-                rect(
-                    col * GRID_SIZE,
-                    row * GRID_SIZE,
-                    GRID_SIZE,
-                    GRID_SIZE
-                );
 
                 var angle = noiseVal * TAU * 2;
 
