@@ -1,4 +1,4 @@
-self.importScripts('..//lodash.min.js');
+self.importScripts('../../lodash.min.js');
 
 /* c = {
     WIDTH: 200,
