@@ -1,5 +1,4 @@
-// requires _
-// requires Maths
+// requires _.lodash
 
 /**
  * Constructor
@@ -8,14 +7,14 @@
 function Vector(init) {
     if (_.isNumber(init)) {
         // init is the number of dimensions
-        this.tuple = Vector.tuple(init, 0);
+        this.tuple = Vector.makeTuple(init, 0);
     }
     else if (_.isArray(init)) {
         // init is a tuple
         this.tuple = init;
     }
     else {
-        // init is broke
+        // init is meaningless
         this.tuple = [];
     }
 }
@@ -24,8 +23,22 @@ function Vector(init) {
  * Static methods
  */
 
-Vector.tuple = function (count, n) {
-    return _.times(count, _.constant(n));
+Vector.makeTuple = function (length, n) {
+    return _.times(length, _.constant(n));
+};
+
+Vector.clone = function (vector) {
+    return new Vector(vector.tuple.slice());
+};
+
+Vector.getLength = function (vector) {
+    return Math.sqrt(Vector.getLengthSq(vector));
+};
+
+Vector.getLengthSq = function (vector) {
+    return _.reduce(vector.tuple, function (memo, n) {
+        return memo + n * n;
+    }, 0);
 };
 
 Vector.normalize = function(vector) {
@@ -33,91 +46,116 @@ Vector.normalize = function(vector) {
 };
 
 Vector.setLength = function(vector, length) {
-    return Vector.multiply(vector, length / vector.length());
+    return Vector.multiply(vector, length / vector.getLength());
 };
 
 Vector.merge = function(vectorA, vectorB, action) {
+    // We want to support expressions like:
+    // > var vectorC = Vector.multiply(vectorA, 10);
+    // so if vectorB is a number, make it a vector of itself
     if (_.isNumber(vectorB)) {
-        // We want to support expressions like
-        // > var vectorC = Vector.multiply(vectorA, 10);
-        // so if vectorB is a number, make it a vector of itself
-        vectorB = new Vector(Vector.tuple(vectorA.tuple.length, vectorB));
+        vectorB = new Vector(Vector.makeTuple(vectorA.tuple.length, vectorB));
     }
-    return new Vector(
-        _.map(vectorA.tuple, function (n, i) {
-            return action(vectorA.tuple[i], vectorB.tuple[i]);
-        })
-    );
+    // Merge A and B into a new vector
+    return new Vector(_.times(vectorA.tuple.length, function (i) {
+        return action(vectorA.tuple[i], vectorB.tuple[i]);
+    }));
 };
 
 //
-// Extend Vector object with basic maths like
+// Extend Vector with static math methods like:
 // > var vectorC = Vector.add(vectorA, vectorB);
 //
-_.each(
-    [
-        'add',
-        'subtract',
-        'multiply',
-        'divide',
-    ],
-    function (method) {
-        Vector[method] = function (vectorA, vectorB) {
-            return Vector.merge(vectorA, vectorB, Maths[method]);
-        };
-    }
-);
+
+_.each([
+    'add',
+    'subtract',
+    'multiply',
+    'divide',
+], function (method) {
+    Vector[method] = function (vectorA, vectorB) {
+        return Vector.merge(vectorA, vectorB, Vector.maths[method]);
+    };
+});
+
+Vector.maths = {
+    add      : function (n1, n2) { return n1 + n2; },
+    subtract : function (n1, n2) { return n1 - n2; },
+    multiply : function (n1, n2) { return n1 * n2; },
+    divide   : function (n1, n2) { return n1 / n2; },
+};
 
 /**
  * Instance methods
  */
 
-Vector.prototype.clone = function () {
-    return new Vector(this.tuple.slice());
-};
-
-Vector.prototype.length = function () {
-    return Math.sqrt(this.lengthSq());
-};
-
-Vector.prototype.lengthSq = function () {
-    return _.reduce(this.tuple, function (memo, n) {
-        return memo + n * n;
-    }, 0);
-};
+//
+// We extend Vector prototype
+// with in-place proxies
+// for static Vector methods
+//
+// Sugar: only for convenience
+//
 
 //
-// Extend Vector prototype with in-place
-// versions of static Vector math methods
-//
-// so instead of doing all our math like
+// Some static methods return new vectors:
 // > var vectorC = Vector.add(vectorA, vectorB);
 //
-// we can also do it in-place like
+// These instance methods update in place:
 // > vectorA.add(vectorB);
 //
-// and we return self to support chaining like
+// And these can be chained, like:
 // > vectorA.add(vectorB).subtract(vectorC);
 //
-_.each(
-    [
-        'merge',
-        'add',
-        'subtract',
-        'multiply',
-        'divide',
-        'normalize',
-        'setLength',
-    ],
-    function (method) {
-        Vector.prototype[method] = function () {
-            // call static method with self prepended
-            var args = _.concat([this], arguments);
-            var result = Vector[method].apply(null, args);
-            // overwrite own tuple with result's
-            this.tuple = result.tuple;
-            // support chaining
-            return this;
-        };
-    }
-);
+_.each([
+    'merge',
+    'add',
+    'subtract',
+    'multiply',
+    'divide',
+    'normalize',
+    'setLength',
+], function (method) {
+    Vector.prototype[method] = function () {
+        // sanitize args array
+        var i = arguments.length;
+        var args = [];
+        while (i--) args[i] = arguments[i];
+        // prepend self
+        args.unshift(this);
+        // get static method's result vector
+        var vector = Vector[method].apply(null, args);
+        // overwrite self tuple with result's
+        this.tuple = vector.tuple;
+        // return self (for chaining)
+        return this;
+    };
+});
+
+//
+// Static methods are kinda clunky for these:
+// > var vectorB = Vector.clone(vectorA);
+// > var length = Vector.getLength(vectorA);
+// > var lengthSq = Vector.getLengthSq(vectorA);
+//
+// Instance methods seem more convenient:
+// > var vectorB = vectorA.clone();
+// > var length = vectorA.getLength();
+// > var lengthSq = vectorA.getLengthSq();
+//
+_.each([
+    'clone',
+    'getLength',
+    'getLengthSq',
+], function (method) {
+    Vector.prototype[method] = function () {
+        // sanitize args array
+        var i = arguments.length;
+        var args = [];
+        while (i--) args[i] = arguments[i];
+        // prepend self
+        args.unshift(this);
+        // return static method's result
+        return Vector[method].apply(null, args);
+    };
+});

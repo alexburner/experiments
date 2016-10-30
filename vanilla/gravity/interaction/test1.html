@@ -304,7 +304,7 @@
                     attractorView = View.addAttractor(location, MIN_MASS);
                 }
                 // update attractor view
-                var mass = delta.length();
+                var mass = delta.getLength();
                 mass = Math.max(mass, MIN_MASS);
                 attractorView.setMass(mass);
             }
@@ -333,7 +333,7 @@
         function closeView() {
             if (isShift) {
                 // add attractor
-                var mass = delta.length();
+                var mass = delta.getLength();
                 mass = Math.max(mass, MIN_MASS);
                 attractorView.setMass(mass);
                 Model.addAttractor(location, mass);

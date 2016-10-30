@@ -15,7 +15,7 @@ Gravity.prototype.attract = function (attracted, attractor) {
     );
 
     var distance = Maths.clamp(
-        force.length(),
+        force.getLength(),
         this.minDistance,
         this.maxDistance
     );
