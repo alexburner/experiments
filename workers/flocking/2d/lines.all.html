@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>flock - lines.all</title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            width: 100%;
+            height: 100%;
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="..//lib/lodash.min.js"></script>
+<script type="text/javascript" src="../shared/Maths.js"></script>
+<script type="text/javascript" src="../shared/Flock.js"></script>
+<script type="text/javascript" src="../shared/WorkerPool.js"></script>
+<script type="text/javascript">
+
+    var hash = (
+        window.location.hash.length ?
+            Number(window.location.hash.slice(1)) :
+            NaN
+    );
+
+    var count = isNaN(hash) ? 12 : hash;
+    var space = 2;
+
+    var options = {
+        aversion: 10,
+        awareness: 400,
+        minSpeed: 0,
+        maxSpeed: 2,
+        magic: 1000,
+        centering: true,
+        bounding: false,
+    };
+
+    var radius = 2;
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    var centerX = width / 2;
+    var centerY = height / 2;
+
+    var canvasEl = document.createElement('canvas');
+    var context = canvasEl.getContext('2d');
+    canvasEl.width = width;
+    canvasEl.height = height;
+    canvasEl.style.position = 'absolute';
+    canvasEl.style.top = 0;
+    canvasEl.style.left = 0;
+    document.body.appendChild(canvasEl);
+
+
+    var pool = new WorkerPool('../shared/StatelessWorker.js', 2);
+
+    function initPool() {
+        pool.send(
+            {
+                moduleName: 'Flock',
+                methodName: 'init',
+                argArr: [count, space, options],
+            },
+            function (boids) {
+                tickPool(boids);
+            }
+        );
+    }
+
+    function tickPool(boids) {
+        pool.send(
+            {
+                moduleName: 'Flock',
+                methodName: 'tick',
+                argArr: [boids, options],
+            },
+            function (boids) {
+                window.requestAnimationFrame(function () {
+                    tickPool(boids);
+                    render(boids);
+                });
+            }
+        );
+    }
+
+    function render(boids) {
+        context.clearRect(0, 0, width, height);
+        context.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        _.each(boids, function (boidA) {
+            var x1 = centerX + radius * boidA.position[0];
+            var y1 = centerY + radius * boidA.position[1];
+            _.each(boids, function (boidB) {
+                if (boidA === boidB) return;
+                var x2 = centerX + radius * boidB.position[0];
+                var y2 = centerY + radius * boidB.position[1];
+                context.beginPath();
+                context.moveTo(x1, y1);
+                context.lineTo(x2, y2);
+                context.stroke();
+            });
+        });
+    }
+
+    window.addEventListener('resize', function () {
+        canvasEl.style.top = (window.innerHeight / 2 - height / 2) + 'px';
+        canvasEl.style.left = (window.innerWidth / 2 - width / 2) + 'px';
+    });
+
+
+    //
+    //
+    // begin
+    initPool();
+
+</script>
+</body>
+</html>
