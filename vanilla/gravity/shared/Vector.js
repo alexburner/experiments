@@ -66,7 +66,7 @@ Vector.merge = function(vectorA, vectorB, action) {
 };
 
 //
-// Extend Vector with static math methods like:
+// Extend Vector with basic math methods like:
 // > var vectorC = Vector.add(vectorA, vectorB);
 //
 _.each({
