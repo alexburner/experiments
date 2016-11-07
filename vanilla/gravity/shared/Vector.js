@@ -78,7 +78,7 @@ _.each({
     Vector[methodName] = function (vectorA, vectorB) {
         // We want to support math with constants like:
         // > var vectorC = Vector.multiply(vectorA, 10);
-        // So if vectorB is a number, make it a vector of itself
+        // So if B is a number, make it a vector of itself
         if (_.isNumber(vectorB)) {
             vectorB = new Vector(
                 Vector.makeTuple(
