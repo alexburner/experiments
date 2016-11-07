@@ -101,43 +101,6 @@ _.each({
 // with in-place proxies
 // for static Vector methods
 //
-// Sugar: only for convenience
-//
-
-//
-// Some static methods return new vectors:
-// > var vectorC = Vector.add(vectorA, vectorB);
-//
-// These instance methods update in place:
-// > vectorA.add(vectorB);
-//
-// And these can be chained, like:
-// > vectorA.add(vectorB).subtract(vectorC);
-//
-_.each([
-    'merge',
-    'add',
-    'subtract',
-    'multiply',
-    'divide',
-    'normalize',
-    'setLength',
-], function (methodName) {
-    Vector.prototype[methodName] = function () {
-        // sanitize args array
-        var i = arguments.length;
-        var args = [];
-        while (i--) args[i] = arguments[i];
-        // prepend self
-        args.unshift(this);
-        // get static method's result vector
-        var vector = Vector[methodName].apply(null, args);
-        // overwrite self tuple with result's
-        this.tuple = vector.tuple;
-        // return self (for chaining)
-        return this;
-    };
-});
 
 //
 // Static methods are kinda clunky for these:
@@ -164,5 +127,40 @@ _.each([
         args.unshift(this);
         // return static method's result
         return Vector[methodName].apply(null, args);
+    };
+});
+
+//
+// Some static methods return new vectors:
+// > var vectorC = Vector.add(vectorA, vectorB);
+//
+// Instance methods can update in place:
+// > vectorA.add(vectorB);
+//
+// And can also be chained, like:
+// > vectorA.add(vectorB).subtract(vectorC);
+//
+_.each([
+    'merge',
+    'add',
+    'subtract',
+    'multiply',
+    'divide',
+    'normalize',
+    'setLength',
+], function (methodName) {
+    Vector.prototype[methodName] = function () {
+        // sanitize args array
+        var i = arguments.length;
+        var args = [];
+        while (i--) args[i] = arguments[i];
+        // prepend self
+        args.unshift(this);
+        // get static method's result vector
+        var vector = Vector[methodName].apply(null, args);
+        // overwrite self tuple with result's
+        this.tuple = vector.tuple;
+        // return self (for chaining)
+        return this;
     };
 });
