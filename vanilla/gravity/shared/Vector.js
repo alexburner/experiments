@@ -50,47 +50,54 @@ Vector.setLength = function(vector, length) {
 };
 
 Vector.merge = function(vectorA, vectorB, action) {
-    // We want to support expressions like:
-    // > var vectorC = Vector.multiply(vectorA, 10);
-    // so if vectorB is a number, make it a vector of itself
-    if (_.isNumber(vectorB)) {
-        vectorB = new Vector(Vector.makeTuple(vectorA.tuple.length, vectorB));
-    }
-    // Merge A and B into a new vector
-    return new Vector(_.times(vectorA.tuple.length, function (i) {
-        return action(vectorA.tuple[i], vectorB.tuple[i]);
-    }));
+    // combine two vectors into a new vector,
+    // using the provided action function
+    return new Vector(
+        _.times(
+            vectorA.tuple.length,
+            function (i) {
+                return action(
+                    vectorA.tuple[i],
+                    vectorB.tuple[i]
+                );
+            }
+        )
+    );
 };
 
 //
 // Extend Vector with static math methods like:
 // > var vectorC = Vector.add(vectorA, vectorB);
 //
-
-_.each([
-    'add',
-    'subtract',
-    'multiply',
-    'divide',
-], function (method) {
-    Vector[method] = function (vectorA, vectorB) {
-        return Vector.merge(vectorA, vectorB, Vector.maths[method]);
-    };
-});
-
-Vector.maths = {
+_.each({
     add      : function (n1, n2) { return n1 + n2; },
     subtract : function (n1, n2) { return n1 - n2; },
     multiply : function (n1, n2) { return n1 * n2; },
     divide   : function (n1, n2) { return n1 / n2; },
-};
+}, function (mathAction, methodName) {
+    Vector[methodName] = function (vectorA, vectorB) {
+        // We want to support math with constants like:
+        // > var vectorC = Vector.multiply(vectorA, 10);
+        // So if vectorB is a number, make it a vector of itself
+        if (_.isNumber(vectorB)) {
+            vectorB = new Vector(
+                Vector.makeTuple(
+                    vectorA.tuple.length,
+                    vectorB
+                )
+            );
+        }
+        // Merge A and B into a new vector
+        return Vector.merge(vectorA, vectorB, mathAction);
+    };
+});
 
 /**
  * Instance methods
  */
 
 //
-// We extend Vector prototype
+// Extend Vector prototype
 // with in-place proxies
 // for static Vector methods
 //
@@ -115,8 +122,8 @@ _.each([
     'divide',
     'normalize',
     'setLength',
-], function (method) {
-    Vector.prototype[method] = function () {
+], function (methodName) {
+    Vector.prototype[methodName] = function () {
         // sanitize args array
         var i = arguments.length;
         var args = [];
@@ -124,7 +131,7 @@ _.each([
         // prepend self
         args.unshift(this);
         // get static method's result vector
-        var vector = Vector[method].apply(null, args);
+        var vector = Vector[methodName].apply(null, args);
         // overwrite self tuple with result's
         this.tuple = vector.tuple;
         // return self (for chaining)
@@ -147,8 +154,8 @@ _.each([
     'clone',
     'getLength',
     'getLengthSq',
-], function (method) {
-    Vector.prototype[method] = function () {
+], function (methodName) {
+    Vector.prototype[methodName] = function () {
         // sanitize args array
         var i = arguments.length;
         var args = [];
@@ -156,6 +163,6 @@ _.each([
         // prepend self
         args.unshift(this);
         // return static method's result
-        return Vector[method].apply(null, args);
+        return Vector[methodName].apply(null, args);
     };
 });
