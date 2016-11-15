@@ -1,0 +1,511 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis &mdash; rotated</title>
+<style type="text/css" media="screen">
+    html, body, canvas {
+        margin: 0;
+        padding: 0;
+        background: #EEE;
+    }
+    canvas {
+        padding-left: 15px;
+        background: #EEE;
+    }
+</style>
+</head>
+<body>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/GenesisPanelCol.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript" src="js/RectGrid.js"></script>
+<script type="text/javascript">
+
+
+
+    var pageWidth = 1100 * 4 + 1100 / 2;
+    var pageHeight = 800 + 1;
+
+
+
+    // initialize paper with new canvas element
+    var canvas = document.createElement('canvas');
+    canvas.width = pageWidth;
+    canvas.height = pageHeight;
+    document.body.appendChild(canvas);
+    paper.setup(canvas);
+
+
+
+    //
+    //
+    /////////////////////////////////////////
+    function makeBlack(args) {
+
+        var x = args.x;
+        var y = args.y;
+
+        var w = args.width;
+        var h = args.height;
+
+
+        // background color shape
+        // var backdrop = new shapes.Backdrop();
+        var marginX = 15;
+        var marginY = 20;
+        var backdrop = new paper.Path.Rectangle(
+            new paper.Point(
+                x + marginX,
+                y + marginY
+            ),
+            new paper.Size(
+                w - marginX * 2,
+                h - marginY * 2
+            )
+        );
+
+        backdrop.fillColor = '#111';
+
+    }
+
+
+    //
+    //
+    /////////////////////////////////////////
+    function makeGenesis(args) {
+        makeBlack(args);
+
+
+
+        var stage = args.stage;
+
+        var radius = 24;
+
+        var x = args.x;
+        var y = args.y;
+
+        var w = args.width;
+        var h = args.height;
+
+
+
+        var grid = new RectGrid(
+            new paper.Point(x, y),
+            new paper.Size(w, h),
+            120,
+            6,
+            4
+        );
+
+
+        for (var i = 0; i < grid.matrix.length; i++) {
+            for (var j = 0; j < grid.matrix[i].length; j++) {
+                var rect = grid.matrix[i][j];
+                var genesis = undefined;
+                switch (i) {
+                    case 0:
+                        // title
+                        break;
+                    case 1:
+                        // circles
+                        if (j === 0) {
+                            genesis = new GenesisPanel(
+                                stage,
+                                radius,
+                                rect.point,
+                                rect.size
+                            );
+                        }
+                        break;
+                    case 2:
+                        // points
+                        if (j === 0) {
+                            genesis = new GenesisPanel(
+                                stage,
+                                radius,
+                                rect.point,
+                                rect.size
+                            );
+                            genesis.hideCircles();
+                            genesis.markPoints();
+                        }
+                        break;
+                    case 3:
+                        // lines
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisLines);
+                        genesis.drawAllLines('in');
+                        genesis.hideAllLines();
+                        switch (j) {
+                            case 0:
+                                genesis.showLinesByLength('radius');
+                                genesis.showLinesByLength('vesica');
+                                genesis.showLinesByLength('strange');
+                                break;
+                            case 1:
+                                genesis.showLinesByLength('radius');
+                                break;
+                            case 2:
+                                genesis.showLinesByLength('vesica');
+                                break;
+                            case 3:
+                                genesis.showLinesByLength('strange');
+                                break;
+                        }
+                        break;
+                    case 4:
+                        // seeds
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisFacets);
+                        genesis.makeFacets();
+                        switch (j) {
+                            case 0:
+                                genesis.drawSeeds(
+                                    'vesica',
+                                    'around',
+                                    'selves'
+                                );
+                                genesis.drawSeeds(
+                                    'vesica',
+                                    'within',
+                                    'selves'
+                                );
+                                genesis.drawSeeds(
+                                    'treble',
+                                    'around',
+                                    'selves'
+                                );
+                                genesis.drawSeeds(
+                                    'treble',
+                                    'within',
+                                    'selves'
+                                );
+                                genesis.drawSeeds(
+                                    'petal',
+                                    'around',
+                                    'selves'
+                                );
+                                genesis.drawSeeds(
+                                    'petal',
+                                    'within',
+                                    'selves'
+                                );
+                                break;
+                            case 1:
+                                genesis.drawSeeds(
+                                    'vesica',
+                                    'around',
+                                    'selves'
+                                );
+                                genesis.drawSeeds(
+                                    'vesica',
+                                    'within',
+                                    'selves'
+                                );
+                                break;
+                            case 2:
+                                genesis.drawSeeds(
+                                    'treble',
+                                    'around',
+                                    'selves'
+                                );
+                                genesis.drawSeeds(
+                                    'treble',
+                                    'within',
+                                    'selves'
+                                );
+                                break;
+                            case 3:
+                                genesis.drawSeeds(
+                                    'petal',
+                                    'around',
+                                    'selves'
+                                );
+                                genesis.drawSeeds(
+                                    'petal',
+                                    'within',
+                                    'selves'
+                                );
+                                break;
+                        }
+                        break;
+                    case 5:
+                        // centroid
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisLines);
+                        genesis.extend(GenesisCentroid);
+                        switch (j) {
+                            case 0:
+                                genesis.markCentroid();
+                                genesis.drawAllLines('in');
+                                genesis.findCentroidLines();
+                                genesis.hideLinesNotCentroid();
+                                genesis.findOtherCentroidRadii();
+                                genesis.drawOtherCentroidCircles();
+                                break;
+                            case 1:
+                                genesis.markCentroid();
+                                break;
+                            case 2:
+                                genesis.drawAllLines('in');
+                                genesis.findCentroidLines();
+                                genesis.hideLinesNotCentroid();
+                                break;
+                            case 3:
+                                genesis.findOtherCentroidRadii();
+                                genesis.drawOtherCentroidCircles();
+                                break;
+                        }
+                        break;
+                }
+            }
+        }
+
+    }
+
+
+    //
+    //
+    /////////////////////////////////////////
+    function makeSum(args) {
+        makeBlack(args);
+
+
+        var radius = 20;
+
+        var x = args.x;
+        var y = args.y;
+
+        var w = args.width;
+        var h = args.height;
+
+
+        var grid = new RectGrid(
+            new paper.Point(x, y),
+            new paper.Size(w, h),
+            120,
+            7,
+            5
+        );
+
+
+        for (var i = 0; i < grid.matrix.length; i++) {
+            var stage = i + 1;
+            for (var j = 0; j < grid.matrix[i].length; j++) {
+                var rect = grid.matrix[i][j];
+                var genesis = undefined;
+                switch (j) {
+                    case 0:
+                        // circles
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        break;
+                    case 1:
+                        // points
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.markPoints();
+                        break;
+                    case 2:
+                        // lines
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisLines);
+                        genesis.drawAllLines('in');
+                        genesis.hideAllLines();
+                        genesis.showLinesByLength('radius');
+                        genesis.showLinesByLength('vesica');
+                        genesis.showLinesByLength('strange');
+                        break;
+                    case 3:
+                        // seeds
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisFacets);
+                        genesis.makeFacets();
+                        genesis.drawSeeds(
+                            'vesica',
+                            'around',
+                            'selves'
+                        );
+                        genesis.drawSeeds(
+                            'vesica',
+                            'within',
+                            'selves'
+                        );
+                        genesis.drawSeeds(
+                            'treble',
+                            'around',
+                            'selves'
+                        );
+                        genesis.drawSeeds(
+                            'treble',
+                            'within',
+                            'selves'
+                        );
+                        genesis.drawSeeds(
+                            'petal',
+                            'around',
+                            'selves'
+                        );
+                        genesis.drawSeeds(
+                            'petal',
+                            'within',
+                            'selves'
+                        );
+                        break;
+                    case 4:
+                        // centroid
+                        genesis = new GenesisPanel(
+                            stage,
+                            radius,
+                            rect.point,
+                            rect.size
+                        );
+                        genesis.hideCircles();
+                        genesis.extend(GenesisLines);
+                        genesis.extend(GenesisCentroid);
+                        // genesis.markCentroid();
+                        genesis.drawAllLines('in');
+                        genesis.findCentroidLines();
+                        genesis.hideLinesNotCentroid();
+                        genesis.findOtherCentroidRadii();
+                        genesis.drawOtherCentroidCircles();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+    }
+
+
+    var localWidth = pageWidth / 9;
+    var localHeight = pageHeight;
+
+    makeBlack({
+        x: 0 * localWidth,
+        y: 0,
+        width: localWidth,
+        height: localHeight
+    });
+
+    makeGenesis({
+        stage: 1,
+        x: 1 * localWidth,
+        y: 0,
+        width: localWidth,
+        height: localHeight
+    });
+
+    makeGenesis({
+        stage: 2,
+        x: 2 * localWidth,
+        y: 0,
+        width: localWidth,
+        height: localHeight
+    });
+
+    makeGenesis({
+        stage: 3,
+        x: 3 * localWidth,
+        y: 0,
+        width: localWidth,
+        height: localHeight
+    });
+
+    makeGenesis({
+        stage: 4,
+        x: 4 * localWidth,
+        y: 0,
+        width: localWidth,
+        height: localHeight
+    });
+
+    makeGenesis({
+        stage: 5,
+        x: 5 * localWidth,
+        y: 0,
+        width: localWidth,
+        height: localHeight
+    });
+
+    makeGenesis({
+        stage: 6,
+        x: 6 * localWidth,
+        y: 0,
+        width: localWidth,
+        height: localHeight
+    });
+
+    makeGenesis({
+        stage: 7,
+        x: 7 * localWidth,
+        y: 0,
+        width: localWidth,
+        height: localHeight
+    });
+
+    makeSum({
+        x: 8 * localWidth,
+        y: 0,
+        width: localWidth,
+        height: localHeight
+    });
+
+
+
+    /**
+     * Execute
+     */
+    paper.view.draw();
+
+
+</script>
+<script type="text/javascript" src="js/svg-export.js"></script>
+</body>
+</html>
