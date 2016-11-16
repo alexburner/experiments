@@ -6,7 +6,6 @@ function GenesisCentroid(genesis) {
 	// namespace
 	this.centroid = {};
 	// elements
-	// this.centroid.point = util.getCentroid(genesis.points);
 	this.centroid.point = util.getCentroid(
 		genesis.circles.map(function (circle) {
 			return circle.position;
@@ -129,8 +128,8 @@ GenesisCentroid.prototype.drawCentroidCircles = function () {
 	//
 	// draw circles
 	radii.forEach(function (radius) {
-		var circle = new shapes.CentroidCircle(this.centroid.point, radius);
-		this.group.addChild(circle);
+		var seed = new shapes.Seed(this.centroid.point, radius);
+		this.group.addChild(seed);
 	}, this);
 
 };
@@ -149,9 +148,7 @@ GenesisCentroid.prototype.findOtherCentroidRadii = function () {
 	var lengthExists = {};
 	this.points.forEach(function (point) {
 		var length = util.roundish(point.subtract(this.centroid.point).length);
-		if (!length) return;
-		// if (!lengthExists[length]) {
-		if (true) { // paint repeats
+		if (true) {
 			lengthExists[length] = true;
 			this.centroid.radii.points.push(point);
 		}
@@ -160,9 +157,12 @@ GenesisCentroid.prototype.findOtherCentroidRadii = function () {
 
 GenesisCentroid.prototype.drawOtherCentroidCircles = function () {
 	this.centroid.radii.points.forEach(function (point) {
-		var circle = new shapes.CentroidCircle(
+		var circle = new shapes.Seed(
 			this.centroid.point, this.centroid.point.subtract(point).length
 		);
+
+		//circle.opacity = circle.opacity / 2;
+
 		this.centroid.radii.circles.push(circle);
 		this.group.addChild(circle);
 	}, this);

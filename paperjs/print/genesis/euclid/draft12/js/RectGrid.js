@@ -1,35 +1,35 @@
-function RectGrid(origin, size, paddingV, paddingH, rows, cols) {
+function RectGrid(origin, size, padding, rowCount, colCount) {
 	// properties
 	this.origin = origin;
 	this.size = size;
 	this.group = new paper.Group();
 	this.matrix = undefined;
 	// construction
-	this.makePanels(paddingV, paddingH, rows, cols);
+	this.makePanels(padding, rowCount, colCount);
 }
 
-RectGrid.prototype.makePanels = function(paddingV, paddingH, rows, cols) {
+RectGrid.prototype.makePanels = function(padding, rowCount, colCount) {
 
 	this.matrix = [];
 
-	var cellWidth = (this.size.width - paddingH) / cols;
-	var cellHeight = (this.size.height - paddingV) / rows;
+	var cellWidth = Math.round((this.size.width - padding) / colCount);
+	var cellHeight = Math.round((this.size.height - padding) / rowCount);
 
 	var currentX = this.origin.x;
 	var currentY = this.origin.y;
 
-	for (var i = 0; i < rows; i++) {
+	for (var i = 0; i < rowCount; i++) {
 		var rectRow = [];
-		for (var j = 0; j < cols; j++) {
+		for (var j = 0; j < colCount; j++) {
 
 			var rect = new paper.Rectangle(
 				new paper.Point(
-					currentX + paddingH,
-					currentY + paddingV
+					currentX + padding,
+					currentY + padding
 				),
 				new paper.Size(
-					cellWidth - paddingH,
-					cellHeight - paddingV
+					cellWidth - padding,
+					cellHeight - padding
 				)
 			);
 

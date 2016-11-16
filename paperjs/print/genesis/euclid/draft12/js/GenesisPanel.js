@@ -2,7 +2,7 @@
  * GenesisPanel pattern factory
  */
 
-function GenesisPanel(stage, radius, origin, size, orient) {
+function GenesisPanel(stage, radius, origin, size, inplace) {
 	// elements
 	this.panel = new shapes.Panel(origin, size);
 	this.bounds = this.panel.bounds;
@@ -17,9 +17,8 @@ function GenesisPanel(stage, radius, origin, size, orient) {
 	this.sizes.vesica = util.getVesicaLength(this.sizes.radius);
 	this.sizes.strange = util.getStrangeLength(this.sizes.radius, this.sizes.vesica);
 	this.sizes.petal = util.getPetalWidth(this.sizes.radius, this.sizes.vesica);
-	this.orient = orient; // natural, north, south, east, west
 	// construction
-	this.makeCircles();
+	this.makeCircles(inplace);
 	this.makePoints();
 }
 
@@ -29,7 +28,7 @@ GenesisPanel.prototype.extend = function (extension) {
 };
 
 
-GenesisPanel.prototype.makeCircles = function() {
+GenesisPanel.prototype.makeCircles = function (inplace) {
 
 	// create a delta vector for moving circles
 	var centerVector = new paper.Point(this.center);
@@ -44,7 +43,7 @@ GenesisPanel.prototype.makeCircles = function() {
 		if (stage===1) {
 			circle = new shapes.Circle(this.center, this.sizes.radius);
 		} else {
-			centerVector.angle = -60 * (stage - 2);
+			centerVector.angle = 60 * (stage - 2);
 			circle = new shapes.Circle(
 				this.center.add(centerVector),
 				this.sizes.radius
@@ -56,33 +55,50 @@ GenesisPanel.prototype.makeCircles = function() {
 		this.circles.push(circle);
 		this.group.addChild(circle);
 
-		// are we there yet?
-		if (stage === this.stage) return;
-	}
-};
+		// terminate appropriately
+		if (stage === this.stage) {
 
-GenesisPanel.rotate = function (group, origin, stage, orient) {
-	if (stage === 1) return;
-	var bump = 30 * (stage - 2);
-	var natural = -90 + 60 * (stage - 2);
-	switch (orient) {
-		case 'north': group.rotate(-90 + bump, origin); break;
-		case 'south': group.rotate(90 + bump, origin); break;
-		case 'east': group.rotate(0 + bump, origin); break;
-		case 'west': group.rotate(180 + bump, origin); break;
-		case 'natural': group.rotate(natural, origin); break;
-		case 'pencil':
-			switch (stage) {
-				case 1: group.rotate(-90, origin); break;
-				case 2: group.rotate(-90, origin); break;
-				case 3: group.rotate(-90, origin); break;
-				case 4: group.rotate(-90 + 60, origin); break;
-				case 5: group.rotate(-90 + 60, origin); break;
-				case 6: group.rotate(-90 + 120, origin); break;
-				case 7: group.rotate(-90, origin); break;
+            // skip rotations?
+            if (inplace) {
+                // this.group.rotate(90, this.center);
+                return;
+            }
+
+			// upside down from original plan
+			this.group.rotate(180, this.center);
+
+			switch(stage) {
+				case 1:
+					// 1(st)
+					return;
+				case 2:
+					// 2(nd)
+					this.group.rotate(90, this.center);
+					return;
+				case 3:
+					// 3(rd)
+					this.group.rotate(60, this.center);
+					return;
+				case 4:
+					// 4(th)
+					this.group.rotate(30, this.center);
+					return;
+				case 5:
+					// 5(th)
+					return;
+				case 6:
+					// 6(th)
+					this.group.rotate(-30, this.center);
+					return;
+				case 7:
+					// 7(th)
+					// this.group.rotate(30, this.center);
+					return;
 			}
-			break;
+		}
+
 	}
+
 };
 
 
@@ -139,12 +155,20 @@ GenesisPanel.prototype.markPoints = function () {
 	}, this);
 };
 
-
 GenesisPanel.prototype.markCenters = function () {
 	this.circles.forEach(function (circle) {
 		var mark = new shapes.Mark(circle.position);
 		this.group.addChild(mark);
 	}, this);
+};
+
+GenesisPanel.prototype.edgeCenters = function () {
+    this.circles.forEach(function (circleA) {
+        this.circles.forEach(function (circleB) {
+            var line = new shapes.Line(circleA.position, circleB.position);
+            this.group.addChild(line);
+        }, this);
+    }, this);
 };
 
 
@@ -164,18 +188,28 @@ GenesisPanel.prototype.doubleOrigin = function () {
 
 GenesisPanel.prototype.doubleCentroid = function () {
 	var clone = this.group.clone();
-	var point = util.getCentroid(
-		this.circles.map(function (circle) {
-			return circle.position;
-		})
-	);
+	var point = util.getCentroid(this.points);
 	switch (this.stage) {
-		case 2: clone.rotate(90, point); break;
-		case 3: clone.rotate(60, point); break;
-		case 4: clone.rotate(90, point); break;
-		case 5: clone.rotate(180, point); break;
-		case 6: clone.rotate(180, point); break;
-		case 7: clone.rotate(30, point); break;
-		case 8: clone.rotate(30, point); break;
+		case 2:
+			clone.rotate(90, point);
+			break;
+		case 3:
+			clone.rotate(60, point);
+			break;
+		case 4:
+			clone.rotate(90, point);
+			break;
+		case 5:
+			clone.rotate(180, point);
+			break;
+		case 6:
+			clone.rotate(180, point);
+			break;
+		case 7:
+			clone.rotate(30, point);
+			break;
+		case 8:
+			clone.rotate(30, point);
+			break;
 	}
 };

@@ -48,12 +48,12 @@ GenesisFacets.prototype._makeVesicas = function () {
 			if (indexA === indexB) return;
 			if (facetExists[indexA + ',' + indexB]) return;
 			if (facetExists[indexB + ',' + indexA]) return;
+            facetExists[indexA + ',' + indexB] = true;
 			var vector = circleA.position.subtract(circleB.position);
 			if (distance !== util.roundish(vector.length)) return;
 			var facet = new Facet([circleA, circleB]);
 			this.facets.vesica.push(facet);
 			this.facets.all.push(facet);
-			facetExists[indexA + ',' + indexB] = true;
 		}, this);
 	}, this);
 };
@@ -77,6 +77,7 @@ GenesisFacets.prototype._makeTrebles = function () {
 			if (facetExists[i2 + ',' + i3 + ',' + i1]) return;
 			if (facetExists[i3 + ',' + i1 + ',' + i2]) return;
 			if (facetExists[i3 + ',' + i2 + ',' + i1]) return;
+            facetExists[i1 + ',' + i2 + ',' + i3] = true;
 			var v1 = c1.position.subtract(c2.position);
 			var v2 = c1.position.subtract(c3.position);
 			if (distance !== util.roundish(v1.length)) return;
@@ -84,7 +85,6 @@ GenesisFacets.prototype._makeTrebles = function () {
 			var facet = new Facet([c1, c2, c3]);
 			this.facets.treble.push(facet);
 			this.facets.all.push(facet);
-			facetExists[i1 + ',' + i2 + ',' + i3] = true;
 		}, this);
 	}, this);
 };
@@ -97,12 +97,12 @@ GenesisFacets.prototype._makePetals = function () {
 			if (indexA === indexB) return;
 			if (facetExists[indexA + ',' + indexB]) return;
 			if (facetExists[indexB + ',' + indexA]) return;
+            facetExists[indexA + ',' + indexB] = true;
 			var vector = circleA.position.subtract(circleB.position);
 			if (distance !== util.roundish(vector.length)) return;
 			var facet = new Facet([circleA, circleB]);
 			this.facets.petal.push(facet);
 			this.facets.all.push(facet);
-			facetExists[indexA + ',' + indexB] = true;
 		}, this);
 	}, this);
 };
@@ -126,30 +126,30 @@ GenesisFacets.prototype.drawFacets = function (type) {
 	type = type || 'all';
 	this.facets[type].forEach(function (facet, index) {
 		facet.drawIntersect();
-
-		// var vector = this.center.subtract(facet.intersect.position);
-		// facet.intersect.position = facet.intersect.position.subtract(vector);
-
-		// facet.intersect.position = facet.intersect.position.add(
-		// 	new paper.Point(
-		// 		Math.random() > 0.5 ? Math.random() * 30 : Math.random() * -30,
-		// 		Math.random() > 0.5 ? Math.random() * 30 : Math.random() * -30
-		// 	)
-		// );
-
-		// facet.intersect.position = this.bounds.point;
-		// facet.intersect.position.y += index * this.sizes.radius;
-
 		this.group.addChild(facet.intersect);
 	}, this);
 };
 
-GenesisFacets.prototype.laserScatter = function (type) {
-	// String type = all, vesica, treble, petal
-	type = type || 'all';
-	this.facets[type].forEach(function (facet) {
-		facet.laserScatter();
-	}, this);
+GenesisFacets.prototype.drawFacetSums = function (type) {
+   /* // String type = all, vesica, treble, petal
+    type = type || 'all';
+    var sum = null;
+    this.facets[type].forEach(function (facet, index) {
+        if (!facet.intersect) facet.makeIntersect();
+
+        // console.log('sum', sum);
+        // console.log('facet.intersect', facet.intersect);
+
+        if (!sum) sum = facet.intersect;
+        else sum = sum.unite(facet.intersect);
+
+        // console.log(sum);
+
+    }, this);
+    sum.strokeColor = shapes.strokeColor;
+    sum.strokeWidth = shapes.strokeWidth;
+    sum.opacity = shapes.opacity;
+    this.group.addChild(sum);*/
 };
 
 GenesisFacets.prototype.edgeFacets = function (type) {
@@ -178,14 +178,14 @@ GenesisFacets.prototype.drawSeeds = function (type, engaged, origin) {
 	switch (origin) {
 		case 'selves':
 			this.facets[type].forEach(function (facet) {
-				var seed = new shapes.SeedCircle(facet.centroid, radius);
+				var seed = new shapes.Seed(facet.centroid, radius);
 				this.group.addChild(seed);
 				seeds.push(seed);
 			}, this);
 			break;
 		case 'centers':
 			this.circles.forEach(function (circle) {
-				var seed = new shapes.SeedCircle(circle.position, radius);
+				var seed = new shapes.Seed(circle.position, radius);
 				this.group.addChild(seed);
 				seeds.push(seed);
 			}, this);
