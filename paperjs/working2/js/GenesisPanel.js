@@ -34,7 +34,7 @@ function GenesisPanel(stage, radius, origin, size) {
 
 
 GenesisPanel.prototype.makeCircles = function() {
-	
+
 	// create a delta vector for moving circles
 	var centerVector = new paper.Point(this.center);
 	centerVector.length = this.sizes.radius;
@@ -45,7 +45,7 @@ GenesisPanel.prototype.makeCircles = function() {
 	// draw 1-7 circles
 	for (var i = 0, l = 7; i < l; i++) {
 		var stage = i + 1;
-		
+
 		// create & move & store circle
 		var circle;
 		if (stage == 1) {

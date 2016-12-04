@@ -19,7 +19,7 @@ function makeFacets(args) {
         paddingV,
         paddingH,
         7,
-        4
+        5
     );
 
     for (var i = 0; i < grid.matrix.length; i++) {
@@ -27,7 +27,25 @@ function makeFacets(args) {
         for (var j = 0; j < grid.matrix[i].length; j++) {
             var rect = grid.matrix[i][j];
             var genesis = null;
+
+            rect.point.x += 2;
+
             switch (j) {
+                // case -1:
+                //     genesis = new GenesisPanel(
+                //         stage,
+                //         radius,
+                //         rect.point,
+                //         rect.size,
+                //         orient
+                //     );
+                //     genesis.hideCircles();
+                //     genesis.extend(GenesisFacets);
+                //     genesis.makeFacets();
+                //     genesis.drawFacets('vesica');
+                //     genesis.drawFacets('treble');
+                //     genesis.drawFacets('petal');
+                //     break;
                 case 0:
                     // circles
                     genesis = new GenesisPanel(

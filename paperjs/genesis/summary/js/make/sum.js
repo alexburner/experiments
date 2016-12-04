@@ -122,7 +122,7 @@ function makeSum(args) {
                     genesis.hideCircles();
                     genesis.extend(GenesisLines);
                     genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
+                    // genesis.markCentroid();
                     genesis.drawAllLines('in');
                     genesis.findCentroidLines();
                     genesis.hideLinesNotCentroid();

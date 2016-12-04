@@ -19,7 +19,7 @@ function makeTrail(args) {
         paddingV,
         paddingH,
         7,
-        1
+        5
     );
 
     for (var i = 0; i < grid.matrix.length; i++) {
@@ -28,7 +28,7 @@ function makeTrail(args) {
             var rect = grid.matrix[i][j];
             var genesis = undefined;
             switch (j) {
-                case 0:
+                case 2:
                     genesis = new GenesisPanel(
                         stage,
                         radius,
