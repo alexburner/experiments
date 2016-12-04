@@ -6,7 +6,7 @@ var util = {
 
 	precision: 28,
 	proximity: 5,
-	
+
 	roundish: function (number, precision) {
 		precision = precision || util.precision;
 		return Math.round(number * precision) / precision;
@@ -52,10 +52,7 @@ var util = {
 
 	getStrangeLength: function (radius, vesica) {
 		return util.roundish(
-			Math.sqrt(
-				Math.pow(radius / 2, 2) +
-				Math.pow((3 * vesica) / 2, 2)
-			)
+			Math.sqrt(7 * radius * radius)
 		);
 	},
 
