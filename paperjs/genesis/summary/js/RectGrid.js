@@ -1,6 +1,9 @@
 function RectGrid(origin, size, paddingV, paddingH, rows, cols) {
 	// properties
 	this.origin = origin;
+
+	this.origin.y += 54;
+
 	this.size = size;
 	this.group = new paper.Group();
 	this.matrix = undefined;

@@ -28,7 +28,7 @@ function makeSeeds(args) {
             var rect = grid.matrix[i][j];
             var genesis = null;
 
-            rect.point.x -= 2;
+            // rect.point.x -= 2;
 
             switch (j - 1) {
                 case 0:

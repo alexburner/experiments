@@ -28,7 +28,7 @@ function makeFacets(args) {
             var rect = grid.matrix[i][j];
             var genesis = null;
 
-            rect.point.x += 2;
+            // rect.point.x += 2;
 
             switch (j) {
                 // case -1:
