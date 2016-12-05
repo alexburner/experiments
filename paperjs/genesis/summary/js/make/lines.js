@@ -29,15 +29,25 @@ function makeLines(args) {
             var genesis = null;
 
             // rect.point.y += 7;
-            // rect.point.y += 4 * i;
+            // rect.point.y += 14 * i;
             // if (i === 7) {
-            //     rect.point.y -= 14;
+            //     rect.point.y -= 35;
             // }
 
-            rect.point.y -= 54;
+            // rect.point.y -= 54;
+
+            // if (i === 7) {
+            //     rect.point.y +=14;
+            // }
+
+            rect.point.y += 7;
+            rect.point.y += 4 * i;
+            if (i === 7) {
+                rect.point.y -= 14;
+            }
 
             switch (i) {
-                case 8:
+                case 7:
                     genesis = new GenesisPanel(
                         stage,
                         radius,
