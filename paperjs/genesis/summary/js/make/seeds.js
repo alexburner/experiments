@@ -19,7 +19,7 @@ function makeSeeds(args) {
         paddingV,
         paddingH,
         7,
-        5
+        4
     );
 
     for (var i = 0; i < grid.matrix.length; i++) {
@@ -28,9 +28,10 @@ function makeSeeds(args) {
             var rect = grid.matrix[i][j];
             var genesis = null;
 
-            // rect.point.x -= 2;
+            rect.point.y -= 10;
+            rect.point.y -= 22 * i;
 
-            switch (j - 1) {
+            switch (j) {
                 case 0:
                     // seeds (petal)
                     genesis = new GenesisPanel(
