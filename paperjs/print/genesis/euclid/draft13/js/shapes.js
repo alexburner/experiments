@@ -4,16 +4,14 @@
 
 var shapes = {
 
-	backColor: 'white',
-    strokeColor: 'black',
+	backColor: 'black',
+    strokeColor: 'white',
 	strokeWidth: 1/2,
 	opacity: 1,
 
 	Backdrop: function (bounds) {
 		bounds = bounds || paper.view.bounds;
 		var backdrop = new paper.Path.Rectangle(bounds);
-		// backdrop.fillColor = 'white';
-        // backdrop.fillColor = '#222';
 		backdrop.fillColor = shapes.backColor;
         return backdrop;
 	},
