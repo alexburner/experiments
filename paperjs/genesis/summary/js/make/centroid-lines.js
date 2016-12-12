@@ -81,6 +81,10 @@ function makeCentroidLines(args) {
                     genesis.hideCircles();
                     genesis.extend(GenesisLines);
                     genesis.drawAllLines('in');
+                    genesis.hideAllLines();
+                    genesis.showLinesByLength('radius');
+                    genesis.showLinesByLength('vesica');
+                    genesis.showLinesByLength('strange');
                     genesis.extend(GenesisCentroid);
                     genesis.markCentroid();
                     break;
