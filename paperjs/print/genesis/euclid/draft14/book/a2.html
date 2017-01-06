@@ -1,0 +1,60 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>a2</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: #DDD;
+	}
+	canvas {
+		margin: 30px;
+		background: white;
+	}
+</style>
+</head>
+<body>
+<script type="text/javascript" src="../../../../../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="../js/util.js"></script>
+<script type="text/javascript" src="../js/shapes.js"></script>
+<script type="text/javascript" src="../js/GenesisPanel.js"></script>
+<script type="text/javascript" src="../js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="../js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="../js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="../js/Facet.js"></script>
+<script type="text/javascript" src="../js/RectGrid.js"></script>
+<script type="text/javascript" src="../js/draw/center-lines.js"></script>
+<script type="text/javascript" src="../js/draw/lines.js"></script>
+<script type="text/javascript">
+
+
+	var pageWidth = 1100;
+	var pageHeight = 850;
+
+
+	// initialize paper with new canvas element
+	var canvas = document.createElement('canvas');
+	canvas.width = pageWidth;
+	canvas.height = pageHeight;
+	document.body.appendChild(canvas);
+	paper.setup(canvas);
+
+	var radius = 17;
+
+
+    drawCenterLines();
+    drawLines(pageWidth / 2);
+
+
+
+	/**
+	 * Execute
+	 */
+	paper.view.draw();
+
+
+</script>
+<script type="text/javascript" src="../../../../svg-export.js"></script>
+</body>
+</html>
