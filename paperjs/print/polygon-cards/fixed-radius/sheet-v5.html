@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>sheet v5</title>
+<style type="text/css" media="screen">
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: #222;
+        width: 100%;
+        height: 100%;
+    }
+    body {
+        padding: 3% 0;
+    }
+    #wrapper {
+        width: 3300px; /* 11(300) */
+        height: 2550px; /* 8.5(300) */
+        margin: auto;
+    }
+    #canvas {
+        width: 3300px; /* 11(300) */
+        height: 2550px; /* 8.5(300) */
+        background: white;
+    }
+</style>
+</head>
+<body>
+<div id="wrapper"><canvas id="canvas"></canvas></div>
+<script type="text/javascript" src="../../../paper.v.0.9.18.js"></script>
+<script type="text/javascript">
+
+    var radius = 200;
+
+    var pageW = 3300;
+    var pageH = 2550;
+
+    var rows = 3;
+    var cols = 4;
+
+    var cellW = pageW / cols;
+    var cellH = pageH / rows;
+
+    var cell = 0;
+
+
+    // initialize paper with canvas element
+    paper.setup(document.getElementById('canvas'));
+
+    function createGridPoint(args) {
+        var width = cellW; // number (pixels)
+        var height = cellH; // number (pixels)
+
+        var center = args.center; // paper.Point
+
+        var xSpot = args.xSpot; // number (index)
+        var ySpot = args.ySpot; // number (index)
+
+        var xSpots = args.xSpots || 5; // number (length)
+        var ySpots = args.ySpots || 5; // number (length)
+
+        var paddingX = args.paddingX || width / 7;
+        var paddingY = args.paddingY || height / 7;
+
+        var _height = height - 2 * paddingY;
+        var _width = width - 2 * paddingX;
+
+        if (xSpots === 1 && ySpots === 1) {
+            // special case for just 1
+            var point = new paper.Point();
+            point.x = center.x - width / 2;
+            point.y = center.y - height / 2;
+            point.x += paddingX;
+            point.y += paddingY;
+            point.x += 0;
+            point.y += _height;
+            return point;
+        }
+
+        var deltaY = _height / (ySpots - 1);
+        var deltaX = _width / (xSpots - 1);
+
+        var point = new paper.Point();
+        point.x = center.x - width / 2;
+        point.y = center.y - height / 2;
+        point.x += paddingX;
+        point.y += paddingY;
+        point.x += deltaX * (xSpot - 1);
+        point.y += deltaY * (ySpot - 1);
+        return point;
+    }
+
+    function compareNumbers(a, b) {
+        return a - b;
+    }
+
+    function drawByRadius(center, count, radius) {
+        var bounds = new paper.Path.Rectangle({
+            point: [
+                center.x - cellW / 2,
+                center.y - cellH / 2
+            ],
+            size: [cellW, cellH],
+            strokeColor: 'black',
+            dashArray: [1, 4],
+        });
+
+        var text = new paper.PointText({
+            content: count,
+            fillColor: 'black',
+            fontFamily: 'Times',
+            fontWeight: 'bold',
+            fontSize: 120
+        });
+        text.position = createGridPoint({
+            center: center,
+            xSpot: 1,
+            ySpot: 1,
+        });
+
+
+
+        //
+        // LOL HACKS
+        var hack = 40;
+        center.y -= hack;
+
+
+        var circle = new paper.Path.Circle({
+            strokeColor: 'black',
+            strokeWidth: 1,
+            dashArray: [1, 2],
+            center: center,
+            radius: radius
+        });
+
+
+        /**
+         * No more for 0
+         */
+        if (count < 1) {
+            return radius;
+        }
+
+
+        var points = [];
+        var angle = 360 / count;
+        var vector = new paper.Point(center);
+        vector.length = radius;
+        vector.angle = -90;
+        for (var i = 0, l = count; i < l; i++) {
+            var point = new paper.Point(center);
+            point = point.add(vector);
+            points.push(point);
+            vector.angle += angle;
+
+
+            new paper.Path.Circle({
+                fillColor: 'black',
+                center: point,
+                radius: 24
+            });
+
+        }
+        var lines = [];
+        var lineExists = {};
+        var linesByLength = {};
+        points.forEach(function (pointA, indexA) {
+            var coordsA = pointA.toString();
+            points.forEach(function (pointB, indexB) {
+                if (indexA === indexB) return;
+                var coordsB = pointB.toString();
+                if (lineExists[coordsA + coordsB]) return;
+                if (lineExists[coordsB + coordsA]) return;
+                lineExists[coordsA + coordsB] = true;
+
+                var distance = pointA.subtract(pointB).length;
+                distance = distance.toFixed(2);
+
+                var line = new paper.Path.Line({
+                    from: pointA,
+                    to: pointB,
+                    strokeCap: 'round',
+                    strokeColor: 'black',
+                    strokeWidth: 2,
+                });
+
+                lines.push(line);
+
+                if (!linesByLength[distance]) {
+                    linesByLength[distance] = [];
+                }
+                linesByLength[distance].push(line);
+
+            });
+        });
+
+        center.y += hack;
+        // LOL HACKS
+        //
+
+
+        var groups = [];
+        var lengths = Object.keys(linesByLength).sort(compareNumbers);
+
+        for (
+            var i = 0, l = Math.min(lengths.length, 6);
+            i < l;
+            i++
+        ) {
+            var length = lengths[i];
+            var lines = linesByLength[length];
+            var group = (new paper.Group(lines)).clone();
+            group.scale(1/4, center);
+            group.position = createGridPoint({
+                center: center,
+                xSpots: l,
+                ySpots: l,
+                xSpot: i + 1,
+                ySpot: l,
+            });
+        }
+
+        return radius;
+    }
+
+
+
+
+
+
+
+    for (var row = 0; row < rows; row++) {
+        for (var col = 0; col < cols; col++) {
+            var x = cellW * col + cellW / 2;
+            var y = cellH * row + cellH / 2;
+            drawByRadius(new paper.Point(x, y), cell, radius);
+            cell++;
+        }
+    }
+
+
+
+
+
+
+    paper.view.draw();
+
+
+
+    /**
+     * SVG export
+     * via http://www.mikechambers.com/blog/2014/07/01/saving-svg-content-from-paper.js/
+     */
+
+    // listen for shift+o
+    tool = new paper.Tool();
+    tool.onKeyUp = function(e) {
+        if (e.character == "O") {
+            openAsSVG();
+        }
+    }
+
+    function openAsSVG() {
+        var svgString = paper.project.exportSVG({asString: true});
+        var url = "data:image/svg+xml;utf8," + encodeURIComponent(svgString);
+        var link = document.createElement('a');
+        link.target = "_blank";
+        link.href = url;
+        link.click();
+    }
+
+</script>
+</body>
+</html>
