@@ -1,7 +1,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<title>holonstar 1</title>
+<title>holonstar 5</title>
 <style type="text/css" media="screen">
     html, body, canvas {
         margin: 0;
@@ -9,14 +9,11 @@
         width: 100%;
         height: 100%;
     }
-    #container {
-        width: 600px;
-        height: 600px;
-        margin: auto;
-    }
+    #container,
     #workspace {
-        width: 600px;
-        height: 600px;
+        width: 700px;
+        height: 700px;
+        margin: auto;
     }
 </style>
 </head>
@@ -26,15 +23,15 @@
 <script type="text/javascript">
     paper.setup(document.getElementById('workspace'));
 
-    var WIDTH = 600;
-    var HEIGHT = 600;
-    var RADIUS = 200;
-    var LIMIT = 4;
+    var WIDTH = 700;
+    var HEIGHT = 700;
+    var RADIUS = 240;
+    var COUNT = 4;
 
     var center = new paper.Point(WIDTH / 2, HEIGHT / 2);
     var triangles = [];
 
-    for (var i = 0; i < LIMIT; i++) {
+    for (var i = 0; i < COUNT; i++) {
         var triangle = paper.Path.RegularPolygon({
             center: center,
             sides: 3,
@@ -47,15 +44,15 @@
     }
 
     // var primaries = [];
-    // for (var i = 0; i < LIMIT; i++) {
+    // for (var i = 0; i < COUNT; i++) {
     //     var triangleA = triangles[i];
     //     var primary = triangleA.clone();
-    //     for (var j = 0; j < LIMIT; j++) {
+    //     for (var j = 0; j < COUNT; j++) {
     //         if (j === i) continue;
     //         var triangleB = triangles[j];
     //         var temp = primary.subtract(triangleB);
     //         temp.fillColor = {
-    //             hue: 100 * (i / LIMIT),
+    //             hue: 100 * (i / COUNT),
     //             saturation: 2/3,
     //             brightness: 1,
     //         };
@@ -66,17 +63,17 @@
     // }
 
     var secondaries = [];
-    for (var i = 0; i < LIMIT; i++) {
+    for (var i = 0; i < COUNT; i++) {
         var triangleA = triangles[i];
-        var triangleB = triangles[(i + 1) % LIMIT];
+        var triangleB = triangles[(i + 1) % COUNT];
         var secondary = triangleA.intersect(triangleB);
-        for (var j = 0; j < LIMIT; j++) {
+        for (var j = 0; j < COUNT; j++) {
             if (j === i) continue;
-            if (j === (i + 1) % LIMIT) continue;
+            if (j === (i + 1) % COUNT) continue;
             var triangleC = triangles[j];
             var temp = secondary.subtract(triangleC);
             temp.fillColor = {
-                hue: 100 * (i / LIMIT),
+                hue: 100 * (i / COUNT),
                 saturation: 2/3,
                 brightness: 1,
             };
@@ -156,7 +153,7 @@
                     thing.strokeWidth = 6;
                     thing.strokeColor = 'black';
                     thing.fillColor = {
-                        hue: 360 * ((i + j * LIMIT) / 12),
+                        hue: 360 * ((i + j * COUNT) / 12),
                         saturation: 2/3,
                         brightness: 1,
                     };
