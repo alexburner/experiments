@@ -1,0 +1,182 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>holonstar 1</title>
+<style type="text/css" media="screen">
+    html, body, canvas {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+    #container {
+        width: 600px;
+        height: 600px;
+        margin: auto;
+    }
+    #workspace {
+        width: 600px;
+        height: 600px;
+    }
+</style>
+</head>
+<body>
+<div id="container"><canvas id="workspace"></canvas></div>
+<script type="text/javascript" src="../paper.v.0.10.2.dev.js"></script>
+<script type="text/javascript">
+    paper.setup(document.getElementById('workspace'));
+
+    var WIDTH = 600;
+    var HEIGHT = 600;
+    var RADIUS = 200;
+    var LIMIT = 4;
+
+    var center = new paper.Point(WIDTH / 2, HEIGHT / 2);
+    var triangles = [];
+
+    for (var i = 0; i < LIMIT; i++) {
+        var triangle = paper.Path.RegularPolygon({
+            center: center,
+            sides: 3,
+            radius: RADIUS,
+            strokeColor: 'black',
+            strokeWidth: 6,
+        });
+        triangle.rotate(i * 30, center);
+        triangles.push(triangle);
+    }
+
+    // var primaries = [];
+    // for (var i = 0; i < LIMIT; i++) {
+    //     var triangleA = triangles[i];
+    //     var primary = triangleA.clone();
+    //     for (var j = 0; j < LIMIT; j++) {
+    //         if (j === i) continue;
+    //         var triangleB = triangles[j];
+    //         var temp = primary.subtract(triangleB);
+    //         temp.fillColor = {
+    //             hue: 100 * (i / LIMIT),
+    //             saturation: 2/3,
+    //             brightness: 1,
+    //         };
+    //         primary.replaceWith(temp);
+    //         primary = temp;
+    //     }
+    //     primaries.push(primary);
+    // }
+
+    var secondaries = [];
+    for (var i = 0; i < LIMIT; i++) {
+        var triangleA = triangles[i];
+        var triangleB = triangles[(i + 1) % LIMIT];
+        var secondary = triangleA.intersect(triangleB);
+        for (var j = 0; j < LIMIT; j++) {
+            if (j === i) continue;
+            if (j === (i + 1) % LIMIT) continue;
+            var triangleC = triangles[j];
+            var temp = secondary.subtract(triangleC);
+            temp.fillColor = {
+                hue: 100 * (i / LIMIT),
+                saturation: 2/3,
+                brightness: 1,
+            };
+            secondary.replaceWith(temp);
+            secondary = temp;
+        }
+        secondaries.push(secondary);
+    }
+
+    triangles.forEach(function (triangle) {
+        // triangle.remove();
+    });
+
+    var things = [];
+    var things2 = [];
+    secondaries.forEach(function (secondary, i) {
+        things2[i] = [];
+        secondary.children.forEach(function (path) {
+            things.push(new paper.Path(path.segments));
+            things2[i].push(new paper.Path(path.segments));
+        });
+        secondary.children.forEach(function (path) {
+            path.remove();
+        });
+        secondary.remove();
+    });
+
+    // things.forEach(function (thing, i) {
+    //     // console.log(i, things.length, i / things.length);
+    //     // console.log(360 * (i / things.length));
+    //     console.log(thing);
+    //     thing.closePath();
+    //     thing.strokeWidth = 6;
+    //     thing.strokeColor = 'black';
+    //     thing.fillColor = {
+    //         hue: 360 * (i / things.length),
+    //         saturation: 2/3,
+    //         brightness: 1,
+    //     };
+    // });
+
+    var count = 0;
+
+    var sects = [];
+    // while (things2[0].length) {
+    //     for (var i = 0; i < things2.length; i++) {
+    //         // sects.push(things2[i].shift());
+    //         var thing = things2[i].shift();
+
+    //         // if (count > 3) {
+    //         //     console.log(count);
+    //         //     continue;
+    //         // }
+
+    //         (function (thing, count) {
+    //             setTimeout(function () {
+    //                 thing.closePath();
+    //                 thing.strokeWidth = 6;
+    //                 thing.strokeColor = 'black';
+    //                 thing.fillColor = {
+    //                     hue: 360 * (count / 12),
+    //                     saturation: 2/3,
+    //                     brightness: 1,
+    //                 };
+    //             }, 1000 * count);
+    //         })(thing, count);
+
+
+    //         count++;
+    //     }
+    // }
+    things2.forEach(function (triangle, i) {
+        triangle.forEach(function (thing, j) {
+            (function (thing, count) {
+                setTimeout(function () {
+                    thing.closePath();
+                    thing.strokeWidth = 6;
+                    thing.strokeColor = 'black';
+                    thing.fillColor = {
+                        hue: 360 * ((i + j * LIMIT) / 12),
+                        saturation: 2/3,
+                        brightness: 1,
+                    };
+                }, 1000 * count);
+            })(thing, count++);
+        });
+    });
+    // sects.forEach(function (sect, i) {
+    //     if (i > 2) return;
+    //     sect.closePath();
+    //     sect.strokeWidth = 6;
+    //     sect.strokeColor = 'black';
+    //     sect.fillColor = {
+    //         hue: 360 * (i / sects.length),
+    //         saturation: 2/3,
+    //         brightness: 1,
+    //     };
+    // });
+
+    paper.view.draw();
+</script>
+</body>
+</html>

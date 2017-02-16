@@ -1,0 +1,120 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>holonstar 2</title>
+<style type="text/css" media="screen">
+    html, body, canvas {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+    #container {
+        width: 600px;
+        height: 600px;
+        margin: auto;
+    }
+    #workspace {
+        width: 600px;
+        height: 600px;
+    }
+</style>
+</head>
+<body>
+<div id="container"><canvas id="workspace"></canvas></div>
+<script type="text/javascript" src="../paper.v.0.10.2.dev.js"></script>
+<script type="text/javascript">
+    paper.setup(document.getElementById('workspace'));
+
+    var WIDTH = 600;
+    var HEIGHT = 600;
+    var RADIUS = 200;
+    var COUNT = 4;
+
+    var center = new paper.Point(WIDTH / 2, HEIGHT / 2);
+    var triangles = [];
+
+    for (var i = 0; i < COUNT; i++) {
+        var triangle = paper.Path.RegularPolygon({
+            center: center,
+            sides: 3,
+            radius: RADIUS,
+            strokeColor: 'black',
+            strokeWidth: 6,
+        });
+        triangle.rotate(i * 30, center);
+        triangles.push(triangle);
+    }
+
+    var secondaries = [];
+    for (var i = 0; i < COUNT; i++) {
+        var triangleA = triangles[i];
+        var triangleB = triangles[(i + 1) % COUNT];
+        var secondary = triangleA.intersect(triangleB);
+        for (var j = 0; j < COUNT; j++) {
+            if (j === i) continue;
+            if (j === (i + 1) % COUNT) continue;
+            var triangleC = triangles[j];
+            var temp = secondary.subtract(triangleC);
+            secondary.replaceWith(temp);
+            secondary = temp;
+        }
+        secondaries.push(secondary);
+    }
+
+    triangles.forEach(function (triangle) {
+        triangle.opacity = 0.2;
+    });
+
+
+    var sects = [];
+    secondaries.forEach(function (secondary, i) {
+        secondary.children.forEach(function (path, j) {
+            // sects.push(new paper.Path(path.segments));
+            sects[i + j * COUNT] = new paper.Path(path.segments);
+        });
+        secondary.children.forEach(function (path) {
+            path.remove();
+        });
+        secondary.remove();
+    });
+
+    // yes this is happening
+    // order is wonked, hand fix
+    // sects = [
+    //     sects[0],
+    //     sects[3],
+    //     sects[8],
+    //     sects[9],
+    //     sects[1],
+    //     sects[5],
+    //     sects[6],
+    //     sects[10],
+    //     sects[2],
+    //     sects[4],
+    //     sects[7],
+    //     sects[11],
+    // ];
+
+    sects.forEach(function (sect, i) {
+        sect.closePath();
+        sect.strokeWidth = 6;
+        sect.strokeColor = 'black';
+        sect.fillColor = {
+            hue: 360 * (i / 12),
+            saturation: 2/3,
+            brightness: 1,
+        };
+
+        // var text = new paper.PointText({
+        //     content: i,
+        //     fillColor: 'black',
+        //     fontSize: 12
+        // });
+        // text.position = sect.position;
+    });
+
+    paper.view.draw();
+</script>
+</body>
+</html>
