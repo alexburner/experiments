@@ -1,0 +1,132 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>holonstar 6</title>
+<style type="text/css" media="screen">
+    html, body, canvas {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+    #container,
+    #workspace {
+        width: 700px;
+        height: 700px;
+        margin: auto;
+    }
+</style>
+</head>
+<body>
+<div id="container"><canvas id="workspace"></canvas></div>
+<script type="text/javascript" src="../paper.v.0.10.2.dev.js"></script>
+<script type="text/javascript">
+
+    paper.setup(document.getElementById('workspace'));
+
+    var COUNT = 4;
+
+    var WIDTH = 700;
+    var HEIGHT = 700;
+    var RADIUS = 240;
+    var STROKE_WIDTH = 1/2;
+    var STROKE_COLOR = '#333';
+    var SATURATION = 3/4;
+    var BRIGHTNESS = 9/10;
+
+    var CENTER = new paper.Point(WIDTH / 2, HEIGHT / 2);
+
+    function drawStar() {
+        // create triangles
+        var triangles = [];
+        for (var i = 0; i < COUNT; i++) {
+            var triangle = paper.Path.RegularPolygon({
+                center: CENTER,
+                sides: 3,
+                radius: RADIUS,
+                strokeColor: STROKE_COLOR,
+                strokeWidth: STROKE_WIDTH,
+            });
+            triangle.remove();
+            triangle.rotate(i * 30, CENTER);
+            triangles.push(triangle);
+        }
+
+        // create primary subsections
+        var primaries = [];
+        for (var i = 0; i < COUNT; i++) {
+            var primary = triangles[i].clone();
+            for (var j = 0; j < COUNT; j++) {
+                if (i === j) continue;
+                var temp = primary.subtract(triangles[j]);
+                primary.replaceWith(temp);
+                primary = temp;
+            }
+            primary.remove();
+            primaries.push(primary);
+        }
+
+        // create secondary subsections
+        var secondaries = [];
+        for (var i = 0; i < COUNT; i++) {
+            var triangleA = triangles[i];
+            var triangleB = triangles[(i + 1) % COUNT];
+            var secondary = triangleA.intersect(triangleB);
+            for (var j = 0; j < COUNT; j++) {
+                if (j === i) continue;
+                if (j === (i + 1) % COUNT) continue;
+                var triangleC = triangles[j];
+                var temp = secondary.subtract(triangleC);
+                secondary.replaceWith(temp);
+                secondary = temp;
+            }
+            secondary.remove();
+            secondaries.push(secondary);
+        }
+
+        // extract, sort, and style children
+        primaries = processChildren(primaries);
+        secondaries = processChildren(secondaries);
+        secondaries.forEach(function (path) {
+            path.fillColor.hue += 360 / 24;
+        });
+
+        // return one big group of primary and secondary children
+        return new paper.Group([].concat(primaries, secondaries));
+    }
+
+    function processChildren(compoundPaths) {
+        var children = [];
+        compoundPaths.forEach(function (compoundPath, i) {
+            compoundPath.children.forEach(function (child, j) {
+                // each compound path is one triangle's worth of subsections
+                // but we want all of our subsections in a row (neighbors both
+                // visually and within the array) so we place them using magic
+                children[i + j * COUNT] = new paper.Path(child.segments);
+            });
+        });
+        children.forEach(function (child, i) {
+            child.closePath();
+            child.strokeWidth = STROKE_WIDTH;
+            child.strokeColor = STROKE_COLOR;
+            child.fillColor = {
+                hue: 360 * (i / 12),
+                saturation: SATURATION,
+                brightness: BRIGHTNESS,
+            };
+        });
+        return children;
+    }
+
+    for (var i = 0; i < 24; i++) {
+        var star = drawStar();
+        var scale = Math.pow(733/1000, i); // magic
+        star.scale(scale, CENTER);
+        star.sendToBack();
+    }
+
+    paper.view.draw();
+
+</script>
+</body>
+</html>
