@@ -1,0 +1,112 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>holonstar L</title>
+<style type="text/css" media="screen">
+    html, body, canvas {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+    #container,
+    #workspace {
+        width: 700px;
+        height: 700px;
+        margin: auto;
+    }
+</style>
+</head>
+<body>
+<div id="container"><canvas id="workspace"></canvas></div>
+<script type="text/javascript" src="../paper.v.0.10.2.dev.js"></script>
+<script type="text/javascript">
+
+    paper.setup(document.getElementById('workspace'));
+
+    var COUNT = 4;
+    var RADIUS = 240;
+    var STROKE_WIDTH = 2;
+    var STROKE_COLOR = '#333';
+    var SATURATION = 3/4;
+    var BRIGHTNESS = 9/10;
+    var center = paper.view.center;
+    function drawStar() {
+        // create triangles
+        var triangles = [];
+        for (var i = 0; i < COUNT; i++) {
+            var triangle = paper.Path.RegularPolygon({
+                center: center,
+                sides: 3,
+                radius: RADIUS,
+                strokeColor: STROKE_COLOR,
+                strokeWidth: STROKE_WIDTH,
+                insert: false
+            });
+            triangle.rotate(i * 30, center);
+            triangles.push(triangle);
+        }
+        // create primary subsections
+        var primaries = [];
+        for (var i = 0; i < COUNT; i++) {
+            var primary = triangles[i];
+            for (var j = 0; j < COUNT; j++) {
+                if (i !== j) {
+                    primary = primary.subtract(triangles[j]);
+                }
+            }
+            primaries.push(primary);
+        }
+        // create secondary subsections
+        var secondaries = [];
+        for (var i = 0; i < COUNT; i++) {
+            var triangleA = triangles[i];
+            var triangleB = triangles[(i + 1) % COUNT];
+            var secondary = triangleA.intersect(triangleB);
+            for (var j = 0; j < COUNT; j++) {
+                if (j !== i && j !== (i + 1) % COUNT) {
+                    secondary = secondary.subtract(triangles[j]);
+                }
+            }
+            secondaries.push(secondary);
+        }
+        // extract, sort, and style children
+        primaries = processChildren(primaries, 0);
+        secondaries = processChildren(secondaries, 360 / 24);
+        // return one big group of primary and secondary children
+        return new paper.Group(primaries.concat(secondaries));
+    }
+    function processChildren(compoundPaths, hueShift) {
+        var children = [];
+        compoundPaths.forEach(function (compoundPath, i) {
+            compoundPath.children.forEach(function (child, j) {
+                // each compound path is one triangle's worth of subsections
+                // but we want all of our subsections in a row (neighbors both
+                // visually and within the array) so we place them using magic
+                children[i + j * COUNT] = child;
+            });
+        });
+        children.forEach(function (child, i) {
+            child.strokeWidth = STROKE_WIDTH;
+            child.strokeColor = STROKE_COLOR;
+            child.fillColor = {
+                hue: 360 * (i / 12) + hueShift,
+                saturation: SATURATION,
+                brightness: BRIGHTNESS,
+            };
+        });
+        return children;
+    }
+    for (var i = 0; i < 7; i++) {
+        var star = drawStar();
+        var scale = Math.pow(733/1000, i); // magic
+        star.scale(scale, center);
+        star.sendToBack();
+    }
+
+
+    paper.view.draw();
+
+</script>
+</body>
+</html>
