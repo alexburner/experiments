@@ -41,13 +41,13 @@ function makeLines(args) {
             // }
 
             rect.point.y += 7;
-            rect.point.y += 4 * i;
-            if (i === 7) {
-                rect.point.y -= 14;
+            rect.point.y += 8 * i;
+            if (i > 0) {
+                rect.point.y -= 48;
             }
 
             switch (i) {
-                case 7:
+                case 0:
                     genesis = new GenesisPanel(
                         stage,
                         radius,
@@ -59,7 +59,7 @@ function makeLines(args) {
                     genesis.extend(GenesisLines);
                     genesis.drawAllLines('in');
                     break;
-                case 5:
+                case 7:
                     // lines (vesica2)
                     genesis = new GenesisPanel(
                         stage,
@@ -74,7 +74,7 @@ function makeLines(args) {
                     genesis.hideAllLines();
                     genesis.showLinesByLength('vesica2');
                     break;
-                case 4:
+                case 6:
                     // lines (radius3)
                     genesis = new GenesisPanel(
                         stage,
@@ -89,7 +89,7 @@ function makeLines(args) {
                     genesis.hideAllLines();
                     genesis.showLinesByLength('radius3');
                     break;
-                case 3:
+                case 5:
                     // lines (strange)
                     genesis = new GenesisPanel(
                         stage,
@@ -104,7 +104,7 @@ function makeLines(args) {
                     genesis.hideAllLines();
                     genesis.showLinesByLength('strange');
                     break;
-                case 2:
+                case 4:
                     // lines (radius2)
                     genesis = new GenesisPanel(
                         stage,
@@ -119,7 +119,7 @@ function makeLines(args) {
                     genesis.hideAllLines();
                     genesis.showLinesByLength('radius2');
                     break;
-                case 1:
+                case 3:
                     // lines (vesica)
                     genesis = new GenesisPanel(
                         stage,
@@ -134,7 +134,7 @@ function makeLines(args) {
                     genesis.hideAllLines();
                     genesis.showLinesByLength('vesica');
                     break;
-                case 0:
+                case 2:
                     // lines (radius)
                     genesis = new GenesisPanel(
                         stage,

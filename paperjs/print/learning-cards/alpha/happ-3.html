@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>happ 3</title>
+<style type="text/css" media="screen">
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: #222;
+        width: 100%;
+        height: 100%;
+    }
+    body {
+        padding: 3% 0;
+    }
+    #wrapper {
+        width: 3300px; /* 11(300) */
+        height: 2550px; /* 8.5(300) */
+        margin: auto;
+    }
+    #canvas {
+        width: 3300px; /* 11(300) */
+        height: 2550px; /* 8.5(300) */
+        background: white;
+    }
+</style>
+</head>
+<body>
+<div id="wrapper"><canvas id="canvas"></canvas></div>
+<script type="text/javascript" src="../../../paper.v.0.9.18.js"></script>
+<script type="text/javascript">
+
+    var radius = 200;
+
+    var pageW = 3300;
+    var pageH = 2550;
+
+    var rows = 3;
+    var cols = 4;
+
+    var cellW = pageW / cols;
+    var cellH = pageH / rows;
+
+
+    // initialize paper with canvas element
+    paper.setup(document.getElementById('canvas'));
+
+
+
+    function drawByRadius(center, char, radius, fonts) {
+        if (char > 26) return;
+        var count = fonts.length * 2;
+
+        var bounds = new paper.Path.Rectangle({
+            point: [
+                center.x - cellW / 2,
+                center.y - cellH / 2
+            ],
+            size: [cellW, cellH],
+            strokeColor: 'black',
+            dashArray: [1, 4],
+        });
+
+        var letter = new paper.PointText({
+            content: char === 0 ? '?' : String.fromCharCode(64 + char),
+            fillColor: 'black',
+            fontFamily: 'Times',
+            fontWeight: 'bold',
+            fontSize: 240
+        });
+        letter.position = center;
+
+        // var circle = new paper.Path.Circle({
+        //     strokeColor: 'black',
+        //     strokeWidth: 1,
+        //     dashArray: [2, 3],
+        //     center: center,
+        //     radius: radius
+        // });
+
+        var littles = [];
+        var points = [];
+        var angle = 360 / count;
+        var vector = new paper.Point(center);
+        vector.length = radius;
+        vector.angle = -90;
+        for (var i = 0, l = count; i < l; i++) {
+            var point = new paper.Point(center);
+            point = point.add(vector);
+            points.push(point);
+
+            var little = new paper.PointText({
+                content: char === 0 ? '?' : String.fromCharCode(64 + char),
+                fillColor: 'black',
+                fontFamily: 'Times',
+                fontWeight: 'bold',
+                fontSize: 164
+            });
+            little.position = point;
+            little.rotate(vector.angle, point)
+            littles.push(little);
+
+            vector.angle += angle;
+        }
+
+        littles = new paper.Group(littles);
+        littles.scale(1.25, center);
+
+        return radius;
+    }
+
+
+
+
+    var char = 24;
+    var fonts = [
+        'Times',
+        'Times',
+        'Times',
+        'Times',
+        'Times',
+        'Times',
+    ];
+    for (var row = 0; row < rows; row++) {
+        for (var col = 0; col < cols; col++) {
+            var x = cellW * col + cellW / 2;
+            var y = cellH * row + cellH / 2;
+            drawByRadius(new paper.Point(x, y), char, radius, fonts);
+            char++;
+        }
+    }
+
+
+
+
+
+
+    paper.view.draw();
+
+
+
+    /**
+     * SVG export
+     * via http://www.mikechambers.com/blog/2014/07/01/saving-svg-content-from-paper.js/
+     */
+
+    // listen for shift+o
+    tool = new paper.Tool();
+    tool.onKeyUp = function(e) {
+        if (e.character == "O") {
+            openAsSVG();
+        }
+    }
+
+    function openAsSVG() {
+        var svgString = paper.project.exportSVG({asString: true});
+        var url = "data:image/svg+xml;utf8," + encodeURIComponent(svgString);
+        var link = document.createElement('a');
+        link.target = "_blank";
+        link.href = url;
+        link.click();
+    }
+
+</script>
+</body>
+</html>

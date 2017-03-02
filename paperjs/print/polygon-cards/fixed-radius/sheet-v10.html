@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<title>sheet v9</title>
+<title>sheet v10</title>
 <style type="text/css" media="screen">
     html, body {
         margin: 0;
@@ -115,16 +115,9 @@
         });
         text.position = createGridPoint({
             center: center,
-            xSpot: 3,
+            xSpot: 1,
             ySpot: 1,
         });
-
-
-
-        //
-        // LOL HACKS
-        // var hack = 40;
-        // center.y -= hack;
 
 
         var circle = new paper.Path.Circle({
@@ -155,13 +148,13 @@
             points.push(point);
             vector.angle += angle;
 
-            if (count <= 5) {
-                new paper.Path.Circle({
-                    fillColor: 'black',
-                    center: point,
-                    radius: 24
-                });
-            }
+            // if (count < 4) {
+            //     new paper.Path.Circle({
+            //         fillColor: 'black',
+            //         center: point,
+            //         radius: 24
+            //     });
+            // }
 
         }
         var lines = [];
@@ -197,16 +190,9 @@
             });
         });
 
-        // center.y += hack;
-        // LOL HACKS
-        //
-
         Object.keys(linesByLength)
             .sort(compareNumbers)
             .forEach(function (length, index, lengths) {
-                var BEND1 = 5;
-                var BEND2 = 9;
-                var limit = Math.min(lengths.length, BEND1);
                 var lines = linesByLength[length];
                 var group = (new paper.Group(lines)).clone();
                 group.scale(1/4, center);
@@ -219,6 +205,26 @@
                 });
             })
         ;
+
+        var pointRadius = 48;
+
+        console.log(pointRadius);
+
+        var pointGroup = new paper.Group(
+            points.map(function (point, i) {
+                return new paper.Path.Circle({
+                    fillColor: 'black',
+                    center: point,
+                    radius: pointRadius
+                });
+            })
+        );
+        pointGroup.scale(0.215, center);
+        pointGroup.position = createGridPoint({
+            center: center,
+            xSpot: 5,
+            ySpot: 1,
+        });
 
         return radius;
     }

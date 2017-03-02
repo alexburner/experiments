@@ -91,10 +91,10 @@ function makeCirclesDotsLines(args) {
                     genesis.hideCircles();
                     genesis.extend(GenesisLines);
                     genesis.drawAllLines('in');
-                    genesis.hideAllLines();
-                    genesis.showLinesByLength('radius');
-                    genesis.showLinesByLength('vesica');
-                    genesis.showLinesByLength('strange');
+                    // genesis.hideAllLines();
+                    // genesis.showLinesByLength('radius');
+                    // genesis.showLinesByLength('vesica');
+                    // genesis.showLinesByLength('strange');
                     break;
                 default:
                     break;
