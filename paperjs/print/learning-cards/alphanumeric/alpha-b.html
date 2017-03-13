@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>alpha-b</title>
+<style type="text/css" media="screen">
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: #222;
+        width: 100%;
+        height: 100%;
+    }
+    body {
+        padding: 3% 0;
+    }
+    #wrapper {
+        width: 3300px; /* 11(300) */
+        height: 2550px; /* 8.5(300) */
+        margin: auto;
+    }
+    #canvas {
+        width: 3300px; /* 11(300) */
+        height: 2550px; /* 8.5(300) */
+        background: white;
+    }
+</style>
+</head>
+<body>
+<div id="wrapper"><canvas id="canvas"></canvas></div>
+<script type="text/javascript" src="../../../paper.v.0.9.18.js"></script>
+<script type="text/javascript" src="bounds.js"></script>
+<script type="text/javascript" src="alpha.js"></script>
+<script type="text/javascript" src="alphanumeric-b.js"></script>
+<script type="text/javascript">
+
+    var hash = window.location.hash.length ?
+        Number(window.location.hash.slice(1)) :
+        NaN
+    ;
+
+    var count = isNaN(hash) ? 0 : hash;
+
+    var radius = 200;
+
+    var pageW = 3300;
+    var pageH = 2550;
+
+    var rows = 3;
+    var cols = 4;
+
+    var cellW = pageW / cols;
+    var cellH = pageH / rows;
+
+
+    // initialize paper with canvas element
+    paper.setup(document.getElementById('canvas'));
+
+
+    var fonts = [
+        'Times',
+        'Times',
+        'Times',
+        'Times',
+        'Times',
+        'Times',
+    ];
+
+    for (var row = 0; row < rows; row++) {
+        for (var col = 0; col < cols; col++) {
+            var x = cellW * col + cellW / 2;
+            var y = cellH * row + cellH / 2;
+            var center = new paper.Point(x, y);
+            bounds(center, cellW, cellH);
+            alphanumeric(center, count, radius, fonts);
+            alpha(center, count, radius, fonts);
+            count++;
+        }
+    }
+
+
+
+
+
+
+    paper.view.draw();
+
+
+
+    /**
+     * SVG export
+     * via http://www.mikechambers.com/blog/2014/07/01/saving-svg-content-from-paper.js/
+     */
+
+    // listen for shift+o
+    tool = new paper.Tool();
+    tool.onKeyUp = function(e) {
+        if (e.character == "O") {
+            openAsSVG();
+        }
+    }
+
+    function openAsSVG() {
+        var svgString = paper.project.exportSVG({asString: true});
+        var url = "data:image/svg+xml;utf8," + encodeURIComponent(svgString);
+        var link = document.createElement('a');
+        link.target = "_blank";
+        link.href = url;
+        link.click();
+    }
+
+</script>
+</body>
+</html>
