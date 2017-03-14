@@ -56,11 +56,11 @@ function alphanumeric(center, count, radius) {
             var line = new paper.Path.Line({
                 from: pointA,
                 to: pointB,
-                opacity: 4/5,
+                opacity: 0.5,
                 blendMode: 'multiply',
                 strokeCap: 'round',
                 strokeColor: 'black',
-                strokeWidth: 2,
+                strokeWidth: 8,
             });
 
             lines.push(line);
@@ -76,36 +76,30 @@ function alphanumeric(center, count, radius) {
 
     var color;
 
-        var shortestLength;
-        Object.keys(linesByLength)
-            .sort(compareNumbers)
-            .forEach(function (length, index, lengths) {
-                var lines = linesByLength[length];
+    var shortestLength;
+    Object.keys(linesByLength)
+        .sort(compareNumbers)
+        .forEach(function (length, index, lengths) {
+            var lines = linesByLength[length];
 
-                if (!shortestLength) shortestLength = length;
-                var scaledLength = length / shortestLength;
-                var lengthScaler = 0.128;
-                var fix = 360 * lengthScaler;
-                var hue = (360 * scaledLength * lengthScaler - fix) % 360;
-                color = {
-                    hue: hue,
-                    saturation: 3/5,
-                    brightness: 4/5,
-                };
+            if (!shortestLength) shortestLength = length;
+            var scaledLength = length / shortestLength;
+            var lengthScaler = 0.128;
+            var fix = 360 * lengthScaler;
+            var hue = (360 * scaledLength * lengthScaler - fix) % 360;
+            color = {
+                hue: hue,
+                saturation: 0.75,
+                brightness: 0.75,
+            };
 
-                console.log(hue);
+            lines.forEach(function (line) {
+                line.strokeColor = color;
+            });
+        })
+    ;
 
-                lines.forEach(function (line) {
-                    line.strokeColor = {
-                        hue: hue,
-                        saturation: 3/5,
-                        brightness: 4/5,
-                    };
-                });
-            })
-        ;
-
-        console.log(color.hue);
+    console.log(color.hue);
 
 
     return radius;

@@ -56,10 +56,10 @@ function alphanumeric(center, count, radius) {
             var line = new paper.Path.Line({
                 from: pointA,
                 to: pointB,
-                opacity: 4/5,
+                opacity: 1,
                 blendMode: 'multiply',
                 strokeCap: 'round',
-                strokeColor: 'black',
+                strokeColor: '#777',
                 strokeWidth: 2,
             });
 

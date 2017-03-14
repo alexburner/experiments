@@ -37,7 +37,7 @@ function alpha(center, char, radius, fonts) {
     }
 
     littles = new paper.Group(littles);
-    littles.scale(1.37, center);
+    littles.scale(1.25, center);
 
     return radius;
 }
