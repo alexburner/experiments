@@ -77,7 +77,7 @@
         var color = new paper.Path.Rectangle({
             size: [diameter, diameter],
             fillColor: {
-                hue: 360 * (count / 12),
+                hue: (360 * -(count / 12) - 120) % 360,
                 saturation: SATURATION,
                 brightness: BRIGHTNESS,
             },

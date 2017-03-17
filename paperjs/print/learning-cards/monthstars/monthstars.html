@@ -36,9 +36,9 @@
         NaN
     ;
 
-    var count = isNaN(hash) ? 0 : hash;
+    var nests = isNaN(hash) ? 6 : hash;
 
-    var radius = 200;
+    var radius = 210;
 
     var pageW = 3300;
     var pageH = 2550;
@@ -178,6 +178,7 @@
     var SATURATION = 3/4;
     var BRIGHTNESS = 9/10;
 
+    var count = 0;
     for (var col = 0; col < cols; col++) {
         for (var row = 0; row < rows; row++) {
             var x = cellW * col + cellW / 2;
@@ -185,10 +186,12 @@
             var center = new paper.Point(x, y);
             var bounds = drawBounds(center, cellW, cellH);
             var month = drawMonth(center, months[count]);
+            // var month = drawMonth(center, count);
             // month.position.y += cellH / 2 - cellH / 7;
             month.position.y += cellH / 2 - cellH / 7;
             var stars = new paper.Group();
-            for (var i = 0; i < 6; i++) {
+            for (var i = 0; i < nests; i++) {
+            // for (var i = 0; i < count; i++) {
                 var star = drawStar(center, radius + 56);
                 var scale = Math.pow(733/1000, i); // magic
                 stars.addChild(star);
@@ -196,8 +199,9 @@
                 star.sendToBack();
             }
             stars.rotate(-(count * 30), center);
+            stars.rotate(180, center);
             // stars.position.y -= cellH * 1/18;
-            stars.position.y -= cellH * 1/28;
+            stars.position.y -= cellH * 1/21;
             // var color = new paper.Path.Circle({
             //     center: stars.position,
             //     radius: radius - 100,
