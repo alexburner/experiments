@@ -1,0 +1,100 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>t6</title>
+<style type="text/css" media="screen">
+	html, body, canvas {
+		margin: 0;
+		padding: 0;
+		background: black;
+	}
+	#container, #workspace {
+		width: 2550px; /* 8.5(300) */
+		height: 3300px; /* 11(300) */
+		margin: auto;
+		background: white;
+	}
+</style>
+</head>
+<body>
+<div id="container">
+	<canvas id="workspace"></canvas>
+</div>
+<script type="text/javascript" src="../../paper.v.0.9.18.js"></script>
+<script type="text/javascript">
+
+	// initialize paper with workspace canvas element
+	paper.setup(document.getElementById('workspace'));
+
+	var PPI = 300;
+
+	function draw(center) {
+		var ringCount = 6;
+		var ringStep = (PPI / 4);
+		var radius = ringCount * ringStep;
+		var strokeColor = 'black';
+		var strokeWidth = 4;
+		// lines
+		new paper.Path({
+			strokeColor: strokeColor,
+			strokeWidth: strokeWidth,
+			segments: [
+				[center.x, center.y - radius],
+				[center.x, center.y + radius]
+			],
+		});
+		new paper.Path({
+			strokeColor: strokeColor,
+			strokeWidth: strokeWidth,
+			segments: [
+				[center.x - radius, center.y],
+				[center.x + radius, center.y]
+			],
+		});
+		// rings
+		for (var i = 0; i < ringCount; i++) {
+			new paper.Path.Circle({
+				strokeColor: strokeColor,
+				strokeWidth: strokeWidth,
+				position: center,
+				radius: ringStep * (i + 1),
+			});
+		}
+	}
+
+	var width = paper.view.size.width; // 2550
+    var height = paper.view.size.height; // 3300
+	draw(new paper.Point(1 * (width / 3) - (PPI / 3), 1 * (height / 4) - (PPI / 1.5)));
+	draw(new paper.Point(2 * (width / 3) + (PPI / 3), 1 * (height / 4) - (PPI / 1.5)));
+	draw(new paper.Point(1 * (width / 3) - (PPI / 3), 2 * (height / 4)));
+	draw(new paper.Point(2 * (width / 3) + (PPI / 3), 2 * (height / 4)));
+	draw(new paper.Point(1 * (width / 3) - (PPI / 3), 3 * (height / 4) + (PPI / 1.5)));
+	draw(new paper.Point(2 * (width / 3) + (PPI / 3), 3 * (height / 4) + (PPI / 1.5)));
+
+	paper.view.draw();
+
+	/**
+	 * SVG export
+	 * via http://www.mikechambers.com/blog/2014/07/01/saving-svg-content-from-paper.js/
+	 */
+
+	// listen for shift+o
+	tool = new paper.Tool();
+	tool.onKeyUp = function(e) {
+		if (e.character == "O") {
+			openAsSVG();
+		}
+	};
+
+	function openAsSVG() {
+		var svgString = paper.project.exportSVG({asString: true});
+		var url = "data:image/svg+xml;utf8," + encodeURIComponent(svgString);
+		var link = document.createElement('a');
+		link.target = "_blank";
+		link.href = url;
+		link.click();
+	}
+
+</script>
+</body>
+</html>
