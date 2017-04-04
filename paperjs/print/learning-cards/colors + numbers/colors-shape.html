@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<title>color num</title>
+<title>color num 2</title>
 <style type="text/css" media="screen">
     html, body {
         margin: 0;
@@ -36,7 +36,7 @@
         NaN
     ;
 
-    var count = isNaN(hash) ? 0 : hash;
+    var count = isNaN(hash) ? 3 : hash;
 
     var radius = 200;
 
@@ -56,6 +56,7 @@
 
 
     function drawByRadius(center, count, radius) {
+
         var bounds = new paper.Path.Rectangle({
             point: [
                 center.x - cellW / 2,
@@ -66,18 +67,18 @@
             dashArray: [1, 4],
         });
 
-        var text = new paper.PointText({
-            content: count,
-            fillColor: 'black',
-            fontFamily: 'Times',
-            fontWeight: 'bold',
-            fontSize: 120
-        });
-        text.position = createGridPoint({
-            center: center,
-            xSpot: 3,
-            ySpot: 1,
-        });
+        // var text = new paper.PointText({
+        //     content: count,
+        //     fillColor: 'black',
+        //     fontFamily: 'Times',
+        //     fontWeight: 'bold',
+        //     fontSize: 120
+        // });
+        // text.position = createGridPoint({
+        //     center: center,
+        //     xSpot: 3,
+        //     ySpot: 1,
+        // });
 
 
         var circle = new paper.Path.Circle({
@@ -109,7 +110,7 @@
             points.push(point);
             vector.angle += angle;
 
-            if (count <= 5) {
+            if (count < 1) {
                 dots.push(
                     new paper.Path.Circle({
                         fillColor: 'black',
@@ -119,14 +120,6 @@
                 );
             }
 
-        }
-
-
-        /**
-         * No more for 1
-         */
-        if (count === 1) {
-            return radius;
         }
 
 
@@ -176,7 +169,7 @@
 
                 if (!shortestLength) shortestLength = length;
                 var scaledLength = length / shortestLength;
-                var lengthScaler = 0.128;
+                var lengthScaler = 0.143;
                 var fix = 360 * lengthScaler;
                 var hue = (360 * scaledLength * lengthScaler - fix) % 360;
                 color = {
@@ -207,15 +200,19 @@
             })
         ;
 
-        console.log(color.hue);
+        if (color) console.log(color.hue);
 
-        text.fillColor = color;
-        circle.strokeColor = color;
-        dots.forEach(function (dot) {
-            dot.fillColor = color;
-        });
+        // text.fillColor = color;
+        // circle.strokeColor = color;
+        // dots.forEach(function (dot) {
+        //     dot.fillColor = color;
+        // });
 
-        return radius;
+
+        var yShift = -72;
+        circle.position.y += yShift;
+        (new paper.Group(dots)).position.y += yShift;
+        (new paper.Group(lines)).position.y += yShift;
     }
 
     function createGridPoint(args) {
@@ -230,8 +227,8 @@
         var xSpots = args.xSpots || 5; // number (length)
         var ySpots = args.ySpots || 5; // number (length)
 
-        var paddingX = args.paddingX || width / 7;
-        var paddingY = args.paddingY || height / 7;
+        var paddingX = args.paddingX || width / 5.5;
+        var paddingY = args.paddingY || height / 5.5;
 
         var _height = height - 2 * paddingY;
         var _width = width - 2 * paddingX;
