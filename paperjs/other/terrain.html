@@ -1,0 +1,128 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>terrain</title>
+<style type="text/css" media="screen">
+    html, body, canvas {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: #333;
+    }
+    #container, #workspace {
+        margin: auto;
+    }
+</style>
+</head>
+<body>
+<div id="container"><canvas id="workspace"></canvas></div>
+<script type="text/javascript" src="../paper.v.0.10.3.js"></script>
+<script type="text/javascript" src="../perlin.js"></script>
+<script type="text/javascript">
+
+    var sprouts = [];
+    var sproutNoise = new Noise(Math.random());
+    var SPROUT_CHANCE = 0.001;
+    var SPROUT_SPREAD = 10;
+    var SPROUT_JITTER = 0.10;
+
+    var FILL_COLOR = {
+        hue: 0,
+        saturation: 0,
+        brightness: 0,
+        alpha: 0,
+    };
+    var STROKE_COLOR = {
+        hue: 0,
+        saturation: 1,
+        brightness: 1,
+        alpha: 0,
+    };
+    var STROKE_WIDTH = 10;
+
+    var X_GRID_SIZE = 100;
+    var Y_GRID_SIZE = 100;
+    var Z_GRID_SIZE = 10;
+
+    var X_SIZE = 700;
+    var Y_SIZE = 700;
+    var Z_SIZE = 700;
+
+    var containerEl = document.getElementById('container');
+    var workspaceEl = document.getElementById('workspace');
+    containerEl.width = X_SIZE;
+    containerEl.height = Y_SIZE;
+    workspaceEl.width = X_SIZE;
+    workspaceEl.height = Y_SIZE;
+    paper.setup(workspaceEl);
+
+    function hasSprout(x, y, z) {
+        var value = sproutNoise.simplex3(x, y, z);
+        return (
+            value >= -SPROUT_CHANCE / 2 &&
+            value <= SPROUT_CHANCE / 2
+        );
+    }
+
+    function Sprout(x, y) {
+        this.center = new paper.Point(x, y);
+        this.noise = new Noise(Math.random());
+        this.pointsByZ = {}; // z -> paper.Point[]
+    }
+
+    Sprout.prototype.addPoints = function (z) {
+        // adds a ring of points spreading out
+        // around previous ring or sprout center
+        var points = [];
+        var prevPoints = this.pointsByZ[z - 1];
+        for (var i = 0; i < 360; i++) {
+            var prevPoint = prevPoints ? prevPoints[i] : this.center;
+            var point = new paper.Point(prevPoint);
+            var vector = new paper.Point(prevPoint);
+            var value = this.noise.simplex3(prevPoint.x, prevPoint.y, z);
+            vector.length = SPROUT_SPREAD * (1 + Math.abs(value));
+            vector.angle = i * (1 + value * SPROUT_JITTER);
+            point.add(vector);
+            points.push(point);
+        }
+        this.pointsByZ[z] = points;
+        return points;
+    };
+
+    for (var z = 0; z < Z_GRID_SIZE; z++) {
+        // add any new sprouts for z layer
+        for (var y = 0; y < Y_GRID_SIZE; y++) {
+            for (var x = 0; x < X_GRID_SIZE; x++) {
+                if (hasSprout(x, y, z)) {
+                    console.log('sprouting!');
+                    sprouts.push(new Sprout(x, y));
+                }
+            }
+        }
+        // add ring to each sprout
+        var paths = [];
+        sprouts.forEach(function (sprout) {
+            var points = sprout.addPoints(z);
+            paths.push(new paper.Path({
+                segments: points,
+                insert: false,
+            }));
+        });
+        // combine & draw rings
+        var finalPath;
+        paths.forEach(function (path) {
+            finalPath = finalPath ?
+                finalPath.unite(path) :
+                path;
+        });
+        finalPath.fillColor = FILL_COLOR;
+        finalPath.strokeColor = STROKE_COLOR;
+        finalPath.strokeWidth = STROKE_WIDTH;
+    }
+
+    paper.view.draw();
+
+</script>
+</body>
+</html>
