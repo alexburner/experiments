@@ -1,0 +1,159 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>terrain—hmmm</title>
+<style type="text/css" media="screen">
+    html, body, canvas {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+    #container, #workspace {
+        margin: auto;
+    }
+</style>
+</head>
+<body>
+<div id="container"><canvas id="workspace"></canvas></div>
+<script type="text/javascript" src="../paper.v.0.10.3.js"></script>
+<script type="text/javascript" src="../perlin.js"></script>
+<script type="text/javascript">
+
+    var sprouts = [];
+    var SPROUT_CHANCE = 0.0002;
+    var SPROUT_SPREAD = 10;
+    var SPROUT_JITTER = 0.10;
+
+    var FILL_COLOR = {
+        hue: 0,
+        saturation: 0,
+        brightness: 1,
+        alpha: 0.08,
+    };
+    var STROKE_COLOR = {
+        hue: 0,
+        saturation: 0,
+        brightness: 1,
+        alpha: 0.8,
+    };
+    var STROKE_WIDTH = 1;
+
+    var X_GRID_SIZE = 100;
+    var Y_GRID_SIZE = 100;
+    var Z_GRID_SIZE = 10;
+
+    var X_SIZE = 700;
+    var Y_SIZE = 700;
+    var Z_SIZE = 700;
+
+    var containerEl = document.getElementById('container');
+    var workspaceEl = document.getElementById('workspace');
+    containerEl.style.width = X_SIZE;
+    containerEl.style.height = Y_SIZE;
+    workspaceEl.style.width = X_SIZE;
+    workspaceEl.style.height = Y_SIZE;
+
+    paper.setup(workspaceEl);
+
+    new paper.Path.Rectangle({
+        point: [0, 0],
+        size: paper.view.size,
+        fillColor: '#333',
+    });
+
+    function Sprout(x, y) {
+        this.center = new paper.Point(x, y);
+        this.noise = new Noise(Math.random());
+        this.pointLayers = [];
+        new paper.Path.Circle({
+            center: this.center,
+            radius: 5,
+            fillColor: FILL_COLOR,
+            strokeColor: STROKE_COLOR,
+            strokeWidth: STROKE_WIDTH,
+        });
+    }
+
+    Sprout.prototype.addPoints = function (z) {
+        // adds a ring of points spreading out
+        // around previous ring or sprout center
+        var points = [];
+        var prevPoints = (
+            this.pointLayers.length > 0 &&
+            this.pointLayers[this.pointLayers.length - 1]
+        );
+        for (var i = 0; i < 36; i++) {
+            var angle = i * 10;
+            var prevPoint = prevPoints ? prevPoints[i] : this.center;
+            var vector = new paper.Point(prevPoint);
+            vector.length = SPROUT_SPREAD + (Math.random() * SPROUT_SPREAD);
+            vector.angle = angle + (Math.random() * SPROUT_JITTER);
+            var point = prevPoint.add(vector);
+            point = point.add(vector);
+            points.push(point);
+            new paper.Path.Line({
+                from: prevPoint,
+                to: point,
+                strokeColor: STROKE_COLOR,
+                strokeWidth: STROKE_WIDTH,
+            });
+        }
+        this.pointLayers.push(points);
+        return points;
+    };
+
+    var tempCount = 0;
+    var TEMP_LIMIT = 1;
+
+    for (var z = 0; z < Z_GRID_SIZE; z++) {
+        // add any new sprouts for z layer
+        for (var y = 0; y < Y_GRID_SIZE; y++) {
+            for (var x = 0; x < X_GRID_SIZE; x++) {
+                var realX = (x + 1/2) * (X_SIZE / X_GRID_SIZE);
+                var realY = (y + 1/2) * (Y_SIZE / Y_GRID_SIZE);
+                var realZ = (z + 1/2) * (Z_SIZE / Z_GRID_SIZE);
+                if (Math.random() <= SPROUT_CHANCE) {
+                    sprouts.push(new Sprout(realX, realY));
+                }
+            }
+        }
+
+        if (tempCount < TEMP_LIMIT && sprouts.length > 1) {
+            tempCount++;
+
+            // add ring to each sprout
+            var paths = [];
+            sprouts.forEach(function (sprout) {
+                var points = sprout.addPoints(z);
+                paths.push(new paper.Path({
+                    segments: points,
+                    insert: false,
+                    closed: true,
+                }));
+            });
+
+            // // combine rings
+            // var finalPath;
+            // paths.forEach(function (path) {
+            //     finalPath = finalPath ?
+            //         finalPath.unite(path) :
+            //         path;
+            // });
+
+            // // style up combination
+            // finalPath.closed = true;
+            // finalPath.insert = true;
+            // finalPath.fillColor = FILL_COLOR;
+            // finalPath.strokeColor = STROKE_COLOR;
+            // finalPath.strokeWidth = STROKE_WIDTH;
+
+            // console.log(finalPath);
+        }
+    }
+
+    paper.view.draw();
+
+</script>
+</body>
+</html>

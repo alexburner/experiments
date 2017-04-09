@@ -1,7 +1,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<title>terrain</title>
+<title>terrain—circles</title>
 <style type="text/css" media="screen">
     html, body, canvas {
         margin: 0;
@@ -84,15 +84,15 @@
 
     Sprout.getNewAngle = function (i) {
         return (
-            Sprout.ANGLE * i +
-            Sprout.ANGLE_JITTER * Math.random()
+            Sprout.ANGLE * i/* +
+            Sprout.ANGLE_JITTER * Math.random()*/
         );
     };
 
     Sprout.getNewLength = function () {
         return (
-            Sprout.LENGTH +
-            Sprout.LENGTH_JITTER * Math.random()
+            Sprout.LENGTH /*+
+            Sprout.LENGTH_JITTER * Math.random()*/
         );
     };
 
