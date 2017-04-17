@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>audio test 3</title>
+<style type="text/css" media="screen">
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: content-box;
+    }
+    html, body {
+        width: 100%;
+        height: 100%;
+    }
+    #container {
+        margin: 15px auto;
+        margin-top: 15px;
+        background: #777;
+        border: 7px solid #777;
+    }
+    canvas {
+        display: inline-block;
+    }
+</style>
+</head>
+<body>
+<div id="container"><canvas id="canvas1"></canvas><canvas id="canvas2"></canvas></div>
+<script>
+
+    const makeAudio = (url) => {
+        const media = new window.Audio(url);
+        const context = new window.AudioContext();
+        const source = context.createMediaElementSource(media);
+        const analyser = context.createAnalyser();
+        analyser.fftSize = 512;
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        const getData = () => {
+            analyser.getByteFrequencyData(dataArray);
+            return dataArray;
+        };
+        source.connect(analyser);
+        source.connect(context.destination);
+        return {media, getData};
+    };
+
+    const makeCanvas = (id, width, height) => {
+        const canvas = document.getElementById(id);
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d');
+        return {context, width, height};
+    };
+
+    const draw1 = (canvas, data) => {
+        canvas.context.fillStyle = '#777';
+        canvas.context.fillRect(0, 0, canvas.width, canvas.height);
+        const count = data.length;
+        const height = canvas.height / count;
+        for (let i = 0; i < count; i++) {
+            const magnitude = data[i] / 255;
+            const hue = magnitude * 300;
+            const width = magnitude * canvas.width;
+            canvas.context.fillStyle = `hsl(${hue}, 70%, 70%)`;
+            canvas.context.fillRect(
+                canvas.width - width,
+                height * i,
+                width,
+                height + 1
+            );
+        }
+    };
+
+    const draw2 = (canvas, data) => {
+        const image = canvas.context.getImageData(0, 0, canvas.width, canvas.height);
+        const count = data.length;
+        const height = canvas.height / count;
+        const width = height;
+        for (let i = 0; i < count; i++) {
+            const magnitude = data[i] / 255;
+            const hue = magnitude * 300;
+            canvas.context.fillStyle = `hsl(${hue}, 70%, 70%)`;
+            canvas.context.fillRect(
+                0,
+                height * i,
+                width + 1,
+                height + 1
+            );
+        }
+        canvas.context.putImageData(image, width, 0);
+    };
+
+    const WIDTH = 900;
+    const HEIGHT = 600;
+
+    const container = document.getElementById('container');
+    container.style.width = WIDTH + 'px';
+    container.style.height = HEIGHT + 'px';
+
+    const audio = makeAudio('anecortes.m4a');
+    const canvas1 = makeCanvas('canvas1', 1 * (WIDTH / 3), HEIGHT);
+    const canvas2 = makeCanvas('canvas2', 2 * (WIDTH / 3), HEIGHT);
+
+    const loop = () => {
+        const data = audio.getData();
+        draw1(canvas1, data);
+        draw2(canvas2, data);
+        window.requestAnimationFrame(loop);
+    };
+
+    loop();
+    audio.media.loop = true;
+    audio.media.play()
+
+    document.addEventListener('keydown', e => {
+        if (e.keyCode === 32) {
+            // spacebar play/pauses
+            e.preventDefault();
+            audio.media.paused ?
+                audio.media.play() :
+                audio.media.pause()
+            ;
+        }
+    });
+
+</script>
+</body>
+</html>

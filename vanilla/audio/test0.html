@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>audio test 0</title>
+<style type="text/css" media="screen">
+    html, body, canvas {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+    #container, #canvas {
+        margin: auto;
+        margin-top: 10px;
+    }
+</style>
+</head>
+<body>
+<div id="container"><canvas id="canvas"></canvas></div>
+<script>
+
+
+    const audioEl = document.createElement('audio');
+    audioEl.src = 'anecortes.m4a';
+    audioEl.autoplay = true;
+
+    document.appendChild(audioEl);
+
+
+
+</script>
+</body>
+</html>

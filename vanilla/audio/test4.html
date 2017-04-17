@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>audio test 4</title>
+<style type="text/css" media="screen">
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: content-box;
+    }
+    html, body {
+        width: 100%;
+        height: 100%;
+    }
+    #container {
+        margin: 15px auto;
+        background: #333;
+        border: 7px solid #333;
+    }
+    canvas {
+        display: block;
+    }
+</style>
+</head>
+<body>
+<div id="container"><canvas id="canvas1"></canvas><canvas id="canvas2"></canvas></div>
+<script>
+
+    const makeAudio = (url, size) => {
+        const media = new window.Audio(url);
+        const context = new window.AudioContext();
+        const source = context.createMediaElementSource(media);
+        const splitter = context.createChannelSplitter();
+        const analyserL = context.createAnalyser();
+        const analyserR = context.createAnalyser();
+        analyserL.fftSize = size;
+        analyserR.fftSize = size;
+        const dataArrayL = new Uint8Array(analyserL.frequencyBinCount);
+        const dataArrayR = new Uint8Array(analyserR.frequencyBinCount);
+        const getChannels = () => {
+            analyserL.getByteFrequencyData(dataArrayL);
+            analyserR.getByteFrequencyData(dataArrayR);
+            return [dataArrayL, dataArrayR];
+        };
+        source.connect(splitter);
+        splitter.connect(analyserL, 0, 0);
+        splitter.connect(analyserR, 1, 0);
+        source.connect(context.destination);
+        return {media, getChannels};
+    };
+
+    const makeCanvas = (id, width, height) => {
+        const canvas = document.getElementById(id);
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d');
+        return {context, width, height};
+    };
+
+    const draw1 = (canvas, channels) => {
+        canvas.context.fillStyle = '#333';
+        canvas.context.fillRect(0, 0, canvas.width, canvas.height);
+        const dataL = channels[0];
+        const dataR = channels[1];
+        const count = dataL.length;
+        const width = canvas.width / 2 / count;
+        for (let i = 0; i < count; i++) {
+            const magnitude = dataL[i] / 255;
+            const hue = magnitude * 300;
+            const height = magnitude * canvas.height;
+            canvas.context.fillStyle = `hsl(${hue}, 64%, 64%)`;
+            canvas.context.fillRect(
+                canvas.width / 2 - width * i,
+                canvas.height - height,
+                width + 1,
+                height
+            );
+        }
+        for (let i = 0; i < count; i++) {
+            const magnitude = dataR[i] / 255;
+            const hue = magnitude * 300;
+            const height = magnitude * canvas.height;
+            canvas.context.fillStyle = `hsl(${hue}, 64%, 64%)`;
+            canvas.context.fillRect(
+                canvas.width / 2 + width * i,
+                canvas.height - height,
+                width + 1,
+                height
+            );
+        }
+    };
+
+    const draw2 = (canvas, channels) => {
+        const image = canvas.context.getImageData(0, 0, canvas.width, canvas.height);
+        const dataL = channels[0];
+        const dataR = channels[1];
+        const count = dataL.length;
+        const width = canvas.width / 2 / count;
+        const height = width;
+        for (let i = 0; i < count; i++) {
+            const magnitude = dataL[i] / 255;
+            const hue = magnitude * 300;
+            canvas.context.fillStyle = `hsl(${hue}, 64%, 64%)`;
+            canvas.context.fillRect(
+                canvas.width / 2 - width * i,
+                0,
+                width + 1,
+                height + 1
+            );
+        }
+        for (let i = 0; i < count; i++) {
+            const magnitude = dataR[i] / 255;
+            const hue = magnitude * 300;
+            canvas.context.fillStyle = `hsl(${hue}, 64%, 64%)`;
+            canvas.context.fillRect(
+                canvas.width / 2 + width * i,
+                0,
+                width + 1,
+                height + 1
+            );
+        }
+        canvas.context.putImageData(image, 0, height);
+    };
+
+    const WIDTH = 600;
+    const HEIGHT = 600;
+
+    const container = document.getElementById('container');
+    container.style.width = WIDTH + 'px';
+    container.style.height = HEIGHT + 'px';
+
+    const audio = makeAudio('anecortes.m4a', 512);
+    const canvas1 = makeCanvas('canvas1', WIDTH, 1 * (HEIGHT / 4));
+    const canvas2 = makeCanvas('canvas2', WIDTH, 3 * (HEIGHT / 4));
+
+    const loop = () => {
+        const channels = audio.getChannels();
+        draw1(canvas1, channels);
+        draw2(canvas2, channels);
+        window.requestAnimationFrame(loop);
+    };
+
+    loop();
+    audio.media.loop = true;
+    audio.media.play()
+
+    document.addEventListener('keydown', e => {
+        if (e.keyCode === 32) {
+            // spacebar play/pauses
+            e.preventDefault();
+            audio.media.paused ?
+                audio.media.play() :
+                audio.media.pause()
+            ;
+        }
+    });
+
+</script>
+</body>
+</html>
