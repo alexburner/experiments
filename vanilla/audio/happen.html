@@ -7,7 +7,6 @@
     * {
         margin: 0;
         padding: 0;
-        box-sizing: content-box;
     }
     html, body {
         width: 100%;
@@ -16,7 +15,8 @@
     #container {
         margin: 24px auto;
         background: #333;
-        border: 7px solid #333;
+        border: solid #333;
+        border-width: 8px 7px;
     }
     canvas {
         display: block;
@@ -24,7 +24,10 @@
 </style>
 </head>
 <body>
-<div id="container"><canvas id="canvas1"></canvas><canvas id="canvas2"></canvas></div>
+<div id="container">
+    <canvas id="canvas1"></canvas>
+    <canvas id="canvas2"></canvas>
+</div>
 <script>
 
     const makeAudio = (url, size) => {
