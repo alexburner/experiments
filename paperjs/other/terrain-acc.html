@@ -1,0 +1,189 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>terrain—accumulative</title>
+<style type="text/css" media="screen">
+    html, body, canvas {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+    #container, #canvas {
+        margin: auto;
+        margin-top: 10px;
+    }
+</style>
+</head>
+<body>
+<div id="container"><canvas id="canvas"></canvas></div>
+<script type="text/javascript" src="../paper.v.0.10.3.js"></script>
+<script type="text/javascript">
+
+    var X_GRID_SIZE = 100;
+    var Y_GRID_SIZE = 100;
+    var Z_GRID_SIZE = 12;
+
+    var X_SIZE = 700;
+    var Y_SIZE = 700;
+    var Z_SIZE = 700;
+
+    // Set container & canvas sizes
+    var containerEl = document.getElementById('container');
+    var canvasEl = document.getElementById('canvas');
+    containerEl.style.width = X_SIZE;
+    containerEl.style.height = Y_SIZE;
+    canvasEl.style.width = X_SIZE;
+    canvasEl.style.height = Y_SIZE;
+
+    // Initialize Paper.js
+    paper.setup(canvasEl);
+
+    // Draw background color
+    new paper.Path.Rectangle({
+        point: [0, 0],
+        size: paper.view.size,
+        fillColor: '#333',
+    });
+
+
+    /**
+     * Sprout class
+     */
+
+    function Sprout(x, y) {
+        this.center = new paper.Point(x, y);
+        this.pointLayers = [];
+        this.vectorLayers = [];
+        // new paper.Path.Circle({
+        //     center: this.center,
+        //     radius: 5,
+        //     fillColor: Sprout.FILL_COLOR,
+        //     strokeColor: Sprout.STROKE_COLOR,
+        //     strokeWidth: Sprout.STROKE_WIDTH,
+        // });
+    }
+
+    Sprout.CHANCE = 0.0001;
+    Sprout.ANGLE = 30;
+    Sprout.ANGLE_JITTER = 4;
+    Sprout.LENGTH = 8;
+    Sprout.LENGTH_JITTER = 1;
+    Sprout.LENGTH_EXPAND = 1.1;
+    Sprout.STROKE_WIDTH = 1;
+    Sprout.STROKE_COLOR = {
+        hue: 0,
+        saturation: 0,
+        brightness: 1,
+        alpha: 0.8,
+    };
+    Sprout.FILL_COLOR = {
+        hue: 0,
+        saturation: 0,
+        brightness: 1,
+        alpha: 0.05,
+    };
+
+    Sprout.getNewLength = function (prevLength) {
+        var length = prevLength || Sprout.LENGTH;
+        var jitter = Sprout.LENGTH_JITTER * Math.random();
+        if (Math.random() > 0.5) jitter *= -1;
+        return (length + jitter) * Sprout.LENGTH_EXPAND;
+    };
+
+    Sprout.getNewAngle = function (prevAngle, i) {
+        var angle = prevAngle ? prevAngle : Sprout.ANGLE * i;
+        var jitter = Sprout.ANGLE_JITTER * Math.random();
+        if (Math.random() > 0.5) jitter *= -1;
+        return angle + jitter;
+    };
+
+    Sprout.prototype.addLayer = function (z) {
+        var points = [];
+        var vectors = [];
+        var prevPoints = this.pointLayers[this.pointLayers.length - 1];
+        var prevVectors = this.vectorLayers[this.vectorLayers.length - 1];
+        for (var i = 0; i < 360 / Sprout.ANGLE; i++) {
+            // make vector
+            var prevVector = prevVectors ? prevVectors[i] : new paper.Point();
+            var vector = new paper.Point(prevVector);
+            vector.length = Sprout.getNewLength(prevVector.length);
+            vector.angle = Sprout.getNewAngle(prevVector.angle, i);
+            vectors.push(vector);
+            // make point
+            var prevPoint = prevPoints ? prevPoints[i] : this.center;
+            var point = prevPoint.add(vector);
+            points.push(point);
+            // // draw delta line
+            // new paper.Path.Line({
+            //     from: prevPoint,
+            //     to: point,
+            //     strokeColor: Sprout.STROKE_COLOR,
+            //     strokeWidth: Sprout.STROKE_WIDTH,
+            // });
+        }
+        this.pointLayers.push(points);
+        this.vectorLayers.push(vectors);
+        return points;
+    };
+
+
+    /**
+     * Draw sprouts
+     */
+    var sprouts = [];
+    for (var z = 0; z < Z_GRID_SIZE; z++) {
+        // Add any new sprouts for z layer
+        for (var y = 0; y < Y_GRID_SIZE; y++) {
+            for (var x = 0; x < X_GRID_SIZE; x++) {
+                var realX = (x + 1/2) * (X_SIZE / X_GRID_SIZE);
+                var realY = (y + 1/2) * (Y_SIZE / Y_GRID_SIZE);
+                var realZ = (z + 1/2) * (Z_SIZE / Z_GRID_SIZE);
+                if (Math.random() <= Sprout.CHANCE) {
+                // if (z === 0 && y === 50 && x === 50) {
+                    sprouts.push(new Sprout(realX, realY));
+                }
+            }
+        }
+
+        // Add ring to each sprout
+        var paths = [];
+        sprouts.forEach(function (sprout) {
+            var points = sprout.addLayer(z);
+            var path = new paper.Path({
+                segments: points,
+                closed: true,
+            });
+            path.smooth();
+            paths.push(path);
+        });
+
+        // Unite layers
+        var union;
+        paths.forEach(function (path) {
+            if (union) {
+                var old = union;
+                union = union.unite(path);
+                old.remove();
+                path.remove();
+            } else {
+                union = path;
+            }
+        });
+
+        // Style up combination
+        if (union) {
+            union.fillColor = Sprout.FILL_COLOR;
+            union.strokeColor = Sprout.STROKE_COLOR;
+            union.strokeWidth = Sprout.STROKE_WIDTH;
+        }
+
+        // because JS loops
+        union = null;
+    }
+
+    paper.view.draw();
+
+</script>
+</body>
+</html>
