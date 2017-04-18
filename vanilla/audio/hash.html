@@ -114,8 +114,8 @@
     container.style.width = WIDTH + 'px';
     container.style.height = HEIGHT + 'px';
 
-    const url = window.location.hash.length && window.location.hash.slice(1);
-    const audio = makeAudio(url, 512);
+    const hash = window.location.hash.length && window.location.hash.slice(1);
+    const audio = makeAudio(hash, 512);
     const canvas1 = makeCanvas('canvas1', WIDTH, 1 * (HEIGHT / 6));
     const canvas2 = makeCanvas('canvas2', WIDTH, 5 * (HEIGHT / 6));
 
