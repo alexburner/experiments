@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>12 - dots</title>
+<style type="text/css" media="screen">
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: #222;
+        width: 100%;
+        height: 100%;
+    }
+    body {
+        padding: 3% 0;
+    }
+    #wrapper {
+        width: 3300px; /* 11(300) */
+        height: 2550px; /* 8.5(300) */
+        margin: auto;
+    }
+    #canvas {
+        width: 3300px; /* 11(300) */
+        height: 2550px; /* 8.5(300) */
+        background: white;
+    }
+</style>
+</head>
+<body>
+<div id="wrapper"><canvas id="canvas"></canvas></div>
+<script type="text/javascript" src="../../../paper.v.0.9.18.js"></script>
+<script type="text/javascript">
+
+    var length = 120;
+
+    var pageW = 3300;
+    var pageH = 2550;
+
+    var rows = 3;
+    var cols = 4;
+
+    var cellW = pageW / cols;
+    var cellH = pageH / rows;
+
+    cellW = Math.min(cellW, cellH);
+    cellH = Math.min(cellW, cellH);
+
+    var hash = window.location.hash.length ?
+        Number(window.location.hash.slice(1)) :
+        NaN
+    ;
+
+    var cell = isNaN(hash) ? 1 : hash;
+
+
+
+
+
+
+	// initialize paper with canvas element
+	paper.setup(document.getElementById('canvas'));
+
+
+
+	function drawByLength(center, count, length) {
+        var bounds = new paper.Path.Rectangle({
+            point: [
+                center.x - cellW / 2,
+                center.y - cellH / 2
+            ],
+            size: [cellW, cellH],
+            strokeColor: 'black',
+            dashArray: [1, 4],
+        });
+
+        var clipMask = bounds.clone();
+        clipMask.scale(7/8, center);
+        clipMask.remove();
+
+        var dotRadius = 36;
+        var shellCount = 16;
+        var shellGap = 36;
+
+        // var numbers = [
+        //     'zero',
+        //     'one',
+        //     'two',
+        //     'three',
+        //     'four',
+        //     '\uFB01ve',
+        //     'six',
+        //     'seven',
+        //     'eight',
+        //     'nine',
+        //     'ten',
+        // ];
+
+        // var text = new paper.PointText({
+        //     content: numbers[count],
+        //     fillColor: 'black',
+        //     fontFamily: 'Times',
+        //     fontWeight: 'bold',
+        //     fontSize: 81
+        // });
+        // text.position = [center.x, (center.y + cellH / 2) - cellH / 7];
+        // text.position.y -= 6;
+
+		// 0 has nothing
+		if (count < 1) {
+			return 0;
+		}
+
+		// 1 only a point
+		if (count < 2) {
+			new paper.Path.Circle({
+				fillColor: 'black',
+				center: center,
+				radius: dotRadius
+			});
+			return 0;
+		}
+
+
+
+		var angle = 360 / count;
+		var angleRad = (2 * Math.PI) / count;
+		var radius = (length / 2) / (Math.sin(angleRad / 2));
+
+		var points = [];
+
+		var vector = new paper.Point(center);
+		vector.length = radius;
+		vector.angle = -90;
+
+		for (var i = 0, l = count; i < l; i++) {
+			var point = new paper.Point(center);
+			point = point.add(vector);
+			points.push(point);
+			vector.angle += angle;
+
+			new paper.Path.Circle({
+				fillColor: 'black',
+				center: point,
+				radius: dotRadius
+			});
+
+		}
+
+        return radius;
+	}
+
+    function compareNumbers(a, b) {
+        return a - b;
+    }
+
+    function getMinRadius(radius, length) {
+        return Math.sqrt(
+            Math.pow(radius, 2) -
+            Math.pow(length / 2, 2)
+        );
+    }
+
+
+
+
+    for (var row = 0; row < rows; row++) {
+        for (var col = 0; col < cols; col++) {
+            var x = cellW * col + cellW / 2;
+            var y = cellH * row + cellH / 2;
+            drawByLength(new paper.Point(x, y), cell, length);
+            cell++;
+        }
+    }
+
+
+
+
+
+	paper.view.draw();
+
+
+
+	/**
+	 * SVG export
+	 * via http://www.mikechambers.com/blog/2014/07/01/saving-svg-content-from-paper.js/
+	 */
+
+	// listen for shift+o
+	tool = new paper.Tool();
+	tool.onKeyUp = function(e) {
+		if (e.character == "O") {
+			openAsSVG();
+		}
+	}
+
+	function openAsSVG() {
+		var svgString = paper.project.exportSVG({asString: true});
+		var url = "data:image/svg+xml;utf8," + encodeURIComponent(svgString);
+		var link = document.createElement('a');
+		link.target = "_blank";
+		link.href = url;
+		link.click();
+	}
+
+</script>
+</body>
+</html>
