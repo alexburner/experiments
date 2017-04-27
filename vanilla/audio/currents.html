@@ -53,21 +53,30 @@
         return {media, getChannels};
     };
 
-    const makePlaylist = (media, tracks) => {
+    const makePlaylist = (media, tracks, dir='') => {
         let index = 0;
+        const load = () => {
+            const track = tracks[index];
+            media.src = dir + track;
+            document.title = track;
+        };
+        const wrap = () => {
+            if (index < 0) index = tracks.length - 1;
+            if (index >= tracks.length) index = 0;
+        };
         const prev = () => {
             index--;
-            if (index < 0) index = tracks.length - 1;
-            media.src = tracks[index];
-            media.play()
+            wrap();
+            load();
+            media.play();
         };
         const next = () => {
             index++;
-            if (index >= tracks.length) index = 0;
-            media.src = tracks[index];
-            media.play()
+            wrap();
+            load();
+            media.play();
         };
-        media.src = tracks[index];
+        load();
         media.addEventListener('ended', next);
         return {prev, next};
     };
@@ -127,19 +136,19 @@
     };
 
     const tracks = [
-        `tracks/currents/1. Let It Happen.mp3`,
-        `tracks/currents/2. Nangs.mp3`,
-        `tracks/currents/3. The Moment.mp3`,
-        `tracks/currents/4. Yes I'm Changing.mp3`,
-        `tracks/currents/5. Eventually.mp3`,
-        `tracks/currents/6. Gossip.mp3`,
-        `tracks/currents/7. The Less I Know The Better.mp3`,
-        `tracks/currents/8. Past Life.mp3`,
-        `tracks/currents/9. Disciples.mp3`,
-        `tracks/currents/10. 'Cause I'm A Man.mp3`,
-        `tracks/currents/11. Reality In Motion.mp3`,
-        `tracks/currents/12. LoveParanoia.mp3`,
-        `tracks/currents/13. New Person, Same Old Mistakes.mp3`,
+        `1. Let It Happen.mp3`,
+        `2. Nangs.mp3`,
+        `3. The Moment.mp3`,
+        `4. Yes I'm Changing.mp3`,
+        `5. Eventually.mp3`,
+        `6. Gossip.mp3`,
+        `7. The Less I Know The Better.mp3`,
+        `8. Past Life.mp3`,
+        `9. Disciples.mp3`,
+        `10. 'Cause I'm A Man.mp3`,
+        `11. Reality In Motion.mp3`,
+        `12. LoveParanoia.mp3`,
+        `13. New Person, Same Old Mistakes.mp3`,
     ];
 
     const WIDTH = 600;
@@ -150,7 +159,7 @@
     container.style.height = HEIGHT + 'px';
 
     const audio = makeAudio(512);
-    const playlist = makePlaylist(audio.media, tracks);
+    const playlist = makePlaylist(audio.media, tracks, 'tracks/currents/');
     const canvas1 = makeCanvas('canvas1', WIDTH, 1 * (HEIGHT / 6));
     const canvas2 = makeCanvas('canvas2', WIDTH, 5 * (HEIGHT / 6));
 
