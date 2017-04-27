@@ -60,25 +60,29 @@
             media.src = dir + track;
             document.title = track;
         };
-        const wrap = () => {
-            if (index < 0) index = tracks.length - 1;
-            if (index >= tracks.length) index = 0;
-        };
         const prev = () => {
             index--;
-            wrap();
+            if (index < 0) index = tracks.length - 1;
             load();
             media.play();
         };
         const next = () => {
             index++;
-            wrap();
+            index %= tracks.length;
             load();
             media.play();
         };
         load();
         media.addEventListener('ended', next);
         return {prev, next};
+    };
+
+    const preload = (tracks, dir='', index=0) => {
+        if (index === tracks.length) return;
+        const media = new Audio(dir + tracks[index]);
+        media.addEventListener('canplaythrough', () => {
+            preload(tracks, dir, index + 1);
+        });
     };
 
     const makeCanvas = (id, width, height) => {
@@ -170,8 +174,9 @@
         window.requestAnimationFrame(animate);
     };
 
-    audio.media.play();
     animate();
+    audio.media.play();
+    preload(tracks, 'tracks/currents/');
 
     document.addEventListener('keydown', e => {
         switch (e.keyCode) {
