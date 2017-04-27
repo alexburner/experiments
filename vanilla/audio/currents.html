@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>currents</title>
+<style type="text/css" media="screen">
+    * {
+        margin: 0;
+        padding: 0;
+    }
+    html, body {
+        width: 100%;
+        height: 100%;
+    }
+    #container {
+        margin: 24px auto;
+        background: #333;
+        border: solid #333;
+        border-width: 8px 7px;
+    }
+    canvas {
+        display: block;
+    }
+</style>
+</head>
+<body>
+<div id="container">
+    <canvas id="canvas1"></canvas>
+    <canvas id="canvas2"></canvas>
+</div>
+<script>
+
+    const makeAudio = (size) => {
+        const media = new window.Audio();
+        const context = new window.AudioContext();
+        const source = context.createMediaElementSource(media);
+        const splitter = context.createChannelSplitter();
+        const analyserL = context.createAnalyser();
+        const analyserR = context.createAnalyser();
+        analyserL.fftSize = size;
+        analyserR.fftSize = size;
+        const dataArrayL = new Uint8Array(analyserL.frequencyBinCount);
+        const dataArrayR = new Uint8Array(analyserR.frequencyBinCount);
+        const getChannels = () => {
+            analyserL.getByteFrequencyData(dataArrayL);
+            analyserR.getByteFrequencyData(dataArrayR);
+            return [dataArrayL, dataArrayR];
+        };
+        source.connect(splitter);
+        splitter.connect(analyserL, 0, 0);
+        splitter.connect(analyserR, 1, 0);
+        source.connect(context.destination);
+        return {media, getChannels};
+    };
+
+    const makePlaylist = (media, tracks) => {
+        let index = 0;
+        const prev = () => {
+            index--;
+            if (index < 0) index = tracks.length - 1;
+            media.src = tracks[index];
+            media.play()
+        };
+        const next = () => {
+            index++;
+            if (index >= tracks.length) index = 0;
+            media.src = tracks[index];
+            media.play()
+        };
+        media.src = tracks[index];
+        media.addEventListener('ended', next);
+        return {prev, next};
+    };
+
+    const makeCanvas = (id, width, height) => {
+        const canvas = document.getElementById(id);
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d');
+        return {context, width, height};
+    };
+
+    const draw1 = (canvas, channels) => {
+        canvas.context.fillStyle = '#333';
+        canvas.context.fillRect(0, 0, canvas.width, canvas.height);
+        const count = channels[0].length;
+        const width = canvas.width / 2 / count;
+        channels.forEach((channel, index) => {
+            for (let i = 0; i < count; i++) {
+                const magnitude = channel[i] / 255;
+                const hue = magnitude * 300;
+                const height = magnitude * canvas.height;
+                canvas.context.fillStyle = `hsl(${hue}, 64%, 64%)`;
+                canvas.context.fillRect(
+                    index === 0 ?
+                        canvas.width / 2 - width * i :
+                        canvas.width / 2 + width * i,
+                    canvas.height - height,
+                    width + 1,
+                    height
+                );
+            }
+        });
+    };
+
+    const draw2 = (canvas, channels) => {
+        const image = canvas.context.getImageData(0, 0, canvas.width, canvas.height);
+        const count = channels[0].length;
+        const width = canvas.width / 2 / count;
+        const height = width;
+        channels.forEach((channel, index) => {
+            for (let i = 0; i < count; i++) {
+                const magnitude = channel[i] / 255;
+                const hue = magnitude * 300;
+                canvas.context.fillStyle = `hsl(${hue}, 64%, 64%)`;
+                canvas.context.fillRect(
+                    index === 0 ?
+                        canvas.width / 2 - width * i :
+                        canvas.width / 2 + width * i,
+                    0,
+                    width + 1,
+                    height + 1
+                );
+            }
+        });
+        canvas.context.putImageData(image, 0, height);
+    };
+
+    const tracks = [
+        `tracks/currents/1. Let It Happen.mp3`,
+        `tracks/currents/2. Nangs.mp3`,
+        `tracks/currents/3. The Moment.mp3`,
+        `tracks/currents/4. Yes I'm Changing.mp3`,
+        `tracks/currents/5. Eventually.mp3`,
+        `tracks/currents/6. Gossip.mp3`,
+        `tracks/currents/7. The Less I Know The Better.mp3`,
+        `tracks/currents/8. Past Life.mp3`,
+        `tracks/currents/9. Disciples.mp3`,
+        `tracks/currents/10. 'Cause I'm A Man.mp3`,
+        `tracks/currents/11. Reality In Motion.mp3`,
+        `tracks/currents/12. LoveParanoia.mp3`,
+        `tracks/currents/13. New Person, Same Old Mistakes.mp3`,
+    ];
+
+    const WIDTH = 600;
+    const HEIGHT = 600;
+
+    const container = document.getElementById('container');
+    container.style.width = WIDTH + 'px';
+    container.style.height = HEIGHT + 'px';
+
+    const audio = makeAudio(512);
+    const playlist = makePlaylist(audio.media, tracks);
+    const canvas1 = makeCanvas('canvas1', WIDTH, 1 * (HEIGHT / 6));
+    const canvas2 = makeCanvas('canvas2', WIDTH, 5 * (HEIGHT / 6));
+
+    const animate = () => {
+        const channels = audio.getChannels();
+        draw1(canvas1, channels);
+        draw2(canvas2, channels);
+        window.requestAnimationFrame(animate);
+    };
+
+    audio.media.play();
+    animate();
+
+    document.addEventListener('keydown', e => {
+        switch (e.keyCode) {
+        case 32: // spacebar
+            e.preventDefault();
+            audio.media.paused ?
+                audio.media.play() :
+                audio.media.pause();
+            break;
+        case 37: // left arrow
+            e.preventDefault();
+            playlist.prev();
+            break;
+        case 39: // right arrow
+            e.preventDefault();
+            playlist.next();
+            break;
+        }
+    });
+
+</script>
+</body>
+</html>
