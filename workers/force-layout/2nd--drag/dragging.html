@@ -16,7 +16,10 @@
         // Web Worker version of Force-Directed Tree (Mike Bostock)
         // http://bl.ocks.org/mbostock/95aa92e2f4e8345aaa55a4a94d41ce37
 
-        var n = 2000;
+        var hash = window.location.hash.length ?
+            Number(window.location.hash.slice(1)) :
+            NaN;
+        var n = isNaN(hash) ? 2000 : hash;
         var width = window.innerWidth;
         var height = window.innerHeight;
 
