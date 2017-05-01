@@ -63,6 +63,10 @@
 
 
 	function drawByLength(center, count, length) {
+        var total = 12;
+
+        if (count > total) return;
+
         var bounds = new paper.Path.Rectangle({
             point: [
                 center.x - cellW / 2,
@@ -78,7 +82,7 @@
         clipMask.remove();
 
         var color = {
-            hue: (360 * ((count - 1) / 12)) % 360,
+            hue: (360 * ((count - 1) / total)) % 360,
             saturation: 0.9,
             brightness: 0.8,
         };
@@ -91,8 +95,9 @@
         swatch.position = center;
 
         var dotRadius = 2;
+        var shellThickness = 1;
         var shellCount = 16;
-        var shellGap = 36;
+        var shellGap = 32;
 
         // var numbers = [
         //     'zero',
@@ -136,7 +141,7 @@
             for (var i = 0; i < shellCount; i++) {
                 rings.push(new paper.Path.Circle({
                     strokeColor: color,
-                    strokeWidth: 2,
+                    strokeWidth: shellThickness,
                     // dashArray: [2, 3],
                     center: center,
                     radius: dotRadius + (i + 1) * shellGap,
@@ -214,7 +219,7 @@
                 from: [center.x, center.y - cellH / 2],
                 to: [center.x, center.y + cellH / 2],
                 strokeColor: color,
-                strokeWidth: 2,
+                strokeWidth: shellThickness,
                 // dashArray: [2, 3],
             }));
             for (var i = 0; i < shellCount; i++) {
@@ -228,7 +233,7 @@
                         center.y + cellH / 2,
                     ],
                     strokeColor: color,
-                    strokeWidth: 2,
+                    strokeWidth: shellThickness,
                     // dashArray: [2, 3],
                 }));
                 rays.push(new paper.Path.Line({
@@ -241,7 +246,7 @@
                         center.y + cellH / 2,
                     ],
                     strokeColor: color,
-                    strokeWidth: 2,
+                    strokeWidth: shellThickness,
                     // dashArray: [2, 3],
                 }));
             }
@@ -263,7 +268,7 @@
             var shellScale = shellRadius / baseRadius;
             shell.scale(shellScale, center);
             // shell.dashArray = [2, 3];
-            shell.strokeWidth = 2;
+            shell.strokeWidth = shellThickness;
             shell.strokeColor = color;
             shells.push(shell);
         }

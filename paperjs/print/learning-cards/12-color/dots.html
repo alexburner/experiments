@@ -63,6 +63,10 @@
 
 
 	function drawByLength(center, count, length) {
+        var total = 12;
+
+        if (count > total) return;
+
         var bounds = new paper.Path.Rectangle({
             point: [
                 center.x - cellW / 2,
@@ -77,20 +81,28 @@
         clipMask.scale(7/8, center);
         clipMask.remove();
 
-        var color = {
-            hue: (360 * ((count - 1) / 12)) % 360,
+        var foregroundColor = {
+            hue: (360 * ((count - 1) / total)) % 360,
+            saturation: 0.9,
+            brightness: 0.8,
+            alpha: 0.3,
+        };
+
+        var backgroundColor = {
+            hue: (360 * ((count - 1) / total)) % 360,
             saturation: 0.5,
             brightness: 0.99,
         };
+
         var swatch = new paper.Path.Rectangle({
             size: clipMask.bounds.size,
-            fillColor: color,
+            fillColor: backgroundColor,
         });
         swatch.position = center;
 
-        var dotRadius = 32;
-        var shellCount = 16;
-        var shellGap = 36;
+        var dotRadius = 36;
+        var shellCount = 0; // unused
+        var shellGap = 10;
 
         // var numbers = [
         //     'zero',
@@ -128,6 +140,20 @@
 				center: center,
 				radius: dotRadius
 			});
+
+            // // and rings
+            // var rings = [];
+            // for (var i = 0; i < shellCount; i++) {
+            //     rings.push(new paper.Path.Circle({
+            //         strokeColor: foregroundColor,
+            //         strokeWidth: 2,
+            //         center: center,
+            //         radius: dotRadius + (i + 1) * shellGap,
+            //     }));
+            // }
+            // rings.unshift(clipMask);
+            // (new paper.Group(rings)).clipped = true;
+
 			return 0;
 		}
 
@@ -137,28 +163,148 @@
 		var angleRad = (2 * Math.PI) / count;
 		var radius = (length / 2) / (Math.sin(angleRad / 2));
 
-        radius += dotRadius / 3;
-
+        var dots = [];
 		var points = [];
 
 		var vector = new paper.Point(center);
 		vector.length = radius;
 		vector.angle = -90;
-
 		for (var i = 0, l = count; i < l; i++) {
 			var point = new paper.Point(center);
 			point = point.add(vector);
 			points.push(point);
 			vector.angle += angle;
-
-			new paper.Path.Circle({
+			var dot = new paper.Path.Circle({
 				fillColor: 'black',
 				center: point,
 				radius: dotRadius
 			});
-
+            dots.push(dot);
 		}
 
+        var lines = [];
+        var lineExists = {};
+        var linesByLength = {};
+        points.forEach(function (pointA, indexA) {
+            var coordsA = pointA.toString();
+            points.forEach(function (pointB, indexB) {
+                if (indexA === indexB) return;
+                var coordsB = pointB.toString();
+                if (lineExists[coordsA + coordsB]) return;
+                if (lineExists[coordsB + coordsA]) return;
+                lineExists[coordsA + coordsB] = true;
+
+                var length = pointA.subtract(pointB).length;
+                length = length.toFixed(2);
+
+                var line = new paper.Path.Line({
+                    from: pointA,
+                    to: pointB,
+                    strokeCap: 'round',
+                    strokeColor: 'black',
+                    strokeWidth: 2,
+                });
+
+                lines.push(line);
+
+                if (!linesByLength[length]) {
+                    linesByLength[length] = [];
+                }
+                linesByLength[length].push(line);
+
+            });
+        });
+
+        // special field for 2
+        if (count === 2) {
+            // var rays = [];
+            // rays.push(new paper.Path.Line({
+            //     from: [center.x, center.y - cellH / 2],
+            //     to: [center.x, center.y + cellH / 2],
+            //     strokeColor: foregroundColor,
+            //     strokeWidth: 2,
+            // }));
+            // for (var i = 0; i < shellCount; i++) {
+            //     rays.push(new paper.Path.Line({
+            //         from: [
+            //             center.x - ((i + 1) * shellGap),
+            //             center.y - cellH / 2,
+            //         ],
+            //         to: [
+            //             center.x - ((i + 1) * shellGap),
+            //             center.y + cellH / 2,
+            //         ],
+            //         strokeColor: foregroundColor,
+            //         strokeWidth: 2,
+            //     }));
+            //     rays.push(new paper.Path.Line({
+            //         from: [
+            //             center.x + ((i + 1) * shellGap),
+            //             center.y - cellH / 2,
+            //         ],
+            //         to: [
+            //             center.x + ((i + 1) * shellGap),
+            //             center.y + cellH / 2,
+            //         ],
+            //         strokeColor: foregroundColor,
+            //         strokeWidth: 2,
+            //     }));
+            // }
+            // rays.unshift(clipMask);
+            // (new paper.Group(rays)).clipped = true;
+            // (new paper.Group(dots)).bringToFront();
+            // (new paper.Group(lines)).remove();
+
+            (new paper.Group(lines)).strokeWidth = 2;
+            (new paper.Group(lines)).strokeColor = foregroundColor;
+            (new paper.Group(dots)).bringToFront();
+
+            return radius;
+        }
+
+        var longestLength = Object.keys(linesByLength).sort(compareNumbers)[0];
+        var longestLines = linesByLength[longestLength];
+        var baseShell = new paper.Group(longestLines);
+        var baseRadius = getMinRadius(radius, length);
+        var shells = [];
+        // // shell outwards
+        // Array(shellCount).fill(0).forEach(function (zero, i) {
+        //     var shell = baseShell.clone();
+        //     var shellRadius = baseRadius + (i * shellGap);
+        //     var shellScale = shellRadius / baseRadius;
+        //     shell.scale(shellScale, center);
+        //     shell.strokeWidth = 2;
+        //     shell.strokeColor = foregroundColor;
+        //     shells.push(shell);
+        // });
+        // shell inwards
+
+        var shellRadius = baseRadius;
+        while (shellRadius > 1) {
+            var shell = baseShell.clone();
+            var shellScale = shellRadius / baseRadius;
+            shell.scale(shellScale, center);
+            shell.strokeWidth = 2;
+            shell.strokeColor = foregroundColor;
+            shells.push(shell);
+            shellRadius -= shellGap;
+        }
+
+        // Array(shellCount).fill(0).forEach(function (zero, i) {
+        //     var shellRadius = baseRadius - (i * shellGap);
+        //     if (shellRadius <= 0) return;
+        //     var shell = baseShell.clone();
+        //     var shellScale = shellRadius / baseRadius;
+        //     shell.scale(shellScale, center);
+        //     shell.strokeWidth = 2;
+        //     shell.strokeColor = foregroundColor;
+        //     shells.push(shell);
+        // });
+
+        shells.unshift(clipMask);
+        (new paper.Group(shells)).clipped = true;
+        (new paper.Group(dots)).bringToFront();
+        (new paper.Group(lines)).remove();
         return radius;
 	}
 
