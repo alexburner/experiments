@@ -85,7 +85,7 @@
 
         var stage = args.stage;
 
-        var radius = 24;
+        var radius = 20;
 
         var x = args.x;
         var y = args.y;
@@ -260,7 +260,7 @@
                         genesis.extend(GenesisCentroid);
                         switch (j) {
                             case 0:
-                                genesis.markCentroid();
+                                // genesis.markCentroid();
                                 genesis.drawAllLines('in');
                                 genesis.findCentroidLines();
                                 genesis.hideLinesNotCentroid();
@@ -268,16 +268,25 @@
                                 genesis.drawOtherCentroidCircles();
                                 break;
                             case 1:
-                                genesis.markCentroid();
+                                genesis.drawAllLines('in');
+                                genesis.findCentroidLines();
+                                genesis.hideAllLines();
+                                genesis.showLinesByLength('radius');
+                                genesis.hideLinesNotCentroid();
                                 break;
                             case 2:
                                 genesis.drawAllLines('in');
                                 genesis.findCentroidLines();
+                                genesis.hideAllLines();
+                                genesis.showLinesByLength('vesica');
                                 genesis.hideLinesNotCentroid();
                                 break;
                             case 3:
-                                genesis.findOtherCentroidRadii();
-                                genesis.drawOtherCentroidCircles();
+                                genesis.drawAllLines('in');
+                                genesis.findCentroidLines();
+                                genesis.hideAllLines();
+                                genesis.showLinesByLength('strange');
+                                genesis.hideLinesNotCentroid();
                                 break;
                         }
                         break;
@@ -295,7 +304,7 @@
         makeBlack(args);
 
 
-        var radius = 20;
+        var radius = 16;
 
         var x = args.x;
         var y = args.y;
