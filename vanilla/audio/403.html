@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>403</title>
+<style type="text/css" media="screen">
+    * {
+        margin: 0;
+        padding: 0;
+    }
+    html, body {
+        width: 100%;
+        height: 100%;
+    }
+    #container {
+        margin: 24px auto;
+    }
+    #canvas-wrapper {
+        background: #333;
+        border: solid #333;
+        border-width: 8px 7px;
+    }
+    canvas {
+        display: block;
+    }
+    form {
+        margin-top: 12px;
+        text-align: center;
+    }
+    form input {
+        display: inline-block;
+        width: 80%;
+        padding: 0 4px;
+        margin-right: 1%;
+        line-height: 19px;
+    }
+    form button {
+        display: inline-block;
+        width: 16%;
+        line-height: 21px;
+    }
+</style>
+</head>
+<body>
+<div id="container">
+    <div id="canvas-wrapper">
+        <canvas id="canvas1"></canvas>
+        <canvas id="canvas2"></canvas>
+    </div>
+    <form id="soundcloud-form">
+        <input
+            type="text"
+            name="soundcloud-input"
+            id="soundcloud-input"
+            placeholder="Paste a soundcloud track URL..."
+        /><button type="submit">Load track</button>
+    </form>
+</div>
+<script src="https://connect.soundcloud.com/sdk/sdk-3.1.2.js"></script>
+<script>
+
+    const sc_client_id = '2t9loNQH90kzJcsFCODdigxfp325aq4z';
+
+    const makeAudio = (size) => {
+        const media = new window.Audio();
+        const context = new window.AudioContext();
+        const source = context.createMediaElementSource(media);
+        const splitter = context.createChannelSplitter();
+        const analyserL = context.createAnalyser();
+        const analyserR = context.createAnalyser();
+        analyserL.fftSize = size;
+        analyserR.fftSize = size;
+        const dataArrayL = new Uint8Array(analyserL.frequencyBinCount);
+        const dataArrayR = new Uint8Array(analyserR.frequencyBinCount);
+        const getChannels = () => {
+            analyserL.getByteFrequencyData(dataArrayL);
+            analyserR.getByteFrequencyData(dataArrayR);
+            return [dataArrayL, dataArrayR];
+        };
+        source.connect(splitter);
+        splitter.connect(analyserL, 0, 0);
+        splitter.connect(analyserR, 1, 0);
+        source.connect(context.destination);
+        return {media, getChannels};
+    };
+
+    const makeCanvas = (id, width, height) => {
+        const canvas = document.getElementById(id);
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d');
+        return {context, width, height};
+    };
+
+    const draw1 = (canvas, channels) => {
+        canvas.context.fillStyle = '#333';
+        canvas.context.fillRect(0, 0, canvas.width, canvas.height);
+        const count = channels[0].length;
+        const width = canvas.width / 2 / count;
+        channels.forEach((channel, index) => {
+            for (let i = 0; i < count; i++) {
+                const magnitude = channel[i] / 255;
+                const hue = magnitude * 300;
+                const height = magnitude * canvas.height;
+                canvas.context.fillStyle = `hsl(${hue}, 64%, 64%)`;
+                canvas.context.fillRect(
+                    index === 0 ?
+                        canvas.width / 2 - width * i :
+                        canvas.width / 2 + width * i,
+                    canvas.height - height,
+                    width + 1,
+                    height
+                );
+            }
+        });
+    };
+
+    const draw2 = (canvas, channels) => {
+        const image = canvas.context.getImageData(0, 0, canvas.width, canvas.height);
+        const count = channels[0].length;
+        const width = canvas.width / 2 / count;
+        const height = width;
+        channels.forEach((channel, index) => {
+            for (let i = 0; i < count; i++) {
+                const magnitude = channel[i] / 255;
+                const hue = magnitude * 300;
+                canvas.context.fillStyle = `hsl(${hue}, 64%, 64%)`;
+                canvas.context.fillRect(
+                    index === 0 ?
+                        canvas.width / 2 - width * i :
+                        canvas.width / 2 + width * i,
+                    0,
+                    width + 1,
+                    height + 1
+                );
+            }
+        });
+        canvas.context.putImageData(image, 0, height);
+    };
+
+    const loadSoundcloudUrl = (url) => {
+        audio.media.pause();
+        SC.resolve(url).then((resource) => {
+            console.log(resource);
+            const type = resource && resource.kind;
+            switch (type) {
+                case 'track': {
+                    const src = resource.stream_url;
+                    audio.media.crossOrigin = 'anonymous';
+                    audio.media.src = src + '?client_id=' + sc_client_id;
+                    const promise = audio.media.play();
+                    return promise;
+                }
+                default: {
+                    throw new Error(`Unhandled resource type "${type}", can only handle "track"`);
+                }
+            }
+        }).catch((e) => {
+            const prefix = `Unable to load resource`;
+            const message = e && e.message || e;
+            alert(`${prefix}\n\nError = ${message}\n\nURL = ${url}`);
+        });
+    };
+
+    const WIDTH = 600;
+    const HEIGHT = 600;
+    const BORDER = 7;
+
+    const container = document.getElementById('container');
+    container.style.width = (WIDTH + BORDER * 2) + 'px';
+
+    const audio = makeAudio(512);
+    const canvas1 = makeCanvas('canvas1', WIDTH, 1 * (HEIGHT / 6));
+    const canvas2 = makeCanvas('canvas2', WIDTH, 5 * (HEIGHT / 6));
+
+    const form = document.getElementById('soundcloud-form');
+    const input = document.getElementById('soundcloud-input');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        const url = input.value && input.value.trim();
+        loadSoundcloudUrl(url);
+    });
+
+    document.addEventListener('keydown', e => {
+        switch (e.keyCode) {
+            case 32: {
+                // spacebar
+                e.preventDefault();
+                audio.media.paused
+                    ? audio.media.play()
+                    : audio.media.pause()
+                ;
+                break;
+            }
+        }
+    });
+
+    const animate = () => {
+        const channels = audio.getChannels();
+        draw1(canvas1, channels);
+        draw2(canvas2, channels);
+        window.requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    SC.initialize({client_id: sc_client_id});
+
+    const hash = window.location.hash.length && window.location.hash.slice(1);
+    if (hash && hash.length) loadSoundcloudUrl(hash);
+
+</script>
+</body>
+</html>
