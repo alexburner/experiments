@@ -2,7 +2,6 @@ function RectGrid(origin, size, paddingV, paddingH, rows, cols) {
 	// properties
 	this.origin = origin;
 
-	// this.origin.y += 54;
 	this.origin.y -= 7;
 
 	this.size = size;
@@ -13,8 +12,6 @@ function RectGrid(origin, size, paddingV, paddingH, rows, cols) {
 }
 
 RectGrid.prototype.makePanels = function(paddingV, paddingH, rows, cols) {
-
-	// paddingV += 120;
 
 	this.matrix = [];
 

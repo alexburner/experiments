@@ -68,6 +68,7 @@ var shapes = {
 
 	MarkCentroid: function (point) {
 		var mark = new shapes.Mark(point);
+		mark.fillColor = 'black';
 		return mark;
 	},
 

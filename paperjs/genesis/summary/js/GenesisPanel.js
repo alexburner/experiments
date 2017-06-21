@@ -64,7 +64,7 @@ GenesisPanel.prototype.makeCircles = function() {
 GenesisPanel.rotate = function (group, origin, stage, orient) {
 	if (stage === 1) return;
 	var natural = -90 + 60 * (stage - 2);
-	natural = -90;
+	// natural = -90;
 	var cardinal = 30 * (stage - 2);
 	switch (orient) {
 		case 'natural': group.rotate(natural, origin); break;

@@ -9,7 +9,7 @@ function makeLines(args) {
     var y = args.y;
     var w = args.width;
     var h = args.height;
-    var orient = args.orient || 'west';
+    var orient = args.orient || 'north';
     var paddingV = args.paddingV || 120;
     var paddingH = args.paddingH || 120;
 
@@ -18,7 +18,7 @@ function makeLines(args) {
         new paper.Size(w, h),
         paddingV,
         paddingH,
-        9,
+        7,
         6
     );
 
@@ -28,8 +28,8 @@ function makeLines(args) {
             var stage = j + 2;
             var genesis = null;
 
-            // rect.point.y += 7;
-            // rect.point.y += 14 * i;
+            rect.point.y += 7;
+            rect.point.y += 14 * i;
             // if (i === 7) {
             //     rect.point.y -= 35;
             // }
@@ -40,14 +40,14 @@ function makeLines(args) {
             //     rect.point.y +=14;
             // }
 
-            rect.point.y += 7;
-            rect.point.y += 8 * i;
-            if (i > 0) {
-                rect.point.y -= 48;
-            }
+            // rect.point.y += 7;
+            // rect.point.y += 8 * i;
+            // if (i > 0) {
+            //     rect.point.y -= 48;
+            // }
 
-            switch (i) {
-                case 0:
+            switch (i + 1) {
+                case 1:
                     genesis = new GenesisPanel(
                         stage,
                         radius,
