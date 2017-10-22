@@ -1,7 +1,7 @@
 //
 //
 /////////////////////////////////////////
-function makeCentroidLines(args) {
+function makeFacets(args) {
     makeBack(args);
 
     var radius = args.radius || 16;
@@ -19,7 +19,7 @@ function makeCentroidLines(args) {
         paddingV,
         paddingH,
         7,
-        5
+        4
     );
 
     for (var i = 0; i < grid.matrix.length; i++) {
@@ -29,7 +29,7 @@ function makeCentroidLines(args) {
             var genesis = null;
             switch (j) {
                 case 0:
-                    // circles + vectors + centroid
+                    // circles & facets
                     genesis = new GenesisPanel(
                         stage,
                         radius,
@@ -37,25 +37,17 @@ function makeCentroidLines(args) {
                         rect.size,
                         orient
                     );
-                    genesis.hideCircles();
-                    genesis.markCenters();
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroidVectors();
-                    break;
-                case 2:
-                    // circles + centroid
-                    genesis = new GenesisPanel(
-                        stage,
-                        radius,
-                        rect.point,
-                        rect.size,
-                        orient
-                    );
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
+                    genesis.extend(GenesisFacets);
+                    genesis.makeFacets();
+                    genesis.drawFacets('vesica');
+                    genesis.drawFacets('treble');
+                    genesis.drawFacets('petal');
+                    genesis.facets.all.forEach(facet => {
+                        facet.intersect.opacity = 0.2;
+                    });
                     break;
                 case 1:
-                    // points + centroid
+                    // facets (vesica)
                     genesis = new GenesisPanel(
                         stage,
                         radius,
@@ -64,12 +56,26 @@ function makeCentroidLines(args) {
                         orient
                     );
                     genesis.hideCircles();
-                    genesis.markPoints();
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
+                    genesis.extend(GenesisFacets);
+                    genesis.makeFacets();
+                    genesis.drawFacets('vesica');
+                    break;
+                case 2:
+                    // facets (treble)
+                    genesis = new GenesisPanel(
+                        stage,
+                        radius,
+                        rect.point,
+                        rect.size,
+                        orient
+                    );
+                    genesis.hideCircles();
+                    genesis.extend(GenesisFacets);
+                    genesis.makeFacets();
+                    genesis.drawFacets('treble');
                     break;
                 case 3:
-                    // lines + centroid
+                    // facets (petal)
                     genesis = new GenesisPanel(
                         stage,
                         radius,
@@ -78,31 +84,9 @@ function makeCentroidLines(args) {
                         orient
                     );
                     genesis.hideCircles();
-                    genesis.extend(GenesisLines);
-                    genesis.drawAllLines('in');
-                    genesis.hideAllLines();
-                    genesis.showLinesByLength('radius');
-                    genesis.showLinesByLength('vesica');
-                    genesis.showLinesByLength('strange');
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
-                    break;
-                case 4:
-                    // centroid lines + centroid
-                    genesis = new GenesisPanel(
-                        stage,
-                        radius,
-                        rect.point,
-                        rect.size,
-                        orient
-                    );
-                    genesis.hideCircles();
-                    genesis.extend(GenesisLines);
-                    genesis.drawAllLines('in');
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
-                    genesis.findCentroidLines();
-                    genesis.hideLinesNotCentroid();
+                    genesis.extend(GenesisFacets);
+                    genesis.makeFacets();
+                    genesis.drawFacets('petal');
                     break;
                 default:
                     break;
@@ -114,6 +98,7 @@ function makeCentroidLines(args) {
                     genesis.stage,
                     genesis.orient
                 );
+                genesis.doubleOrigin();
             }
         }
     }

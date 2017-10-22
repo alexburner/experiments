@@ -114,6 +114,7 @@ function makeCentroidLines(args) {
                     genesis.stage,
                     genesis.orient
                 );
+                genesis.doubleCentroid();
             }
         }
     }

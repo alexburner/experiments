@@ -1,7 +1,7 @@
 //
 //
 /////////////////////////////////////////
-function makeCentroidLines(args) {
+function makeSeedCenters(args) {
     makeBack(args);
 
     var radius = args.radius || 16;
@@ -29,7 +29,6 @@ function makeCentroidLines(args) {
             var genesis = null;
             switch (j) {
                 case 0:
-                    // circles + vectors + centroid
                     genesis = new GenesisPanel(
                         stage,
                         radius,
@@ -38,24 +37,12 @@ function makeCentroidLines(args) {
                         orient
                     );
                     genesis.hideCircles();
-                    genesis.markCenters();
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroidVectors();
-                    break;
-                case 2:
-                    // circles + centroid
-                    genesis = new GenesisPanel(
-                        stage,
-                        radius,
-                        rect.point,
-                        rect.size,
-                        orient
-                    );
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
+                    genesis.extend(GenesisFacets);
+                    genesis.makeFacets();
+                    genesis.drawSeeds('petal', 'within', 'centers');
+                    genesis.drawSeeds('petal', 'around', 'centers');
                     break;
                 case 1:
-                    // points + centroid
                     genesis = new GenesisPanel(
                         stage,
                         radius,
@@ -64,12 +51,12 @@ function makeCentroidLines(args) {
                         orient
                     );
                     genesis.hideCircles();
-                    genesis.markPoints();
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
+                    genesis.extend(GenesisFacets);
+                    genesis.makeFacets();
+                    genesis.drawSeeds('treble', 'within', 'centers');
+                    genesis.drawSeeds('treble', 'around', 'centers');
                     break;
-                case 3:
-                    // lines + centroid
+                case 2:
                     genesis = new GenesisPanel(
                         stage,
                         radius,
@@ -78,17 +65,12 @@ function makeCentroidLines(args) {
                         orient
                     );
                     genesis.hideCircles();
-                    genesis.extend(GenesisLines);
-                    genesis.drawAllLines('in');
-                    genesis.hideAllLines();
-                    genesis.showLinesByLength('radius');
-                    genesis.showLinesByLength('vesica');
-                    genesis.showLinesByLength('strange');
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
+                    genesis.extend(GenesisFacets);
+                    genesis.makeFacets();
+                    genesis.drawSeeds('vesica', 'within', 'centers');
+                    genesis.drawSeeds('vesica', 'around', 'centers');
                     break;
                 case 4:
-                    // centroid lines + centroid
                     genesis = new GenesisPanel(
                         stage,
                         radius,
@@ -97,12 +79,14 @@ function makeCentroidLines(args) {
                         orient
                     );
                     genesis.hideCircles();
-                    genesis.extend(GenesisLines);
-                    genesis.drawAllLines('in');
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
-                    genesis.findCentroidLines();
-                    genesis.hideLinesNotCentroid();
+                    genesis.extend(GenesisFacets);
+                    genesis.makeFacets();
+                    genesis.drawSeeds('petal', 'within', 'centers');
+                    genesis.drawSeeds('petal', 'around', 'centers');
+                    genesis.drawSeeds('treble', 'within', 'centers');
+                    genesis.drawSeeds('treble', 'around', 'centers');
+                    genesis.drawSeeds('vesica', 'within', 'centers');
+                    genesis.drawSeeds('vesica', 'around', 'centers');
                     break;
                 default:
                     break;
@@ -114,6 +98,7 @@ function makeCentroidLines(args) {
                     genesis.stage,
                     genesis.orient
                 );
+                genesis.doubleOrigin();
             }
         }
     }

@@ -1,7 +1,7 @@
 //
 //
 /////////////////////////////////////////
-function makeCentroidLines(args) {
+function makeLines(args) {
     makeBack(args);
 
     var radius = args.radius || 16;
@@ -9,7 +9,7 @@ function makeCentroidLines(args) {
     var y = args.y;
     var w = args.width;
     var h = args.height;
-    var orient = args.orient || 'north';
+    var orient = args.orient || 'west';
     var paddingV = args.paddingV || 120;
     var paddingH = args.paddingH || 120;
 
@@ -19,43 +19,16 @@ function makeCentroidLines(args) {
         paddingV,
         paddingH,
         7,
-        5
+        6
     );
 
     for (var i = 0; i < grid.matrix.length; i++) {
-        var stage = i + 1;
         for (var j = 0; j < grid.matrix[i].length; j++) {
             var rect = grid.matrix[i][j];
+            var stage = j + 2;
             var genesis = null;
-            switch (j) {
-                case 0:
-                    // circles + vectors + centroid
-                    genesis = new GenesisPanel(
-                        stage,
-                        radius,
-                        rect.point,
-                        rect.size,
-                        orient
-                    );
-                    genesis.hideCircles();
-                    genesis.markCenters();
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroidVectors();
-                    break;
-                case 2:
-                    // circles + centroid
-                    genesis = new GenesisPanel(
-                        stage,
-                        radius,
-                        rect.point,
-                        rect.size,
-                        orient
-                    );
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
-                    break;
+            switch (i + 1) {
                 case 1:
-                    // points + centroid
                     genesis = new GenesisPanel(
                         stage,
                         radius,
@@ -64,12 +37,86 @@ function makeCentroidLines(args) {
                         orient
                     );
                     genesis.hideCircles();
-                    genesis.markPoints();
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
+                    genesis.extend(GenesisLines);
+                    genesis.drawAllLines('in');
+                    break;
+                case 7:
+                    // lines (vesica2)
+                    genesis = new GenesisPanel(
+                        stage,
+                        radius,
+                        rect.point,
+                        rect.size,
+                        orient
+                    );
+                    genesis.hideCircles();
+                    genesis.extend(GenesisLines);
+                    genesis.drawAllLines('in');
+                    genesis.hideAllLines();
+                    genesis.showLinesByLength('vesica2');
+                    break;
+                case 6:
+                    // lines (radius3)
+                    genesis = new GenesisPanel(
+                        stage,
+                        radius,
+                        rect.point,
+                        rect.size,
+                        orient
+                    );
+                    genesis.hideCircles();
+                    genesis.extend(GenesisLines);
+                    genesis.drawAllLines('in');
+                    genesis.hideAllLines();
+                    genesis.showLinesByLength('radius3');
+                    break;
+                case 5:
+                    // lines (strange)
+                    genesis = new GenesisPanel(
+                        stage,
+                        radius,
+                        rect.point,
+                        rect.size,
+                        orient
+                    );
+                    genesis.hideCircles();
+                    genesis.extend(GenesisLines);
+                    genesis.drawAllLines('in');
+                    genesis.hideAllLines();
+                    genesis.showLinesByLength('strange');
+                    break;
+                case 4:
+                    // lines (radius2)
+                    genesis = new GenesisPanel(
+                        stage,
+                        radius,
+                        rect.point,
+                        rect.size,
+                        orient
+                    );
+                    genesis.hideCircles();
+                    genesis.extend(GenesisLines);
+                    genesis.drawAllLines('in');
+                    genesis.hideAllLines();
+                    genesis.showLinesByLength('radius2');
                     break;
                 case 3:
-                    // lines + centroid
+                    // lines (vesica)
+                    genesis = new GenesisPanel(
+                        stage,
+                        radius,
+                        rect.point,
+                        rect.size,
+                        orient
+                    );
+                    genesis.hideCircles();
+                    genesis.extend(GenesisLines);
+                    genesis.drawAllLines('in');
+                    genesis.hideAllLines();
+                    genesis.showLinesByLength('vesica');
+                    break;
+                case 2:
+                    // lines (radius)
                     genesis = new GenesisPanel(
                         stage,
                         radius,
@@ -82,27 +129,6 @@ function makeCentroidLines(args) {
                     genesis.drawAllLines('in');
                     genesis.hideAllLines();
                     genesis.showLinesByLength('radius');
-                    genesis.showLinesByLength('vesica');
-                    genesis.showLinesByLength('strange');
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
-                    break;
-                case 4:
-                    // centroid lines + centroid
-                    genesis = new GenesisPanel(
-                        stage,
-                        radius,
-                        rect.point,
-                        rect.size,
-                        orient
-                    );
-                    genesis.hideCircles();
-                    genesis.extend(GenesisLines);
-                    genesis.drawAllLines('in');
-                    genesis.extend(GenesisCentroid);
-                    genesis.markCentroid();
-                    genesis.findCentroidLines();
-                    genesis.hideLinesNotCentroid();
                     break;
                 default:
                     break;
@@ -114,6 +140,7 @@ function makeCentroidLines(args) {
                     genesis.stage,
                     genesis.orient
                 );
+                genesis.doubleCentroid();
             }
         }
     }
