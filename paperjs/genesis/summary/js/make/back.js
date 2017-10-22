@@ -9,12 +9,12 @@ function makeBack(args) {
 
     // background color shape
     // var backdrop = new shapes.Backdrop();
-    var marginX = 15;
-    var marginY = 20;
+    var marginX = 14;
+    var marginY = 7;
     var backdrop = new paper.Path.Rectangle(
         new paper.Point(
             x + marginX,
-            y + marginY
+            y + marginY - 14
         ),
         new paper.Size(
             w - marginX * 2,

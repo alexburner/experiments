@@ -18,7 +18,7 @@ RectGrid.prototype.makePanels = function(paddingV, paddingH, rows, cols) {
 	var cellWidth = (this.size.width - paddingH) / cols;
 	var cellHeight = (this.size.height - paddingV) / rows;
 
-	cellHeight = cellWidth;
+	// cellHeight = cellWidth;
 
 	var currentX = this.origin.x;
 	var currentY = this.origin.y;

@@ -5,12 +5,14 @@
 var shapes = {
 
     strokeColor: 'white',
-	strokeWidth: 1,
-    opacity: 1/2,
+	strokeWidth: 1/2,
+	opacity: 1,
 
 	Backdrop: function (bounds) {
 		bounds = bounds || paper.view.bounds;
 		var backdrop = new paper.Path.Rectangle(bounds);
+		// backdrop.fillColor = 'white';
+        // backdrop.fillColor = '#222';
 		backdrop.fillColor = 'black';
         return backdrop;
 	},
@@ -18,7 +20,7 @@ var shapes = {
 	Panel: function (origin, size) {
 		var rect = new paper.Rectangle(origin, size);
 		var panel = new paper.Path.Rectangle(rect);
-		panel.strokeColor = shapes.strokeColor;
+		panel.strokeColor = 'black';
 		panel.strokeWidth = shapes.strokeWidth;
 		panel.opacity = 0;
 		return panel;
@@ -35,15 +37,9 @@ var shapes = {
 		});
 	},
 
-	CentroidCircle: function (center, radius) {
-		var circle = new shapes.Circle(center, radius);
-		circle.opacity = shapes.opacity / 2;
-		return circle;
-	},
-
-	SeedCircle: function (center, radius) {
-		var circle = new shapes.Circle(center, radius);
-		return circle;
+	Seed: function (center, radius) {
+		var seed = new shapes.Circle(center, radius);
+		return seed;
 	},
 
 	Line: function (from, to) {
@@ -62,7 +58,7 @@ var shapes = {
 		var mark = new shapes.Circle(point, 3/2);
 		mark.strokeColor = color;
 		mark.fillColor = color;
-		mark.opacity = shapes.opacity * 4 / 3;
+		mark.opacity = shapes.opacity;
 		return mark;
 	},
 

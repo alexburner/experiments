@@ -9,7 +9,7 @@ function makeLines(args) {
     var y = args.y;
     var w = args.width;
     var h = args.height;
-    var orient = args.orient || 'north';
+    var orient = args.orient || 'west';
     var paddingV = args.paddingV || 120;
     var paddingH = args.paddingH || 120;
 
@@ -27,25 +27,6 @@ function makeLines(args) {
             var rect = grid.matrix[i][j];
             var stage = j + 2;
             var genesis = null;
-
-            rect.point.y += 7;
-            rect.point.y += 14 * i;
-            // if (i === 7) {
-            //     rect.point.y -= 35;
-            // }
-
-            // rect.point.y -= 54;
-
-            // if (i === 7) {
-            //     rect.point.y +=14;
-            // }
-
-            // rect.point.y += 7;
-            // rect.point.y += 8 * i;
-            // if (i > 0) {
-            //     rect.point.y -= 48;
-            // }
-
             switch (i + 1) {
                 case 1:
                     genesis = new GenesisPanel(

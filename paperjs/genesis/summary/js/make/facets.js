@@ -27,28 +27,9 @@ function makeFacets(args) {
         for (var j = 0; j < grid.matrix[i].length; j++) {
             var rect = grid.matrix[i][j];
             var genesis = null;
-
-            rect.point.y -= 10;
-            rect.point.y -= 22 * i;
-
             switch (j) {
-                // case -1:
-                //     genesis = new GenesisPanel(
-                //         stage,
-                //         radius,
-                //         rect.point,
-                //         rect.size,
-                //         orient
-                //     );
-                //     genesis.hideCircles();
-                //     genesis.extend(GenesisFacets);
-                //     genesis.makeFacets();
-                //     genesis.drawFacets('vesica');
-                //     genesis.drawFacets('treble');
-                //     genesis.drawFacets('petal');
-                //     break;
                 case 0:
-                    // circles
+                    // circles & facets
                     genesis = new GenesisPanel(
                         stage,
                         radius,
@@ -58,6 +39,12 @@ function makeFacets(args) {
                     );
                     genesis.extend(GenesisFacets);
                     genesis.makeFacets();
+                    genesis.drawFacets('vesica');
+                    genesis.drawFacets('treble');
+                    genesis.drawFacets('petal');
+                    genesis.facets.all.forEach(facet => {
+                        facet.intersect.opacity = 0.2;
+                    });
                     break;
                 case 1:
                     // facets (vesica)

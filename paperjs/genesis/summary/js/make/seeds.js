@@ -27,10 +27,6 @@ function makeSeeds(args) {
         for (var j = 0; j < grid.matrix[i].length; j++) {
             var rect = grid.matrix[i][j];
             var genesis = null;
-
-            rect.point.y -= 10;
-            rect.point.y -= 22 * i;
-
             switch (j) {
                 case 0:
                     // seeds (petal)
@@ -86,6 +82,14 @@ function makeSeeds(args) {
                         rect.size,
                         orient
                     );
+                    genesis.extend(GenesisFacets);
+                    genesis.makeFacets();
+                    genesis.drawSeeds('petal', 'within', 'selves');
+                    genesis.drawSeeds('petal', 'around', 'selves');
+                    genesis.drawSeeds('treble', 'within', 'selves');
+                    genesis.drawSeeds('treble', 'around', 'selves');
+                    genesis.drawSeeds('vesica', 'within', 'selves');
+                    genesis.drawSeeds('vesica', 'around', 'selves');
                     break;
                 // case 4:
                 //     genesis = new GenesisPanel(

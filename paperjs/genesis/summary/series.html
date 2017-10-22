@@ -9,9 +9,11 @@
         background: #EEE;
     }
     canvas {
-        padding: 8px 16px;
+        padding: 2px 16px 8px;
         padding-right: 0;
         background: #EEE;
+
+        transform: rotate(180deg) scaleX(-1);
     }
 </style>
 </head>
@@ -39,13 +41,13 @@
     var panelCount = 8;
 
     var panelWidth = 1100 / 2;
-    var panelHeight = 800 + 1 - 61;
+    var panelHeight = 800 + 1 - 48;
 
     var scrollWidth = panelWidth * panelCount;
     var scrollHeight = panelHeight;
 
     var radius = 16;
-    var paddingV = 150;
+    var paddingV = 120;
     var paddingH = 120;
 
     // initialize paper with new canvas element
