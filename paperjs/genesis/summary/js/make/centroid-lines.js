@@ -19,7 +19,7 @@ function makeCentroidLines(args) {
     paddingV,
     paddingH,
     7,
-    5,
+    4,
   )
 
   for (var i = 0; i < grid.matrix.length; i++) {
@@ -27,7 +27,7 @@ function makeCentroidLines(args) {
     for (var j = 0; j < grid.matrix[i].length; j++) {
       var rect = grid.matrix[i][j]
       var genesis = null
-      switch (j) {
+      switch (j + 1) {
         case 0:
           // circles + vectors + centroid
           genesis = new GenesisPanel(
@@ -40,9 +40,10 @@ function makeCentroidLines(args) {
           genesis.hideCircles()
           genesis.markCenters()
           genesis.extend(GenesisCentroid)
+          genesis.markCentroid()
           genesis.markCentroidVectors()
           break
-        case 2:
+        case 1:
           // circles + centroid
           genesis = new GenesisPanel(
             stage,
@@ -54,7 +55,7 @@ function makeCentroidLines(args) {
           genesis.extend(GenesisCentroid)
           genesis.markCentroid()
           break
-        case 1:
+        case 2:
           // points + centroid
           genesis = new GenesisPanel(
             stage,

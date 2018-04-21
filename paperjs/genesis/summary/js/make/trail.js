@@ -9,7 +9,7 @@ function makeTrail(args) {
   var y = args.y
   var w = args.width
   var h = args.height
-  // var orient = args.orient || 'natural';
+  var orient = args.orient || 'pencil'
   var paddingV = args.paddingV || 120
   var paddingH = args.paddingH || 120
 
@@ -34,7 +34,7 @@ function makeTrail(args) {
             radius,
             rect.point,
             rect.size,
-            'natural',
+            orient,
           )
           break
         default:

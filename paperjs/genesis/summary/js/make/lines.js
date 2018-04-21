@@ -9,7 +9,7 @@ function makeLines(args) {
   var y = args.y
   var w = args.width
   var h = args.height
-  var orient = args.orient || 'west'
+  var orient = args.orient || 'north'
   var paddingV = args.paddingV || 120
   var paddingH = args.paddingH || 120
 
@@ -27,7 +27,7 @@ function makeLines(args) {
       var rect = grid.matrix[i][j]
       var stage = j + 2
       var genesis = null
-      switch (i + 1) {
+      switch (grid.matrix.length - i) {
         case 1:
           genesis = new GenesisPanel(
             stage,
