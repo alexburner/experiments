@@ -68,7 +68,7 @@
 
       // text label
       var text = new paper.PointText({
-        point: [center[0] - (2 * radius), center[1]],
+        point: [center[0] - (2 * radius + 24), center[1] + 8],
         content: count,
         justify: 'center',
         fillColor: 'black',
@@ -94,11 +94,11 @@
        * Special dot for 1
        */
       if (count < 2) {
-        var mark = new paper.Path.Circle({
-          center: [center[0], center[1] - radius],
-          radius: 4.2,
-          fillColor: 'black',
-        });
+        // var mark = new paper.Path.Circle({
+        //   center: [center[0], center[1] - radius],
+        //   radius: 4.2,
+        //   fillColor: 'black',
+        // });
         return radius;
       };
 
@@ -116,11 +116,11 @@
         vector.angle += angle;
 
 
-        var mark = new paper.Path.Circle({
-          center: point,
-          radius: 4.2,
-          fillColor: 'black'
-        });
+        // var mark = new paper.Path.Circle({
+        //   center: point,
+        //   radius: 4.2,
+        //   fillColor: 'black'
+        // });
 
       }
       var lines = [];
@@ -157,8 +157,8 @@
         });
       });
 
-      var x = center[0] + 50;
-      var dx = radius * 2 + 24;
+      var x = center[0];
+      var dx = radius * 2 + 48;
 
       var groups = [];
 
