@@ -23,6 +23,10 @@
       background: white;
     }
 
+    #container {
+      margin: 4% auto;
+    }
+
   </style>
 </head>
 
@@ -52,56 +56,13 @@
 
 
       var circle = new paper.Path.Circle({
-
         strokeColor: 'black',
-        strokeWidth: 1.8,
-
+        strokeWidth: 1,
+        dashArray: [1, 2],
+        strokeCap: 'round',
         center: center,
         radius: radius
       });
-
-
-
-      /**
-       * Label
-       */
-
-      // text label
-      var text = new paper.PointText({
-        point: [center[0] - (2 * radius + 24), center[1] + 8],
-        content: count,
-        justify: 'center',
-        fillColor: 'black',
-        fontWeight: 'bold',
-        fontSize: 24
-      });
-
-      // center text
-      text.position.x -= text.bounds.width / 2;
-
-
-
-
-      /**
-       * No more for 0
-       */
-      if (count < 1) {
-        return radius;
-      }
-
-
-      /**
-       * Special dot for 1
-       */
-      if (count < 2) {
-        // var mark = new paper.Path.Circle({
-        //   center: [center[0], center[1] - radius],
-        //   radius: 4.2,
-        //   fillColor: 'black',
-        // });
-        return radius;
-      };
-
 
 
 
@@ -171,6 +132,8 @@
         groups.push(group);
       });
 
+      x += dx; // extra nudge
+
       // draw exploded copies
       groups.reverse().forEach(function(group) {
         var copy = group.clone();
@@ -178,6 +141,20 @@
         copy.position.x = x;
       });
 
+
+      // add label
+      var text = new paper.PointText({
+        //point: [center[0] - (2 * radius + 24), center[1] + 8],
+        point: [center[0] + dx, y],
+        content: count,
+        justify: 'center',
+        fillColor: 'black',
+        fontWeight: 'bold',
+        fontSize: 24
+      });
+
+      // center text
+      text.position.x -= text.bounds.width / 2;
 
 
 
