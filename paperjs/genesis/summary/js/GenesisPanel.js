@@ -67,7 +67,6 @@ GenesisPanel.rotate = function (group, origin, stage, orient) {
 	var cardinal = 30 * (stage - 2);
 	var pencil = -90;
 
-	natural += -30;
 	cardinal += 180;
 	pencil += 180;
 
