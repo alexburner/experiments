@@ -1,0 +1,95 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>genesis&mdash;misc</title>
+<style type="text/css" media="screen">
+    html, body, canvas {
+        margin: 0;
+        padding: 0;
+        background: #EEE;
+    }
+    canvas {
+        padding-left: 15px;
+        background: #EEE;
+    }
+</style>
+</head>
+<body>
+<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/shapes.js"></script>
+<script type="text/javascript" src="js/GenesisPanel.js"></script>
+<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+<script type="text/javascript" src="js/Facet.js"></script>
+<script type="text/javascript" src="js/RectGrid.js"></script>
+<script type="text/javascript" src="js/make/back.js"></script>
+<script type="text/javascript" src="js/misc/facets-alt.js"></script>
+<script type="text/javascript" src="js/misc/seeds-alt.js"></script>
+<script type="text/javascript" src="js/misc/seeds-in.js"></script>
+<script type="text/javascript" src="js/misc/seeds-out.js"></script>
+<script type="text/javascript" src="js/misc/seeds-pt.js"></script>
+<script type="text/javascript" src="js/misc/facet-marks.js"></script>
+<script type="text/javascript" src="js/misc/facet-marks+points.js"></script>
+<script type="text/javascript" src="js/misc/seed-centers.js"></script>
+<script type="text/javascript" src="js/misc/seed-centers+seeds.js"></script>
+<script type="text/javascript" src="js/misc/seed-centers+seeds-in.js"></script>
+<script type="text/javascript" src="js/misc/seed-centers+seeds-out.js"></script>
+
+<script type="text/javascript">
+
+    var panelCount = 10;
+
+    var panelWidth = 1100 / 2;
+    var panelHeight = 800 + 1;
+
+    var scrollWidth = panelWidth * panelCount;
+    var scrollHeight = panelHeight;
+
+    var radius = 16;
+    var paddingV = 150;
+    var paddingH = 120;
+
+    // initialize paper with new canvas element
+    var canvas = document.createElement('canvas');
+    canvas.width = scrollWidth;
+    canvas.height = scrollHeight;
+    document.body.appendChild(canvas);
+    paper.setup(canvas);
+
+    function makeArgs(i) {
+        return {
+            x: i * panelWidth,
+            y: 0,
+            width: panelWidth,
+            height: panelHeight,
+            radius: radius,
+            paddingV: paddingV,
+            paddingH: paddingH,
+        };
+    };
+
+    var i = 0;
+    makePointedFacetMarks(makeArgs(i++));
+    makeFacetMarks(makeArgs(i++));
+    makeSeedsAlt(makeArgs(i++));
+    makeSeedsIn(makeArgs(i++));
+    makeSeedsOut(makeArgs(i++));
+    makeSeedCenters(makeArgs(i++));
+    makeSeedsSeedCenters(makeArgs(i++));
+    makeSeedsSeedCentersIn(makeArgs(i++));
+    makeSeedsSeedCentersOut(makeArgs(i++));
+    makeSeedsPT(makeArgs(i++));
+
+
+    /**
+     * Execute
+     */
+    paper.view.draw();
+
+
+</script>
+<script type="text/javascript" src="js/svg-export.js"></script>
+</body>
+</html>

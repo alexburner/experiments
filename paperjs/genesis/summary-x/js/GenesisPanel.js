@@ -21,6 +21,9 @@ function GenesisPanel(stage, radius, origin, size, orient) {
 	// construction
 	this.makeCircles();
 	this.makePoints();
+
+	// hidden valley ranch
+	if (stage === 5 || stage === 6) this.group.opacity = 1/4;
 }
 
 
