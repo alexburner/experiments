@@ -97,7 +97,7 @@ GenesisPanel.rotate = function (group, origin, stage, orient) {
 				case 3: group.rotate(0, origin); break;
 				case 4: group.rotate(0 + 60, origin); break;
 				case 5: group.rotate(0 + 120, origin); break;
-				case 6: group.rotate(0 + 120, origin); break;
+				case 6: group.rotate(0 + 180, origin); break;
 				case 7: group.rotate(0, origin); break;
 			}
 			break;
