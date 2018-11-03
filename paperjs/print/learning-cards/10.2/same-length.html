@@ -87,18 +87,18 @@
             clipMask.scale(7 / 8, center);
             clipMask.remove();
 
-            // // Color swatch
-            // var total = 12;
-            // var swatch = new paper.Path.Rectangle({
-            //     size: clipMask.bounds.size,
-            //     opacity: 0.12,
-            //     fillColor: {
-            //         hue: (360 * (count / total)) % 360,
-            //         saturation: 0.9,
-            //         brightness: 0.8,
-            //     },
-            // });
-            // swatch.position = center;
+            // Color swatch
+            var total = 12;
+            var swatch = new paper.Path.Rectangle({
+                size: clipMask.bounds.size,
+                opacity: 0.12,
+                fillColor: {
+                    hue: (360 * (count / total)) % 360,
+                    saturation: 0.9,
+                    brightness: 0.8,
+                },
+            });
+            swatch.position = center;
 
             var dotRadius = 18;
             var shellCount = 16;
