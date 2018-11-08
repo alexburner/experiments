@@ -100,7 +100,7 @@
             });
             swatch.position = center;
 
-            var dotRadius = 18;
+            var dotRadius = 0;
             var shellCount = 16;
             var shellGap = 36;
 
@@ -114,7 +114,7 @@
                 new paper.Path.Circle({
                     fillColor: 'black',
                     center: center,
-                    radius: dotRadius
+                    radius: 3
                 });
 
                 // and rings
@@ -141,22 +141,20 @@
             var radius = (length / 2) / (Math.sin(angleRad / 2));
 
             var points = [];
-
             var vector = new paper.Point(center);
             vector.length = radius;
             vector.angle = -90;
-
             for (var i = 0, l = count; i < l; i++) {
                 var point = new paper.Point(center);
                 point = point.add(vector);
                 points.push(point);
                 vector.angle += angle;
 
-                new paper.Path.Circle({
-                    fillColor: 'black',
-                    center: point,
-                    radius: dotRadius
-                });
+                // new paper.Path.Circle({
+                //     fillColor: 'black',
+                //     center: point,
+                //     radius: dotRadius
+                // });
 
             }
 

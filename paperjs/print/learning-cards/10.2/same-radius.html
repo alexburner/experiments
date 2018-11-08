@@ -212,13 +212,13 @@
                 points.push(point);
                 vector.angle += angle;
 
-                if (count <= 1) {
-                    new paper.Path.Circle({
-                        fillColor: 'black',
-                        center: point,
-                        radius: 18
-                    });
-                }
+                // if (count <= 1) {
+                new paper.Path.Circle({
+                    fillColor: 'black',
+                    center: point,
+                    radius: 18
+                });
+                // }
 
             }
             var lines = [];
