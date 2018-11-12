@@ -111,6 +111,11 @@
         }
 
         function drawByRadius(center, count, radius) {
+            // stop after 10
+            if (count > 10) {
+                return 0;
+            }
+
             var bounds = new paper.Path.Rectangle({
                 point: [
                     center.x - cellW / 2,
@@ -121,14 +126,18 @@
                 dashArray: [1, 4],
             });
 
-
-
-            /**
-             * No more for >10
-             */
-            if (count > 10) {
-                return radius;
-            }
+            // Color swatch
+            var total = 12;
+            var swatch = new paper.Path.Rectangle({
+                size: [cellW, cellH],
+                opacity: 0.12,
+                fillColor: {
+                    hue: (360 * (count / total)) % 360,
+                    saturation: 0.7,
+                    brightness: 0.8,
+                },
+            });
+            swatch.position = center;
 
             {
                 // Number text

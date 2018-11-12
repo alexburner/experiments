@@ -68,6 +68,11 @@
 
 
         function drawByLength(center, count, length) {
+            // stop after 10
+            if (count > 10) {
+                return 0;
+            }
+
             var bounds = new paper.Path.Rectangle({
                 point: [
                     center.x - cellW / 2,
@@ -78,10 +83,7 @@
                 dashArray: [1, 4],
             });
 
-            // stop after 10
-            if (count > 10) {
-                return 0;
-            }
+            
 
             var clipMask = bounds.clone();
             clipMask.scale(7 / 8, center);
@@ -90,11 +92,11 @@
             // Color swatch
             var total = 12;
             var swatch = new paper.Path.Rectangle({
-                size: clipMask.bounds.size,
+                size: [cellW, cellH],
                 opacity: 0.12,
                 fillColor: {
                     hue: (360 * (count / total)) % 360,
-                    saturation: 0.9,
+                    saturation: 0.7,
                     brightness: 0.8,
                 },
             });
