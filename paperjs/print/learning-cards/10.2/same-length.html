@@ -50,20 +50,14 @@
       var cellW = pageW / cols;
       var cellH = pageH / rows;
 
-      cellW = Math.min(cellW, cellH);
-      cellH = Math.min(cellW, cellH);
-
-      var cell = 0;
+      const smallestSize = Math.min(cellW, cellH);
+      cellW = smallestSize;
+      cellH = smallestSize;
 
       // initialize paper with canvas element
       paper.setup(document.getElementById("canvas"));
 
       function drawByLength(center, count, length) {
-        // stop after 10
-        if (count > 10) {
-          return 0;
-        }
-
         var bounds = new paper.Path.Rectangle({
           point: [center.x - cellW / 2, center.y - cellH / 2],
           size: [cellW, cellH],
@@ -72,33 +66,37 @@
         });
 
         var clipMask = bounds.clone();
-        clipMask.scale(7 / 8, center);
+        // clipMask.scale(7 / 8, center);
         clipMask.remove();
 
         // Color swatch
-        var total = 12;
+        var total = 14;
+        var step = 360 / total;
         var swatch = new paper.Path.Rectangle({
           size: [cellW, cellH],
-          opacity: 0.12,
+          opacity: 0.7,
           fillColor: {
-            hue: (360 * (count / total)) % 360,
-            saturation: 0.7,
-            brightness: 0.8
+            hue: (((count + 1) * step) % 360) - step,
+            saturation: 0.2,
+            brightness: 1
           }
         });
         swatch.position = center;
 
         var dotRadius = 0;
-        var shellCount = 16;
+        var shellCount = 32;
         var shellGap = 36;
+        var smallShellGap = shellGap;
 
-        // 0 has nothing
         if (count < 1) {
+          // 0 has nothing
           return 0;
         }
 
-        // 1 only a point
         if (count < 2) {
+          shellGap = smallShellGap;
+
+          // 1 only a point
           new paper.Path.Circle({
             fillColor: "black",
             center: center,
@@ -179,6 +177,7 @@
 
         // special field for 2
         if (count === 2) {
+          shellGap = smallShellGap;
           var rays = [];
           rays.push(
             new paper.Path.Line({
@@ -218,6 +217,9 @@
         var longestLines = linesByLength[longestLength];
         var baseShell = new paper.Group(longestLines);
         var baseRadius = getMinRadius(radius, length);
+
+        // console.log(`count(${count}), r(${baseRadius})`);
+
         var shells = [];
         for (var i = 0; i < shellCount; i++) {
           var shell = baseShell.clone();
@@ -239,11 +241,15 @@
       }
 
       function getMinRadius(radius, length) {
+        // return radius;
         return Math.sqrt(Math.pow(radius, 2) - Math.pow(length / 2, 2));
       }
 
+      var cell = 0;
+      var limit = 10;
       for (var row = 0; row < rows; row++) {
         for (var col = 0; col < cols; col++) {
+          if (cell > limit) break;
           var x = cellW * col + cellW / 2;
           var y = cellH * row + cellH / 2;
           drawByLength(new paper.Point(x, y), cell, length);

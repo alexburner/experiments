@@ -50,10 +50,9 @@
       var cellW = pageW / cols;
       var cellH = pageH / rows;
 
-      cellW = Math.min(cellW, cellH);
-      cellH = Math.min(cellW, cellH);
-
-      var cell = 0;
+      const smallestSize = Math.min(cellW, cellH);
+      cellW = smallestSize;
+      cellH = smallestSize;
 
       var middleShift = -42;
 
@@ -108,11 +107,6 @@
       }
 
       function drawByRadius(center, count, radius) {
-        // stop after 10
-        if (count > 10) {
-          return 0;
-        }
-
         var bounds = new paper.Path.Rectangle({
           point: [center.x - cellW / 2, center.y - cellH / 2],
           size: [cellW, cellH],
@@ -121,14 +115,15 @@
         });
 
         // Color swatch
-        var total = 12;
+        var total = 14;
+        var step = 360 / total;
         var swatch = new paper.Path.Rectangle({
           size: [cellW, cellH],
-          opacity: 0.12,
+          opacity: 0.7,
           fillColor: {
-            hue: (360 * (count / total)) % 360,
-            saturation: 0.7,
-            brightness: 0.8
+            hue: (((count + 1) * step) % 360) - step,
+            saturation: 0.2,
+            brightness: 1
           }
         });
         swatch.position = center;
@@ -164,7 +159,9 @@
               "seven",
               "eight",
               "nine",
-              "ten"
+              "ten",
+              "eleven",
+              "twelve"
             ][count],
             fillColor: "black",
             fontFamily: "Times",
@@ -269,8 +266,11 @@
           });
       }
 
+      var cell = 0;
+      var limit = 10;
       for (var row = 0; row < rows; row++) {
         for (var col = 0; col < cols; col++) {
+          if (cell > limit) break;
           var x = cellW * col + cellW / 2;
           var y = cellH * row + cellH / 2;
           drawByRadius(new paper.Point(x, y), cell, radius);
