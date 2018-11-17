@@ -13,7 +13,7 @@ function GenesisPanel(stage, radius, origin, size, orient) {
   // attributes
   this.stage = stage;
   this.sizes = {};
-  this.sizes.radius = radius;
+  this.sizes.radius = 24;
   this.sizes.vesica = util.getVesicaLength(this.sizes.radius);
   this.sizes.strange = util.getStrangeLength(
     this.sizes.radius,
@@ -65,6 +65,8 @@ GenesisPanel.prototype.makeCircles = function() {
 };
 
 GenesisPanel.rotate = function(group, origin, stage, orient) {
+  group.scale(2 / 3, origin);
+
   if (stage === 1) return;
   var natural = 60 * (stage - 2);
   var cardinal = 30 * (stage - 2);

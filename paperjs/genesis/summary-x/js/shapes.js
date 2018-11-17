@@ -58,7 +58,7 @@ var shapes = {
 
   Mark: function(point, color) {
     color = color || shapes.strokeColor;
-    var mark = new shapes.Circle(point, 3 / 2);
+    var mark = new shapes.Circle(point, (3 / 2) * (3 / 2));
     mark.strokeColor = color;
     mark.fillColor = color;
     mark.opacity = (shapes.opacity * 4) / 3;
@@ -66,9 +66,16 @@ var shapes = {
   },
 
   MarkCentroid: function(point) {
+    var mark = new shapes.MarkCenter(point);
+    // mark.strokeColor = "#11FFAA";
+    mark.strokeColor = "#F00";
+    return mark;
+  },
+
+  MarkCenter: function(point) {
     var mark = new shapes.Mark(point);
-    mark.strokeColor = "#0FF";
     mark.fillColor = null;
+    mark.scale(4 / 3);
     return mark;
   },
 

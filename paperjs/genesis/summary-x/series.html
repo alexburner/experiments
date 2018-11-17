@@ -34,12 +34,11 @@
     <script type="text/javascript" src="js/make/trail.js"></script>
     <script type="text/javascript" src="js/make/circles-dots-lines.js"></script>
     <script type="text/javascript" src="js/make/lines.js"></script>
-    <script type="text/javascript" src="js/make/facets.js"></script>
-    <script type="text/javascript" src="js/make/seeds.js"></script>
+    <script type="text/javascript" src="js/make/facets-seeds.js"></script>
     <script type="text/javascript" src="js/make/centroid-lines.js"></script>
     <script type="text/javascript" src="js/make/centroid-circles.js"></script>
     <script type="text/javascript">
-      var panelCount = 8;
+      var panelCount = 7;
 
       var panelWidth = 1100 / 2;
       var panelHeight = 800 + 1 - 48;
@@ -76,8 +75,7 @@
       makeSum(makeArgs(i++));
       makeCirclesDotsLines(makeArgs(i++));
       makeLines(makeArgs(i++));
-      makeFacets(makeArgs(i++));
-      makeSeeds(makeArgs(i++));
+      makeFacetsSeeds(makeArgs(i++));
       makeCentroidLines(makeArgs(i++));
       makeCentroidCircles(makeArgs(i++));
 
