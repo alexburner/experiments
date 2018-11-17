@@ -82,14 +82,6 @@ function makeSeeds(args) {
                         rect.size,
                         orient
                     );
-                    genesis.extend(GenesisFacets);
-                    genesis.makeFacets();
-                    genesis.drawSeeds('petal', 'within', 'selves');
-                    genesis.drawSeeds('petal', 'around', 'selves');
-                    genesis.drawSeeds('treble', 'within', 'selves');
-                    genesis.drawSeeds('treble', 'around', 'selves');
-                    genesis.drawSeeds('vesica', 'within', 'selves');
-                    genesis.drawSeeds('vesica', 'around', 'selves');
                     break;
                 // case 4:
                 //     genesis = new GenesisPanel(

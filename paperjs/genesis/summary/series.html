@@ -1,92 +1,88 @@
 <html>
-<head>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<title>genesis&mdash;series</title>
-<style type="text/css" media="screen">
-    html, body, canvas {
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <title>genesis&mdash;series</title>
+    <style type="text/css" media="screen">
+      html,
+      body,
+      canvas {
         margin: 0;
         padding: 0;
-        background: #EEE;
-    }
-    canvas {
+        background: #eee;
+      }
+      canvas {
         padding: 2px 16px 8px;
         padding-right: 0;
-        background: #EEE;
+        background: #eee;
 
         transform: rotate(180deg) scaleX(-1);
-    }
-</style>
-</head>
-<body>
-<script type="text/javascript" src="../paper.v.0.9.15.js"></script>
-<script type="text/javascript" src="js/util.js"></script>
-<script type="text/javascript" src="js/shapes.js"></script>
-<script type="text/javascript" src="js/GenesisPanel.js"></script>
-<script type="text/javascript" src="js/ext/GenesisLines.js"></script>
-<script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
-<script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
-<script type="text/javascript" src="js/Facet.js"></script>
-<script type="text/javascript" src="js/RectGrid.js"></script>
-<script type="text/javascript" src="js/make/back.js"></script>
-<script type="text/javascript" src="js/make/sum.js"></script>
-<script type="text/javascript" src="js/make/trail.js"></script>
-<script type="text/javascript" src="js/make/circles-dots-lines.js"></script>
-<script type="text/javascript" src="js/make/lines.js"></script>
-<script type="text/javascript" src="js/make/facets.js"></script>
-<script type="text/javascript" src="js/make/seeds.js"></script>
-<script type="text/javascript" src="js/make/centroid-lines.js"></script>
-<script type="text/javascript" src="js/make/centroid-circles.js"></script>
-<script type="text/javascript">
+      }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript" src="../paper.v.0.9.15.js"></script>
+    <script type="text/javascript" src="js/util.js"></script>
+    <script type="text/javascript" src="js/shapes.js"></script>
+    <script type="text/javascript" src="js/GenesisPanel.js"></script>
+    <script type="text/javascript" src="js/ext/GenesisLines.js"></script>
+    <script type="text/javascript" src="js/ext/GenesisCentroid.js"></script>
+    <script type="text/javascript" src="js/ext/GenesisFacets.js"></script>
+    <script type="text/javascript" src="js/Facet.js"></script>
+    <script type="text/javascript" src="js/RectGrid.js"></script>
+    <script type="text/javascript" src="js/make/back.js"></script>
+    <script type="text/javascript" src="js/make/sum.js"></script>
+    <script type="text/javascript" src="js/make/trail.js"></script>
+    <script type="text/javascript" src="js/make/circles-dots-lines.js"></script>
+    <script type="text/javascript" src="js/make/lines.js"></script>
+    <script type="text/javascript" src="js/make/facets-seeds.js"></script>
+    <script type="text/javascript" src="js/make/centroid-lines.js"></script>
+    <script type="text/javascript" src="js/make/centroid-circles.js"></script>
+    <script type="text/javascript">
+      var panelCount = 7;
 
-    var panelCount = 8;
+      var panelWidth = 1100 / 2;
+      var panelHeight = 800 + 1 - 48;
 
-    var panelWidth = 1100 / 2;
-    var panelHeight = 800 + 1 - 48;
+      var scrollWidth = panelWidth * panelCount;
+      var scrollHeight = panelHeight;
 
-    var scrollWidth = panelWidth * panelCount;
-    var scrollHeight = panelHeight;
+      var radius = 16;
+      var paddingV = 120;
+      var paddingH = 120;
 
-    var radius = 16;
-    var paddingV = 120;
-    var paddingH = 120;
+      // initialize paper with new canvas element
+      var canvas = document.createElement("canvas");
+      canvas.width = scrollWidth;
+      canvas.height = scrollHeight;
+      document.body.appendChild(canvas);
+      paper.setup(canvas);
 
-    // initialize paper with new canvas element
-    var canvas = document.createElement('canvas');
-    canvas.width = scrollWidth;
-    canvas.height = scrollHeight;
-    document.body.appendChild(canvas);
-    paper.setup(canvas);
-
-    function makeArgs(i) {
+      function makeArgs(i) {
         return {
-            x: i * panelWidth,
-            y: 0,
-            width: panelWidth,
-            height: panelHeight,
-            radius: radius,
-            paddingV: paddingV,
-            paddingH: paddingH,
+          x: i * panelWidth,
+          y: 0,
+          width: panelWidth,
+          height: panelHeight,
+          radius: radius,
+          paddingV: paddingV,
+          paddingH: paddingH
         };
-    };
+      }
 
-    var i = 0;
-    makeTrail(makeArgs(i++));
-    makeSum(makeArgs(i++));
-    makeCirclesDotsLines(makeArgs(i++));
-    makeLines(makeArgs(i++));
-    makeFacets(makeArgs(i++));
-    makeSeeds(makeArgs(i++));
-    makeCentroidLines(makeArgs(i++));
-    makeCentroidCircles(makeArgs(i++));
+      var i = 0;
+      makeTrail(makeArgs(i++));
+      makeSum(makeArgs(i++));
+      makeCirclesDotsLines(makeArgs(i++));
+      makeLines(makeArgs(i++));
+      makeFacetsSeeds(makeArgs(i++));
+      makeCentroidLines(makeArgs(i++));
+      makeCentroidCircles(makeArgs(i++));
 
-
-    /**
-     * Execute
-     */
-    paper.view.draw();
-
-
-</script>
-<script type="text/javascript" src="js/svg-export.js"></script>
-</body>
+      /**
+       * Execute
+       */
+      paper.view.draw();
+    </script>
+    <script type="text/javascript" src="js/svg-export.js"></script>
+  </body>
 </html>
