@@ -12,6 +12,7 @@ function makeLines(args) {
   var orient = args.orient || "north";
   var paddingV = args.paddingV || 120;
   var paddingH = args.paddingH || 120;
+  var double = args.double;
 
   var grid = new RectGrid(
     new paper.Point(x, y),
@@ -141,6 +142,8 @@ function makeLines(args) {
           genesis.orient
         );
         genesis.group.rotate(-90, genesis.center);
+        if (double === "origin") genesis.doubleOrigin();
+        if (double === "centroid") genesis.doubleCentroid();
       }
     }
   }
