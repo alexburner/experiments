@@ -14,8 +14,8 @@ const makeDates = now => {
   const month = date.getMonth();
 
   // Where does current day sit within current month?
-  const monthDays = getMonthDays(month, year);
   const monthDay = date.getDate();
+  const monthDays = getMonthDays(month, year);
   const ratio = monthDay / monthDays;
 
   // Find start date for our year

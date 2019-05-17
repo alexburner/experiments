@@ -4,10 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>yeartables</title>
+    <title>solstice</title>
     <style>
+      :root {
+        --cell-size: 16px;
+      }
+
       body {
         background: #333;
+        color: red;
         box-sizing: border-box;
         padding: 24px;
       }
@@ -18,18 +23,25 @@
       }
 
       td {
+        position: relative;
         padding: 0;
-        --cell-size: 8px;
         width: var(--cell-size);
         height: var(--cell-size);
-        overflow: hidden;
+        line-height: var(--cell-size);
+        text-align: center;
 
         /* border: 1px solid white; */
       }
 
       .fill {
-        width: 100%;
-        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+
+        /* border: 1px solid white; */
       }
     </style>
   </head>
@@ -37,80 +49,24 @@
     <div id="tables"></div>
     <script src="js/main.js"></script>
     <script>
+      const SHIFT = 228;
+      const BORDER_STYLE = "1px solid #FFFFFF99";
+
       const container = document.getElementById("tables");
 
       const nowDate = new Date();
-      const targetDate = new Date(
-        nowDate.getFullYear(),
-        nowDate.getMonth() + 6,
-        nowDate.getDate()
-      );
+      const nowYear = nowDate.getFullYear() + 2;
+      const nowMonth = nowDate.getMonth() + 6;
+      const nowDay = nowDate.getDate() + 0;
 
-      const dates = makeDates(targetDate);
+      const seasonMonths = new Set([3 - 1, 6 - 1, 9 - 1, 12 - 1]);
 
-      dates.forEach(console.log);
+      const dates = makeDates(new Date(nowYear, nowMonth, nowDay));
 
       {
         // Days table
         const { table, cells } = makeWeekTable(dates.length);
         let count = 0;
-        const SHIFT = 255;
-        cells.forEach((cell, i) => {
-          const date = dates[i];
-          if (date === null) return;
-          const div = document.createElement("div");
-          div.className = "fill";
-          div.style.backgroundColor = `hsl(${-360 * (count / 365) +
-            SHIFT}, 40%, 60%)`;
-          div.style.borderLeft = "1px solid #333";
-          div.style.borderTop = "1px solid #333";
-          cell.appendChild(div);
-          count++;
-        });
-        container.appendChild(table);
-      }
-
-      {
-        // Months table
-        const { table, cells } = makeWeekTable(dates.length);
-        cells.forEach((cell, i) => {
-          const date = dates[i];
-          if (date === null) return;
-          const year = date.getFullYear();
-          const month = date.getMonth();
-          const monthDays = getMonthDays(month, year);
-          const monthDay = date.getDate();
-          const weekDay = date.getDay();
-          const div = document.createElement("div");
-          div.className = "fill";
-          div.style.backgroundColor = `hsl(${-360 * (month / 12)}, 40%, 60%)`;
-          if (monthDay <= 7) {
-            div.style.borderLeft = "1px solid #333";
-          }
-          if (monthDay === monthDays && weekDay !== 6) {
-            div.style.borderTop = "1px solid #333";
-          }
-          cell.appendChild(div);
-        });
-        container.appendChild(table);
-      }
-
-      //
-      //
-      // Same things no borders
-      //
-
-      {
-        // Empty table!
-        const { table } = makeWeekTable(dates.length);
-        container.appendChild(table);
-      }
-
-      {
-        // Days table
-        const { table, cells } = makeWeekTable(dates.length);
-        let count = 0;
-        const SHIFT = 255;
         cells.forEach((cell, i) => {
           const date = dates[i];
           if (date === null) return;
@@ -138,68 +94,19 @@
           const div = document.createElement("div");
           div.className = "fill";
           div.style.backgroundColor = `hsl(${-360 * (month / 12)}, 40%, 60%)`;
-          cell.appendChild(div);
-        });
-        container.appendChild(table);
-      }
 
-      //
-      //
-      // Same things horiz borders
-      //
-
-      {
-        // Empty table!
-        const { table } = makeWeekTable(dates.length);
-        container.appendChild(table);
-      }
-
-      {
-        // Days table
-        const { table, cells } = makeWeekTable(dates.length);
-        let count = 0;
-        const SHIFT = 255;
-        cells.forEach((cell, i) => {
-          const date = dates[i];
-          if (date === null) return;
-          const year = date.getFullYear();
-          const month = date.getMonth();
-          const monthDays = getMonthDays(month, year);
-          const monthDay = date.getDate();
-          const weekDay = date.getDay();
-          const div = document.createElement("div");
-          div.className = "fill";
-          div.style.backgroundColor = `hsl(${-360 * (count / 365) +
-            SHIFT}, 40%, 60%)`;
-          div.style.borderLeft = "1px solid #333";
-          if (monthDay === monthDays && weekDay !== 6) {
-            div.style.borderTop = "1px solid #333";
+          if (seasonMonths.has(month) && monthDay === 21) {
+            div.appendChild(document.createTextNode("●"));
+            div.style.color = "#FFFFFF99";
+            div.style.fontSize = "21px";
           }
-          div.style.borderLeft = "1px solid #333";
-          cell.appendChild(div);
-          count++;
-        });
-        container.appendChild(table);
-      }
 
-      {
-        // Months table
-        const { table, cells } = makeWeekTable(dates.length);
-        cells.forEach((cell, i) => {
-          const date = dates[i];
-          if (date === null) return;
-          const year = date.getFullYear();
-          const month = date.getMonth();
-          const monthDays = getMonthDays(month, year);
-          const monthDay = date.getDate();
-          const weekDay = date.getDay();
-          const div = document.createElement("div");
-          div.className = "fill";
-          div.style.backgroundColor = `hsl(${-360 * (month / 12)}, 40%, 60%)`;
-          div.style.borderLeft = "1px solid #333";
-          if (monthDay === monthDays && weekDay !== 6) {
-            div.style.borderTop = "1px solid #333";
+          if (month === nowMonth && monthDay === nowDay) {
+            div.appendChild(document.createTextNode("●"));
+            div.style.color = "#00000099";
+            div.style.fontSize = "21px";
           }
+
           cell.appendChild(div);
         });
         container.appendChild(table);
