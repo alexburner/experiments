@@ -7,7 +7,7 @@
     html, body {
         margin: 0;
         padding: 0;
-        background: #222;
+        background: #FEFEFE;
         width: 100%;
         height: 100%;
     }
@@ -16,9 +16,6 @@
     }
     #wrapper {
         margin: auto;
-    }
-    #canvas {
-        background: white;
     }
 </style>
 </head>
@@ -83,12 +80,12 @@
                 center.y - cellH / 2
             ],
             size: [cellW, cellH],
-            strokeColor: 'black',
-            dashArray: [1, 4],
+            // strokeColor: 'black',
+            // dashArray: [1, 4],
         });
 
         var clipMask = bounds.clone();
-        clipMask.scale(15/16, center);
+        clipMask.scale(31/32, center);
         clipMask.remove();
 
         // var color = {
@@ -112,7 +109,7 @@
 
         var dotRadius = 24;
         var shellThickness = 1;
-        var shellCount = 16;
+        var shellCount = 20;
         var shellGap = 36;
 
 		// 0 has nothing
