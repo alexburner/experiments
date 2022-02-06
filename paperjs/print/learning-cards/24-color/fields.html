@@ -89,7 +89,7 @@
         clipMask.remove();
 
         var color = {
-            hue: ((360 * ((count - 1) / (total + 1))) - 20) % 360,
+            hue: ((360 * ((count - 1) / (total + 1))) - 5) % 360,
             saturation: 0.9,
             brightness: 0.9,
         };
@@ -100,7 +100,6 @@
         var graphColor = '#333';
         var shellColor = { ...color, brightness: 0.6 };
         // var shellColor = d3.color(color).darker(1).toString();
-        var fieldColor = color;
 
         var swatch = new paper.Path.Rectangle({
             size: clipMask.bounds.size,
