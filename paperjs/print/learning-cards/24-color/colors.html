@@ -88,6 +88,8 @@
         clipMask.scale(31/32, center);
         clipMask.remove();
 
+        // total + 1 is placeholder for zero (TODO)
+
         var color = {
             hue: ((360 * ((count - 1) / (total + 1))) - 5) % 360,
             saturation: 0.9,

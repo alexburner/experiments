@@ -88,27 +88,8 @@
         clipMask.scale(31/32, center);
         clipMask.remove();
 
-        // total + 1 is placeholder for zero (TODO)
-
-        var color = {
-            hue: ((360 * ((count - 1) / (total + 1))) - 5) % 360,
-            saturation: 0.9,
-            brightness: 0.9,
-        };
-
-        // var color = d3.interpolateRainbow(scale((count + 4) % (total + 1)))
-        // var color = d3.interpolateSinebow(scale((count - 2) % (total + 1)))
-
-        var graphColor = '#333';
-        var shellColor = { ...color, brightness: 0.6 };
-        // var shellColor = d3.color(color).darker(1).toString();
-
-        var swatch = new paper.Path.Rectangle({
-            size: clipMask.bounds.size,
-            fillColor: color,
-            opacity: 1/6,
-        });
-        swatch.position = center;
+        var graphColor = 'black';
+        var shellColor = 'black';
 
         var dotRadius = 24;
         var shellThickness = 1;
