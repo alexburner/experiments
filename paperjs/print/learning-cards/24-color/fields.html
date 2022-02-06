@@ -14,10 +14,6 @@
     body {
         padding: 3% 0;
     }
-    #wrapper, #canvas {
-        width: 6800px;
-        height: 4800px;
-    }
     #wrapper {
         margin: auto;
     }
@@ -33,11 +29,18 @@
 
     var length = 120;
 
-    var pageW = 6800;
-    var pageH = 4800;
+    var pageW = 300 * 11;
+    var pageH = 300 * 8.5 * 4;
 
-    var rows = 4;
-    var cols = 6;
+    const ids = ['wrapper', 'canvas']
+    const els = ids.map(id => document.getElementById(id))
+    els.forEach(el => {
+        el.style.width = pageW + 'px'
+        el.style.height = pageH + 'px'
+    })
+
+    var cols = 3;
+    var rows = 8;
 
     var cellW = pageW / cols;
     var cellH = pageH / rows;
@@ -94,34 +97,10 @@
         });
         swatch.position = center;
 
-        var dotRadius = 2;
+        var dotRadius = 20;
         var shellThickness = 1;
         var shellCount = 16;
         var shellGap = 36;
-
-        // var numbers = [
-        //     'zero',
-        //     'one',
-        //     'two',
-        //     'three',
-        //     'four',
-        //     '\uFB01ve',
-        //     'six',
-        //     'seven',
-        //     'eight',
-        //     'nine',
-        //     'ten',
-        // ];
-
-        // var text = new paper.PointText({
-        //     content: numbers[count],
-        //     fillColor: 'black',
-        //     fontFamily: 'Times',
-        //     fontWeight: 'bold',
-        //     fontSize: 81
-        // });
-        // text.position = [center.x, (center.y + cellH / 2) - cellH / 7];
-        // text.position.y -= 6;
 
 		// 0 has nothing
 		if (count < 1) {
@@ -131,9 +110,7 @@
 		// 1 only a point
 		if (count < 2) {
 			new paper.Path.Circle({
-				// fillColor: color,
-                strokeColor: 'black',
-                opacity: 0.75,
+				fillColor: 'black',
 				center: center,
 				radius: dotRadius
 			});
@@ -142,11 +119,8 @@
             var rings = [];
             for (var i = 0; i < shellCount; i++) {
                 rings.push(new paper.Path.Circle({
-                    // strokeColor: color,
-                    strokeColor: 'black',
-                    opacity: 0.75,
+                    strokeColor: color,
                     strokeWidth: shellThickness,
-                    // dashArray: [2, 3],
                     center: center,
                     radius: dotRadius + (i + 1) * shellGap,
                 }));
@@ -174,13 +148,6 @@
 			point = point.add(vector);
 			points.push(point);
 			vector.angle += angle;
-
-			// new paper.Path.Circle({
-			// 	fillColor: 'black',
-			// 	center: point,
-			// 	radius: dotRadius
-			// });
-
 		}
 
 		var lines = [];
@@ -202,9 +169,7 @@
 					from: pointA,
 					to: pointB,
 					strokeCap: 'round',
-					// strokeColor: color,
-                    strokeColor: 'black',
-                    opacity: 0.75,
+					strokeColor: color,
 					strokeWidth: 1,
 				});
 
@@ -224,11 +189,8 @@
             rays.push(new paper.Path.Line({
                 from: [center.x, center.y - cellH / 2],
                 to: [center.x, center.y + cellH / 2],
-                // strokeColor: color,
-                strokeColor: 'black',
-                opacity: 0.75,
+                strokeColor: color,
                 strokeWidth: shellThickness,
-                // dashArray: [2, 3],
             }));
             for (var i = 0; i < shellCount; i++) {
                 rays.push(new paper.Path.Line({
@@ -240,11 +202,8 @@
                         center.x - ((i + 1) * shellGap),
                         center.y + cellH / 2,
                     ],
-                    // strokeColor: color,
-                    strokeColor: 'black',
-                    opacity: 0.75,
+                    strokeColor: color,
                     strokeWidth: shellThickness,
-                    // dashArray: [2, 3],
                 }));
                 rays.push(new paper.Path.Line({
                     from: [
@@ -255,17 +214,23 @@
                         center.x + ((i + 1) * shellGap),
                         center.y + cellH / 2,
                     ],
-                    // strokeColor: color,
-                    strokeColor: 'black',
-                    opacity: 0.75,
+                    strokeColor: color,
                     strokeWidth: shellThickness,
-                    // dashArray: [2, 3],
                 }));
             }
             rays.unshift(clipMask);
             var rayGroup = new paper.Group(rays);
             rayGroup.clipped = true;
             rayGroup.sendToBack();
+
+            points.forEach(point => {
+                new paper.Path.Circle({
+                    fillColor: 'black',
+                    center: point,
+                    radius: dotRadius
+                });
+            })
+
             return radius;
         }
 
@@ -279,13 +244,20 @@
             var shellRadius = baseRadius + ((i + 1) * shellGap);
             var shellScale = shellRadius / baseRadius;
             shell.scale(shellScale, center);
-            // shell.dashArray = [2, 3];
             shell.strokeWidth = shellThickness;
             shell.strokeColor = color;
             shells.push(shell);
         }
         shells.unshift(clipMask);
         (new paper.Group(shells)).clipped = true;
+
+        points.forEach(point => {
+            new paper.Path.Circle({
+				fillColor: 'black',
+				center: point,
+				radius: dotRadius
+			});
+        })
 
 		return radius;
 	}
