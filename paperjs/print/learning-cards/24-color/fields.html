@@ -24,6 +24,10 @@
 </head>
 <body>
 <div id="wrapper"><canvas id="canvas"></canvas></div>
+<script src="https://cdn.jsdelivr.net/npm/d3-scale@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-color@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-interpolate@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-scale-chromatic@3"></script>
 <script type="text/javascript" src="../../../paper.v.0.9.18.js"></script>
 <script type="text/javascript">
 
@@ -42,6 +46,8 @@
     var cols = 3;
     var rows = 8;
 
+    const total = cols * rows;
+
     var cellW = pageW / cols;
     var cellH = pageH / rows;
 
@@ -55,6 +61,9 @@
 
     var cell = isNaN(hash) ? 1 : hash;
 
+    const scale = d3.scaleLinear()
+        .domain([0, total])
+        .range([0, 1])
 
 
 
@@ -66,8 +75,6 @@
 
 
 	function drawByLength(center, count, length) {
-        var total = 24;
-
         if (count > total) return;
 
         var bounds = new paper.Path.Rectangle({
@@ -84,11 +91,14 @@
         clipMask.scale(7/8, center);
         clipMask.remove();
 
-        var color = {
-            hue: (360 * ((count - 1) / total)) % 360,
-            saturation: 0.9,
-            brightness: 0.8,
-        };
+        // var color = {
+        //     hue: ((360 * ((count - 1) / total)) - 20) % 360,
+        //     saturation: 0.9,
+        //     brightness: 0.9,
+        // };
+
+        var color = d3.interpolateRainbow(scale((count + 4) % total))
+        // var color = d3.interpolateSinebow(scale((count - 2) % total))
 
         var swatch = new paper.Path.Rectangle({
             size: clipMask.bounds.size,
@@ -97,7 +107,7 @@
         });
         swatch.position = center;
 
-        var dotRadius = 20;
+        var dotRadius = 28;
         var shellThickness = 1;
         var shellCount = 16;
         var shellGap = 36;
