@@ -100,6 +100,9 @@
         var color = d3.interpolateRainbow(scale((count + 4) % total))
         // var color = d3.interpolateSinebow(scale((count - 2) % total))
 
+        var graphColor = '#333';
+        var shellColor = color;
+
         var swatch = new paper.Path.Rectangle({
             size: clipMask.bounds.size,
             fillColor: color,
@@ -107,7 +110,7 @@
         });
         swatch.position = center;
 
-        var dotRadius = 28;
+        var dotRadius = 24;
         var shellThickness = 1;
         var shellCount = 16;
         var shellGap = 36;
@@ -129,7 +132,7 @@
             var rings = [];
             for (var i = 0; i < shellCount; i++) {
                 rings.push(new paper.Path.Circle({
-                    strokeColor: color,
+                    strokeColor: shellColor,
                     strokeWidth: shellThickness,
                     center: center,
                     radius: dotRadius + (i + 1) * shellGap,
@@ -179,7 +182,7 @@
 					from: pointA,
 					to: pointB,
 					strokeCap: 'round',
-					strokeColor: color,
+					strokeColor: graphColor,
 					strokeWidth: 1,
 				});
 
@@ -199,7 +202,7 @@
             rays.push(new paper.Path.Line({
                 from: [center.x, center.y - cellH / 2],
                 to: [center.x, center.y + cellH / 2],
-                strokeColor: color,
+                strokeColor: shellColor,
                 strokeWidth: shellThickness,
             }));
             for (var i = 0; i < shellCount; i++) {
@@ -212,7 +215,7 @@
                         center.x - ((i + 1) * shellGap),
                         center.y + cellH / 2,
                     ],
-                    strokeColor: color,
+                    strokeColor: shellColor,
                     strokeWidth: shellThickness,
                 }));
                 rays.push(new paper.Path.Line({
@@ -224,7 +227,7 @@
                         center.x + ((i + 1) * shellGap),
                         center.y + cellH / 2,
                     ],
-                    strokeColor: color,
+                    strokeColor: shellColor,
                     strokeWidth: shellThickness,
                 }));
             }
@@ -255,7 +258,7 @@
             var shellScale = shellRadius / baseRadius;
             shell.scale(shellScale, center);
             shell.strokeWidth = shellThickness;
-            shell.strokeColor = color;
+            shell.strokeColor = shellColor;
             shells.push(shell);
         }
         shells.unshift(clipMask);
