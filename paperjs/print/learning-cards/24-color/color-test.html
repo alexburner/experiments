@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>24 - fields</title>
+<style type="text/css" media="screen">
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+    body {
+        padding: 3% 0;
+    }
+    #wrapper {
+        margin: auto;
+    }
+</style>
+</head>
+<body>
+<div id="wrapper"><canvas id="canvas"></canvas></div>
+<script src="https://cdn.jsdelivr.net/npm/d3-scale@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-color@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-interpolate@3"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-scale-chromatic@3"></script>
+<script type="text/javascript" src="../../../paper.v.0.9.18.js"></script>
+<script type="text/javascript">
+
+    var length = 120;
+
+    var pageW = 1200;
+    var pageH = 2400;
+
+    const ids = ['wrapper', 'canvas']
+    const els = ids.map(id => document.getElementById(id))
+    els.forEach(el => {
+        el.style.width = pageW + 'px'
+        el.style.height = pageH + 'px'
+    })
+
+    const background = '#F8F8F8'
+    document.body.style.background = background
+
+    const total = 24;
+
+    var cellW = pageW / 24;
+    var cellH = cellW;
+
+    let rowGap = cellH * 1
+
+    const scale = d3.scaleLinear()
+        .domain([0, total])
+        .range([0, 1])
+
+
+	function drawColor(center, count, total, colorFn) {
+        if (count > total) return;
+
+        var bounds = new paper.Path.Rectangle({
+            point: [
+                center.x - cellW / 2,
+                center.y - cellH / 2
+            ],
+            size: [cellW, cellH],
+        });
+
+        var clipMask = bounds.clone();
+        // clipMask.scale(7/8, center);
+        clipMask.remove();
+
+        var color = colorFn(count, total);
+
+        var swatch = new paper.Path.Rectangle({
+            size: clipMask.bounds.size,
+            fillColor: color,
+            opacity: 4/6,
+        });
+
+        swatch.position = center;
+	}
+
+    function drawRow(yStart, colorFn, total) {
+        console.log(yStart)
+        for (var i = 0; i < total; i++) {
+            var x = cellW * i + cellW / 2;
+            var y = yStart + cellH / 2;
+            drawColor(new paper.Point(x, y), i, total, colorFn);
+        }
+    }
+
+
+    // initialize paper with canvas element
+	paper.setup(document.getElementById('canvas'));
+
+
+    // var cell = 0
+    // for (var row = 0; row < rows; row++) {
+    //     for (var col = 0; col < cols; col++) {
+    //         var x = cellW * col + cellW / 2;
+    //         var y = cellH * row + cellH / 2;
+    //         drawColor(new paper.Point(x, y), cell, length);
+    //         cell++;
+    //     }
+    // }
+
+    const colorFns = [
+        (i, total) => background,
+
+        (i, total) => {
+            if (i === 0) i += 0.4
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1.8
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            if (i === 0) i += 0.4
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1.8
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            if (i === 0) i += 0.4
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1.8
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+
+        (i, total) => background,
+
+        (i, total) => {
+            if (i === 0) i += 0.4
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1.8
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            if (i === 0) i += 0.4
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+
+        (i, total) => background,
+
+        (i, total) => {
+            if (i === 0) i += 0.4
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            if (i === 0) i += 0.4
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.1
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            if (i === 0) i += 0.4
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.4
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+
+        (i, total) => background,
+
+        (i, total) => {
+            if (i === 0) i += 0.4
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.4
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            if (i === 0) i += 0.3
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.4
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            // total = total + 1
+            if (i === 0) i += 0.6
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.4
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            // total = total + 1
+            if (i === 0) i += 0.6
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.4
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            // total = total + 1
+            if (i === 0) i += 0.6
+            if (i === 1) i -= 0.0
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            // total = total + 1
+            if (i === 0) i += 0.4
+            if (i === 1) i -= 0.0
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            // total = total + 1
+            if (i === 1) i -= 0.3
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+
+        (i, total) => background,
+
+        (i, total) => {
+            // total = total + 1
+            if (i === 1) i -= 0.3
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            // total = total + 1
+            if (i === 1) i -= 0.4
+            if (i > 5) i -= 0.2
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            // total = total + 1
+            if (i === 1) i -= 0.5
+            if (i > 5) i -= 0.5
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+
+        (i, total) => background,
+
+        (i, total) => {
+            // total = total + 1
+            if (i === 1) i -= 0.5
+            if (i > 5) i -= 0.5
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1
+            if (i > 9) i += 0
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+
+        (i, total) => {
+            // total = total + 1
+            if (i === 1) i -= 0.5
+            if (i > 5) i -= 0.5
+            if (i > 7) i += 0.01
+            if (i > 8) i += 0.3
+            if (i > 9) i += 0.3
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+
+        (i, total) => {
+            // total = total + 1
+            if (i > 5) i -= 0.5
+            if (i > 7) i += 0.01
+            if (i > 8) i += 0.3
+            if (i > 9) i += 0.3
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+
+        (i, total) => background,
+
+        (i, total) => {
+            // total = total + 1
+            if (i > 5) i -= 0.5
+            if (i > 7) i += 0.01
+            if (i > 8) i += 0.3
+            if (i > 9) i += 0.3
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            // total = total + 1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 0.3
+            if (i > 9) i += 0.3
+            // if (i > 1) i += 0.01
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+
+        (i, total) => {
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 8) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 10) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },    
+        
+        (i, total) => background,
+
+        (i, total) => d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString(),
+        (i, total) => d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString(),
+        (i, total) => d3.interpolateSinebow(scale((i - 1) % total)),
+        (i, total) => d3.interpolateRainbow(scale((i + 5) % total)),
+        (i, total) => d3.hcl(((360 * ((i - 1) / total)) + 30) % 360, 100, 60).toString(),
+    ];
+
+    colorFns.forEach((colorFn, i) => {
+        drawRow(i * rowGap, colorFn, 25)
+    })
+    
+    
+
+
+    // render paper state
+	paper.view.draw();
+
+
+
+	/**
+	 * SVG export
+	 * via http://www.mikechambers.com/blog/2014/07/01/saving-svg-content-from-paper.js/
+	 */
+
+	// listen for shift+o
+	tool = new paper.Tool();
+	tool.onKeyUp = function(e) {
+		if (e.character == "O") {
+			openAsSVG();
+		}
+	}
+
+	function openAsSVG() {
+		var svgString = paper.project.exportSVG({asString: true});
+		var url = "data:image/svg+xml;utf8," + encodeURIComponent(svgString);
+		var link = document.createElement('a');
+		link.target = "_blank";
+		link.href = url;
+		link.click();
+	}
+
+</script>
+</body>
+</html>
