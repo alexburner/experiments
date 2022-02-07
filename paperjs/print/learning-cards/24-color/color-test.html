@@ -81,9 +81,10 @@
 	}
 
     function drawRow(yStart, colorFn, total) {
-        console.log(yStart)
         for (var i = 0; i < total; i++) {
             var x = cellW * i + cellW / 2;
+            x += cellW * 10
+            x %= pageW + cellW
             var y = yStart + cellH / 2;
             drawColor(new paper.Point(x, y), i, total, colorFn);
         }
@@ -94,21 +95,76 @@
 	paper.setup(document.getElementById('canvas'));
 
 
-    // var cell = 0
-    // for (var row = 0; row < rows; row++) {
-    //     for (var col = 0; col < cols; col++) {
-    //         var x = cellW * col + cellW / 2;
-    //         var y = cellH * row + cellH / 2;
-    //         drawColor(new paper.Point(x, y), cell, length);
-    //         cell++;
-    //     }
-    // }
-
     const colorFns = [
         (i, total) => background,
 
         (i, total) => {
-            if (i === 0) i += 0.4
+            const scale = d3.scaleLinear()
+                .domain([0, total])
+                .range([0, 1])
+            if (i === 0) i += 0.2
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1.8
+            if (i > 10) i += 0.5
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            // if (i > 12) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / (total + 1))) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            const scale = d3.scaleLinear()
+                .domain([0, total + 1])
+                .range([0, 1])
+            if (i === 0) i += 0.2
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1.8
+            if (i > 10) i += 0.5
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            // if (i > 12) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            const scale = d3.scaleLinear()
+                .domain([0, total + 1])
+                .range([0, 1])
+            if (i === 0) i += 0.2
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1.8
+            if (i > 10) i += 0.5
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 12) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            const scale = d3.scaleLinear()
+                .domain([0, total + 1])
+                .range([0, 1])
+            if (i === 0) i += 0.2
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1.8
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+
+        (i, total) => background,
+
+        (i, total) => {
+            const scale = d3.scaleLinear()
+                .domain([0, total + 2])
+                .range([0, 1])
+            if (i === 0) i += 0.2
             if (i === 1) i -= 0.0
             if (i > 3) i += 0.2
             if (i > 5) i -= 0.1
@@ -119,6 +175,69 @@
             return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
         },
         (i, total) => {
+            const scale = d3.scaleLinear()
+                .domain([0, total + 1])
+                .range([0, 1])
+            if (i === 0) i += 0.2
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1.8
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+
+        (i, total) => background,
+
+        (i, total) => {
+            const scale = d3.scaleLinear()
+                .domain([0, total + 1])
+                .range([0, 1])
+            if (i === 0) i += 0.1
+            if (i === 1) i -= 0.3
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1.8
+            if (i === 23) i += 0.9
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            const scale = d3.scaleLinear()
+                .domain([0, total + 1])
+                .range([0, 1])
+            if (i === 0) i += 0.1
+            if (i === 1) i -= 0.3
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1.8
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            const scale = d3.scaleLinear()
+                .domain([0, total + 1])
+                .range([0, 1])
+            if (i === 0) i += 0.2
+            if (i === 1) i -= 0.0
+            if (i > 3) i += 0.2
+            if (i > 5) i -= 0.1
+            if (i > 7) i += 0.01
+            if (i > 8) i += 1.8
+            if (i < 4) return d3.cubehelix(((360 * ((i - 1) / total)) + 0) % 360, 2.0, 0.5).toString()
+            if (i > 11) return d3.interpolateSinebow(scale((i - 1) % total))
+            return d3.hsl(((360 * ((i - 1) / total)) + 1) % 360, 0.8, 0.5).toString()
+        },
+        (i, total) => {
+            const scale = d3.scaleLinear()
+                .domain([0, total + 1])
+                .range([0, 1])
             if (i === 0) i += 0.4
             if (i === 1) i -= 0.0
             if (i > 3) i += 0.2
