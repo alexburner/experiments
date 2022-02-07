@@ -110,7 +110,7 @@
         });
         swatch.position = center;
 
-        var dotRadius = 24;
+        var dotRadius = 20;
         var shellThickness = 1;
         var shellCount = 20;
         var shellGap = 36;
@@ -135,7 +135,8 @@
                     strokeColor: shellColor,
                     strokeWidth: shellThickness,
                     center: center,
-                    radius: dotRadius + (i + 1) * shellGap,
+                    // radius: dotRadius + (i + 1) * shellGap,
+                    radius: (i + 1) * shellGap + shellGap / 2,
                 }));
             }
             rings.unshift(clipMask);
