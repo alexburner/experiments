@@ -28,19 +28,19 @@ function makeLines(args) {
       var rect = grid.matrix[i][j];
       var stage = j + 2;
       var genesis = null;
-      switch (grid.matrix.length - i) {
-        case 1:
-          genesis = new GenesisPanel(
-            stage,
-            radius,
-            rect.point,
-            rect.size,
-            orient
-          );
-          genesis.hideCircles();
-          genesis.extend(GenesisLines);
-          genesis.drawAllLines("in");
-          break;
+      switch (grid.matrix.length - i + 1) {
+        // case 1:
+        //   genesis = new GenesisPanel(
+        //     stage,
+        //     radius,
+        //     rect.point,
+        //     rect.size,
+        //     orient
+        //   );
+        //   genesis.hideCircles();
+        //   genesis.extend(GenesisLines);
+        //   genesis.drawAllLines("in");
+        //   break;
         case 7:
           // lines (vesica2)
           genesis = new GenesisPanel(
