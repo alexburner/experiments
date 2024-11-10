@@ -23,7 +23,7 @@ function makeCentroid2(args) {
     5
   );
 
-  var CENTROID_COLOR = '#F00';
+  var CENTROID_COLOR = '#FFF';
 
   for (var i = 0; i < grid.matrix.length; i++) {
     var stage = i + 1;

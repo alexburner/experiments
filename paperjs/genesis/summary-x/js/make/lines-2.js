@@ -11,7 +11,8 @@ function makeLines2(args) {
   var h = args.height;
   var orient = args.orient || "north";
   var paddingV = args.paddingV || 120;
-  var paddingH = args.paddingH || 120;
+  // var paddingH = args.paddingH || 120;
+  var paddingH = 150;
   var double = args.double;
 
   var grid = new RectGrid(
@@ -27,9 +28,12 @@ function makeLines2(args) {
     var stage = i + 1;
     for (var j = 0; j < grid.matrix[i].length; j++) {
       var rect = grid.matrix[i][j];
+      var gap = radius * 1.67
+      rect.point.x += gap / 2;
       var genesis = null;
       switch (j + 1) {
         case 1:
+          rect.point.x -= gap;
           genesis = new GenesisPanel(
             stage,
             radius,
