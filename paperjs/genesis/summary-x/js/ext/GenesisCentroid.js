@@ -26,8 +26,8 @@ function GenesisCentroid(genesis) {
   }
 }
 
-GenesisCentroid.prototype.markCentroid = function() {
-  var mark = new shapes.MarkCentroid(this.centroid.point);
+GenesisCentroid.prototype.markCentroid = function(color) {
+  var mark = new shapes.MarkCentroid(this.centroid.point, color);
   this.group.addChild(mark);
 };
 

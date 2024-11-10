@@ -65,10 +65,10 @@ var shapes = {
     return mark;
   },
 
-  MarkCentroid: function(point) {
+  MarkCentroid: function(point, color) {
     var mark = new shapes.MarkCenter(point);
     // mark.strokeColor = "#11FFAA";
-    mark.strokeColor = "#F00";
+    mark.strokeColor = color || "#F00";
     return mark;
   },
 
