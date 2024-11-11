@@ -1,7 +1,7 @@
 //
 //
 /////////////////////////////////////////
-function makeLines2(args) {
+function makeSum2(args) {
   makeBack(args);
 
   var radius = args.radius || 16;
@@ -11,8 +11,7 @@ function makeLines2(args) {
   var h = args.height;
   var orient = args.orient || "north";
   var paddingV = args.paddingV || 120;
-  // var paddingH = args.paddingH || 120;
-  var paddingH = 150;
+  var paddingH = args.paddingH || 120;
   var double = args.double;
 
   var grid = new RectGrid(
@@ -21,19 +20,27 @@ function makeLines2(args) {
     paddingV,
     paddingH,
     7,
-    6
+    5
   );
 
   for (var i = 0; i < grid.matrix.length; i++) {
     var stage = i + 1;
     for (var j = 0; j < grid.matrix[i].length; j++) {
       var rect = grid.matrix[i][j];
-      var gap = radius * 1
-      rect.point.x += gap / 2;
-      var genesis = null;
-      switch (j + 1) {
+      var genesis = undefined;
+      switch (j) {
+        case 0:
+          // circles
+          genesis = new GenesisPanel(
+            stage,
+            radius,
+            rect.point,
+            rect.size,
+            orient
+          );
+          break;
         case 1:
-          rect.point.x -= gap;
+          // points
           genesis = new GenesisPanel(
             stage,
             radius,
@@ -42,86 +49,10 @@ function makeLines2(args) {
             orient
           );
           genesis.hideCircles();
-          genesis.extend(GenesisLines);
-          genesis.drawAllLines("in");
-          break;
-        case 7:
-          // lines (vesica2)
-          genesis = new GenesisPanel(
-            stage,
-            radius,
-            rect.point,
-            rect.size,
-            orient
-          );
-          genesis.hideCircles();
-          genesis.extend(GenesisLines);
-          genesis.drawAllLines("in");
-          genesis.hideAllLines();
-          genesis.showLinesByLength("vesica2");
-          break;
-        case 6:
-          // lines (radius3)
-          genesis = new GenesisPanel(
-            stage,
-            radius,
-            rect.point,
-            rect.size,
-            orient
-          );
-          genesis.hideCircles();
-          genesis.extend(GenesisLines);
-          genesis.drawAllLines("in");
-          genesis.hideAllLines();
-          genesis.showLinesByLength("radius3");
-          break;
-        case 5:
-          // lines (strange)
-          genesis = new GenesisPanel(
-            stage,
-            radius,
-            rect.point,
-            rect.size,
-            orient
-          );
-          genesis.hideCircles();
-          genesis.extend(GenesisLines);
-          genesis.drawAllLines("in");
-          genesis.hideAllLines();
-          genesis.showLinesByLength("strange");
-          break;
-        case 4:
-          // lines (radius2)
-          genesis = new GenesisPanel(
-            stage,
-            radius,
-            rect.point,
-            rect.size,
-            orient
-          );
-          genesis.hideCircles();
-          genesis.extend(GenesisLines);
-          genesis.drawAllLines("in");
-          genesis.hideAllLines();
-          genesis.showLinesByLength("radius2");
-          break;
-        case 3:
-          // lines (vesica)
-          genesis = new GenesisPanel(
-            stage,
-            radius,
-            rect.point,
-            rect.size,
-            orient
-          );
-          genesis.hideCircles();
-          genesis.extend(GenesisLines);
-          genesis.drawAllLines("in");
-          genesis.hideAllLines();
-          genesis.showLinesByLength("vesica");
+          genesis.markPoints();
           break;
         case 2:
-          // lines (radius)
+          // lines
           genesis = new GenesisPanel(
             stage,
             radius,
@@ -132,8 +63,44 @@ function makeLines2(args) {
           genesis.hideCircles();
           genesis.extend(GenesisLines);
           genesis.drawAllLines("in");
-          genesis.hideAllLines();
-          genesis.showLinesByLength("radius");
+          break;
+        case 3:
+          // seeds
+          genesis = new GenesisPanel(
+            stage,
+            radius,
+            rect.point,
+            rect.size,
+            orient
+          );
+          genesis.hideCircles();
+          genesis.extend(GenesisFacets);
+          genesis.makeFacets();
+          genesis.drawSeeds("vesica", "around", "selves");
+          genesis.drawSeeds("vesica", "within", "selves");
+          genesis.drawSeeds("treble", "around", "selves");
+          genesis.drawSeeds("treble", "within", "selves");
+          genesis.drawSeeds("petal", "around", "selves");
+          genesis.drawSeeds("petal", "within", "selves");
+          break;
+        case 4:
+          // centroid
+          genesis = new GenesisPanel(
+            stage,
+            radius,
+            rect.point,
+            rect.size,
+            orient
+          );
+          genesis.hideCircles();
+          genesis.extend(GenesisLines);
+          genesis.extend(GenesisCentroid);
+          // genesis.markCentroid();
+          genesis.drawAllLines("in");
+          genesis.findCentroidLines();
+          genesis.hideLinesNotCentroid();
+          genesis.findOtherCentroidRadii();
+          genesis.drawOtherCentroidCircles();
           break;
         default:
           break;
@@ -145,7 +112,6 @@ function makeLines2(args) {
           genesis.stage,
           genesis.orient
         );
-        // genesis.group.rotate(-90, genesis.center);
         if (double === "origin") genesis.doubleOrigin();
         if (double === "centroid") genesis.doubleCentroid();
       }

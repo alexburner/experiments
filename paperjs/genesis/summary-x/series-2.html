@@ -31,16 +31,18 @@
     <script type="text/javascript" src="js/RectGrid.js"></script>
     <script type="text/javascript" src="js/make/back.js"></script>
     <script type="text/javascript" src="js/make/sum.js"></script>
+    <script type="text/javascript" src="js/make/sum-2.js"></script>
     <script type="text/javascript" src="js/make/trail.js"></script>
     <script type="text/javascript" src="js/make/circles-dots-lines.js"></script>
     <script type="text/javascript" src="js/make/lines.js"></script>
     <script type="text/javascript" src="js/make/lines-2.js"></script>
     <script type="text/javascript" src="js/make/facets-seeds.js"></script>
+    <script type="text/javascript" src="js/make/facets-seeds-2.js"></script>
     <script type="text/javascript" src="js/make/centroid-lines.js"></script>
     <script type="text/javascript" src="js/make/centroid-circles.js"></script>
     <script type="text/javascript" src="js/make/centroid-2.js"></script>
     <script type="text/javascript">
-      var panelCount = 3;
+      var panelCount = 5;
 
       var panelWidth = 1100 / 2;
       var panelHeight = 800 + 1 - 48;
@@ -69,20 +71,32 @@
           radius: radius,
           paddingV: paddingV,
           paddingH: paddingH,
-          orient: "new"
+          orient: "new-2"
         };
       }
 
       var x = 0;
       var width = 0
+
       width = panelWidth
-      makeSum(makeArgs(x, width));
+      makeSum2(makeArgs(x, width));
       x += width
+
+      width = panelWidth
+      makeCirclesDotsLines(makeArgs(x, width));
+      x += width
+
+      width = panelWidth
+      makeCentroid2(makeArgs(x, width));
+      x += width
+
       width = panelWidth // * 1.11
       makeLines2(makeArgs(x, width));
       x += width
+
       width = panelWidth
-      makeCentroid2(makeArgs(x, width));
+      makeFacetsSeeds2(makeArgs(x, width));
+      x += width
 
       /**
        * Execute
