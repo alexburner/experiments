@@ -19,8 +19,8 @@ function makeSum(args) {
     new paper.Size(w, h),
     paddingV,
     paddingH,
-    7,
-    5
+    args.rows || 7,
+    args.cols || 5
   );
 
   for (var i = 0; i < grid.matrix.length; i++) {
@@ -64,7 +64,7 @@ function makeSum(args) {
           genesis.extend(GenesisLines);
           genesis.drawAllLines("in");
           break;
-        case 3:
+        case 4:
           // seeds
           genesis = new GenesisPanel(
             stage,
@@ -83,7 +83,7 @@ function makeSum(args) {
           genesis.drawSeeds("petal", "around", "selves");
           genesis.drawSeeds("petal", "within", "selves");
           break;
-        case 4:
+        case 3:
           // centroid
           genesis = new GenesisPanel(
             stage,

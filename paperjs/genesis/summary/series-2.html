@@ -65,16 +65,16 @@
           height: panelHeight,
           radius: radius,
           paddingV: paddingV,
-          paddingH: paddingH
+          paddingH: paddingH,
         };
       }
 
       var i = 0;
-      makeTrail(makeArgs(i++));
-      makeSum(makeArgs(i++));
+      makeTrail({...makeArgs(i++), orient: "pencil"});
+      makeSum({ ...makeArgs(i++), cols: 4 });
       makeCirclesDotsLines(makeArgs(i++));
       makeLines(makeArgs(i++));
-      makeFacetsSeeds(makeArgs(i++));
+      // makeFacetsSeeds(makeArgs(i++));
       makeCentroidLines(makeArgs(i++));
       makeCentroidCircles(makeArgs(i++));
 
