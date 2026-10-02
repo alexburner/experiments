@@ -15,6 +15,8 @@
             height: 100%;
             background: #4783EB;
             cursor: pointer;
+            touch-action: none;
+            overscroll-behavior: none;
         }
 
         .particle {
@@ -214,18 +216,37 @@
         var delta = null;
         var attractorView = null;
         var bodyCtx = makeContext();
+        var touchGesture = false;
+        var touchIdentifiers = [];
+        var pinchStartDistance = 0;
 
-        function startEvent(e) {
-            e.preventDefault();
+        function beginEvent(x, y, shift) {
             isActive = true;
-            isShift = e.shiftKey;
-            downX = e.pageX;
-            downY = e.pageY;
+            isShift = shift;
+            downX = x;
+            downY = y;
             location = new Vector([downX, downY]);
             moveX = downX;
             moveY = downY;
             delta = new Vector([0, 0]);
             initView();
+        }
+
+        function moveTo(x, y, shift) {
+            isShift = shift;
+            isDrag = true;
+            moveX = x;
+            moveY = y;
+            delta = new Vector([
+                moveX - downX,
+                moveY - downY,
+            ]);
+            updateView();
+        }
+
+        function startEvent(e) {
+            e.preventDefault();
+            beginEvent(e.pageX, e.pageY, e.shiftKey);
             document.body.addEventListener('mousemove', moveEvent);
             document.body.addEventListener('mouseleave', endEvent);
             document.body.addEventListener('mouseup', endEvent);
@@ -233,15 +254,7 @@
 
         function moveEvent(e) {
             e.preventDefault();
-            isShift = e.shiftKey;
-            isDrag = true;
-            moveX = e.pageX;
-            moveY = e.pageY;
-            delta = new Vector([
-                moveX - downX,
-                moveY - downY,
-            ]);
-            updateView();
+            moveTo(e.pageX, e.pageY, e.shiftKey);
         }
 
         function endEvent(e) {
@@ -271,6 +284,93 @@
 
         function unsetBody() {
             bodyCtx.clearRect(0, 0, width, height);
+        }
+
+        function findTouch(touches, identifier) {
+            for (var i = 0; i < touches.length; i++) {
+                if (touches[i].identifier === identifier) return touches[i];
+            }
+            return null;
+        }
+
+        function touchStartEvent(e) {
+            e.preventDefault();
+            if (e.touches.length >= 2) {
+                var touchA = e.touches[0];
+                var touchB = e.touches[1];
+                var centerX = (touchA.pageX + touchB.pageX) / 2;
+                var centerY = (touchA.pageY + touchB.pageY) / 2;
+                var distanceX = touchB.pageX - touchA.pageX;
+                var distanceY = touchB.pageY - touchA.pageY;
+
+                if (touchGesture) {
+                    unsetEvent();
+                    unsetAttractor();
+                    unsetBody();
+                }
+                touchGesture = true;
+                touchIdentifiers = [touchA.identifier, touchB.identifier];
+                pinchStartDistance = Math.sqrt(
+                    distanceX * distanceX + distanceY * distanceY
+                );
+                beginEvent(centerX, centerY, true);
+                return;
+            }
+
+            if (!touchGesture && e.touches.length === 1) {
+                var touch = e.touches[0];
+                touchGesture = true;
+                touchIdentifiers = [touch.identifier];
+                beginEvent(touch.pageX, touch.pageY, false);
+            }
+        }
+
+        function touchMoveEvent(e) {
+            e.preventDefault();
+            if (!touchGesture) return;
+
+            if (touchIdentifiers.length === 2) {
+                var touchA = findTouch(e.touches, touchIdentifiers[0]);
+                var touchB = findTouch(e.touches, touchIdentifiers[1]);
+                if (!touchA || !touchB) return;
+
+                var centerX = (touchA.pageX + touchB.pageX) / 2;
+                var centerY = (touchA.pageY + touchB.pageY) / 2;
+                var distanceX = touchB.pageX - touchA.pageX;
+                var distanceY = touchB.pageY - touchA.pageY;
+                var distance = Math.sqrt(
+                    distanceX * distanceX + distanceY * distanceY
+                );
+                location = new Vector([centerX, centerY]);
+                delta = new Vector([distance - pinchStartDistance, 0]);
+                isShift = true;
+                isDrag = true;
+                updateView();
+                if (attractorView) attractorView.setPosition(centerX, centerY);
+                return;
+            }
+
+            var touch = findTouch(e.touches, touchIdentifiers[0]);
+            if (touch) moveTo(touch.pageX, touch.pageY, false);
+        }
+
+        function touchEndEvent(e) {
+            e.preventDefault();
+            if (!touchGesture || e.touches.length > 0) return;
+            closeView();
+            unsetEvent();
+            touchGesture = false;
+            touchIdentifiers = [];
+        }
+
+        function touchCancelEvent(e) {
+            e.preventDefault();
+            if (!touchGesture) return;
+            unsetEvent();
+            unsetAttractor();
+            unsetBody();
+            touchGesture = false;
+            touchIdentifiers = [];
         }
 
         function initView() {
@@ -341,6 +441,10 @@
         }
 
         document.body.addEventListener('mousedown', startEvent);
+        document.body.addEventListener('touchstart', touchStartEvent, {passive: false});
+        document.body.addEventListener('touchmove', touchMoveEvent, {passive: false});
+        document.body.addEventListener('touchend', touchEndEvent, {passive: false});
+        document.body.addEventListener('touchcancel', touchCancelEvent, {passive: false});
 
         window.addEventListener('keydown', function (e) {
             switch (e.which) {
@@ -352,6 +456,8 @@
                     unsetEvent();
                     unsetAttractor();
                     unsetBody();
+                    touchGesture = false;
+                    touchIdentifiers = [];
                     break;
             }
         });
